@@ -1,6 +1,9 @@
 package lexer
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
 
 type Lexer struct {
 	col          int
@@ -44,12 +47,12 @@ var LanguageSyntax = map[string]string{
 	"+": "PLUS",
 	"-": "MINUS",
 	"*": "MUL",
-	"/": "MUL",
+	"/": "DIV",
 }
 
 func (lexer *Lexer) Tokens() *[]Token {
 	lexer.advance()
-	for lexer.idx < lexer.len-1 {
+	for lexer.current_char != nil {
 		if *lexer.current_char == " " {
 			lexer.advance()
 			continue
@@ -65,8 +68,8 @@ func (lexer *Lexer) Tokens() *[]Token {
 			break
 		}
 		*lexer.tokens = append(*lexer.tokens, Token{
-			type_: type_,
-			value: nil,
+			Type_: type_,
+			Value: nil,
 		})
 		lexer.advance()
 	}
@@ -89,7 +92,7 @@ func (lexer *Lexer) advance() bool {
 }
 
 func (lexer *Lexer) makeNumber() bool {
-	number, ok := numbers[*lexer.current_char]
+	numberString, ok := numbers[*lexer.current_char]
 	if !ok {
 		return false
 	}
@@ -103,13 +106,19 @@ func (lexer *Lexer) makeNumber() bool {
 			}
 			break
 		}
-		number += numberNext
+		numberString += numberNext
+	}
+
+	number, err := strconv.Atoi(numberString)
+
+	if err != err {
+		panic(fmt.Sprintf("Internal error analize the number %s", numberString))
 	}
 
 	*lexer.tokens = append(*lexer.tokens, Token{
-		type_: "number",
-		value: &number,
+		Type_: "number",
+		Value: number,
 	})
-
+	lexer.advance()
 	return true
 }

@@ -1,13 +1,19 @@
 package main
 
 import (
+	"makeLanguages/src/interprete"
 	"makeLanguages/src/lexer"
+	"makeLanguages/src/parser"
 )
 
 func main() {
+	input := "1 + 1 + 5"
+	lexer_ := lexer.NewLexer(&input)
+	tokens := lexer_.Tokens()
 
-	input := "() 123 + 321321 * 131231"
-	lexer := lexer.NewLexer(&input)
-	lexer.Tokens()
+	parser_ := parser.NewParser(tokens)
+	ast := parser_.Parse()
 
+	interprete_ := interprete.NewInterprete(ast)
+	interprete_.Run()
 }
