@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	input := "100 == 2"
+	input := "-+5"
 	lexer_ := lexer.NewLexer(&input)
 	tokens := lexer_.Tokens()
 

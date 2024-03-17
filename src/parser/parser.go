@@ -3,6 +3,7 @@ package parser
 import (
 	"makeLanguages/src/features/numbers"
 	"makeLanguages/src/lexer"
+	"reflect"
 	"slices"
 )
 
@@ -16,6 +17,11 @@ type Parser struct {
 type BinOP struct {
 	LeftNode  interface{}
 	Operation lexer.Token
+	RigthNode interface{}
+}
+
+type UnaryOP struct {
+	Operation string
 	RigthNode interface{}
 }
 
@@ -34,6 +40,13 @@ func (parser *Parser) advance() {
 	}
 	*parser.currentToken = (*parser.tokens)[parser.idx]
 	parser.idx++
+}
+
+func (parser *Parser) getToken(idx int) (*lexer.Token, bool) {
+	if parser.idx >= parser.len {
+		return nil, false
+	}
+	return &(*parser.tokens)[idx], true
 }
 
 func (parser *Parser) Parse() interface{} {
@@ -64,7 +77,26 @@ func (parser *Parser) pow() interface{} {
 
 func (parser *Parser) term() interface{} {
 	parser.advance()
-	if parser.currentToken.Type_ == "number" {
+
+	nodeType := parser.currentToken.Type_
+
+	if nodeType == "PLUS" || nodeType == "MINUS" {
+		token, ok := parser.getToken(parser.idx + 1)
+
+		rigthNode := parser.term()
+
+		if ok && reflect.TypeOf(rigthNode).Name() == "UnaryOP" && token.Type_ != "LPAREN" {
+			panic("Error is necesery a ( between - and + simbols")
+		}
+
+		unaryOP := UnaryOP{
+			Operation: nodeType,
+			RigthNode: rigthNode,
+		}
+		return unaryOP
+	}
+
+	if nodeType == "number" {
 		value := parser.currentToken.Value.(float64)
 		number := numbers.NewNumbers(value)
 		parser.advance()

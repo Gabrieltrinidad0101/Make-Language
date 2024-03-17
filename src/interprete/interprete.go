@@ -56,6 +56,16 @@ func (interprete *Interprete) BinOP(node interface{}) interface{} {
 	return newNode
 }
 
+func (interprete *Interprete) UnaryOP(node interface{}) *numbers.Number {
+	unaryOP := node.(parser.UnaryOP)
+	number := interprete.call(unaryOP.RigthNode).(*numbers.Number)
+
+	if unaryOP.Operation == "MINUS" {
+		number.Value *= -1
+	}
+	return number
+}
+
 func (interprete *Interprete) Number(node interface{}) *numbers.Number {
 	return node.(*numbers.Number)
 }
