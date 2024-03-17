@@ -46,16 +46,28 @@ func (parser *Parser) expr() interface{} {
 }
 
 func (parser *Parser) factor() interface{} {
-	return parser.binOP(parser.term, "MUL", "DIV")
+	return parser.binOP(parser.pow, "MUL", "DIV")
+}
+
+func (parser *Parser) pow() interface{} {
+	return parser.binOP(parser.term, "POW", "SQUARE_ROOT")
 }
 
 func (parser *Parser) term() interface{} {
 	parser.advance()
 	if parser.currentToken.Type_ == "number" {
-		value := parser.currentToken.Value.(int)
+		value := parser.currentToken.Value.(float64)
 		number := numbers.NewNumbers(value)
 		parser.advance()
 		return number
+	}
+	if parser.currentToken.Type_ == "LPAREN" {
+		node := parser.expr()
+		if !(parser.currentToken.Type_ == "RPAREN") {
+			panic("error )")
+		}
+		parser.advance()
+		return node
 	}
 	panic("Error")
 }

@@ -43,11 +43,29 @@ var numbers = map[string]string{
 	"0": "0",
 }
 
+var compares = map[string]string{
+	"=": "IG",
+	">": "GT",
+	"<": "LT",
+	"!": "NIG",
+}
+
+var comparesContinues = map[string][]string{
+	"IG":  {"="},
+	"GT":  {"="},
+	"LT":  {"="},
+	"NIG": {"="},
+}
+
 var LanguageSyntax = map[string]string{
 	"+": "PLUS",
 	"-": "MINUS",
 	"*": "MUL",
 	"/": "DIV",
+	"(": "LPAREN",
+	")": "RPAREN",
+	"^": "POW",
+	"~": "SQUARE_ROOT",
 }
 
 func (lexer *Lexer) Tokens() *[]Token {
@@ -109,7 +127,7 @@ func (lexer *Lexer) makeNumber() bool {
 		numberString += numberNext
 	}
 
-	number, err := strconv.Atoi(numberString)
+	number, err := strconv.ParseFloat(numberString, 64)
 
 	if err != err {
 		panic(fmt.Sprintf("Internal error analize the number %s", numberString))
@@ -119,6 +137,32 @@ func (lexer *Lexer) makeNumber() bool {
 		Type_: "number",
 		Value: number,
 	})
+	return true
+}
+
+func (lexer *Lexer) makeCompares() bool {
+	compare, ok := compares[*lexer.current_char]
+	if !ok {
+		return false
+	}
 	lexer.advance()
+	continues := comparesContinues[compare]
+	if continues[0] != *lexer.current_char {
+		return true
+	}
+	for _, character := range continues {
+		if *lexer.current_char != character {
+			panic("Error compare")
+		}
+		lexer.advance()
+	}
+
+	*lexer.tokens = append(*lexer.tokens,
+		Token{
+			Type_: compare + "E",
+			Value: nil,
+		},
+	)
+
 	return true
 }
