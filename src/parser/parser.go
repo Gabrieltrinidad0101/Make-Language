@@ -41,6 +41,15 @@ func (parser *Parser) Parse() interface{} {
 }
 
 func (parser *Parser) expr() interface{} {
+	ast := parser.compare()
+	return ast
+}
+
+func (parser *Parser) compare() interface{} {
+	return parser.binOP(parser.plus, "GT", "GTE", "LT", "LTE", "EQE")
+}
+
+func (parser *Parser) plus() interface{} {
 	ast := parser.binOP(parser.factor, "PLUS", "MINUS")
 	return ast
 }

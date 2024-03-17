@@ -1,6 +1,8 @@
 package numbers
 
-import "math"
+import (
+	"math"
+)
 
 type Number struct {
 	Value float64
@@ -40,4 +42,29 @@ func (number *Number) POW(number_ *Number) *Number {
 func (number *Number) SQUARE_ROOT(number_ *Number) *Number {
 	value := math.Pow(number.Value, 1.0/number_.Value)
 	return NewNumbers(value)
+}
+
+func (number *Number) GT(number_ *Number) bool {
+	value := number.Value > number_.Value
+	return value
+}
+
+func (number *Number) GTE(number_ *Number) bool {
+	value := number.Value >= number_.Value
+	return value
+}
+
+func (number *Number) LT(number_ *Number) bool {
+	value := number.Value < number_.Value
+	return value
+}
+
+func (number *Number) LTE(number_ *Number) bool {
+	value := number.Value <= number_.Value
+	return value
+}
+
+func (number *Number) EQE(number_ *Number) bool {
+	value := number.Value == number_.Value
+	return value
 }

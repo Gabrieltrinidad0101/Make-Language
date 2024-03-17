@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	input := "10 ^ 2 == 2 "
+	input := "100 == 2"
 	lexer_ := lexer.NewLexer(&input)
 	tokens := lexer_.Tokens()
 

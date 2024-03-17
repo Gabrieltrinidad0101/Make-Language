@@ -44,17 +44,17 @@ var numbers = map[string]string{
 }
 
 var compares = map[string]string{
-	"=": "IG",
+	"=": "EQ",
 	">": "GT",
 	"<": "LT",
-	"!": "NIG",
+	"!": "NEQ",
 }
 
 var comparesContinues = map[string][]string{
-	"IG":  {"="},
+	"EQ":  {"="},
 	"GT":  {"="},
 	"LT":  {"="},
-	"NIG": {"="},
+	"NEQ": {"="},
 }
 
 var LanguageSyntax = map[string]string{
@@ -80,6 +80,12 @@ func (lexer *Lexer) Tokens() *[]Token {
 		if isNumber {
 			continue
 		}
+
+		isCompare := lexer.makeCompares()
+		if isCompare {
+			continue
+		}
+
 		type_, ok := LanguageSyntax[*lexer.current_char]
 		if !ok {
 			fmt.Print("Error")
@@ -148,6 +154,12 @@ func (lexer *Lexer) makeCompares() bool {
 	lexer.advance()
 	continues := comparesContinues[compare]
 	if continues[0] != *lexer.current_char {
+		*lexer.tokens = append(*lexer.tokens,
+			Token{
+				Type_: compare,
+				Value: nil,
+			},
+		)
 		return true
 	}
 	for _, character := range continues {
