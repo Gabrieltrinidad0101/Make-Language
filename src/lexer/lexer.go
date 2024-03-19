@@ -33,6 +33,11 @@ type Token struct {
 	PositionStart int
 }
 
+type Simbols struct {
+	Text      string
+	TokenName string
+}
+
 var numbers = map[string]string{
 	"1": "1",
 	"2": "2",
@@ -60,15 +65,72 @@ var comparesContinues = map[string][]string{
 	"NEQ": {"="},
 }
 
-var LanguageSyntax = map[string]string{
-	"+": "PLUS",
-	"-": "MINUS",
-	"*": "MUL",
-	"/": "DIV",
-	"(": "LPAREN",
-	")": "RPAREN",
-	"^": "POW",
-	"~": "SQUARE_ROOT",
+var LanguageSyntax = map[string][]Simbols{
+	"+": {
+		{
+			Text:      "+",
+			TokenName: "PLUS",
+		},
+	},
+	"-": {
+		{
+			Text:      "-",
+			TokenName: "MINUS",
+		},
+	},
+	"*": {
+		{
+			Text:      "*",
+			TokenName: "MUL",
+		},
+	},
+	"/": {
+		{
+			Text:      "/",
+			TokenName: "DIV",
+		},
+	},
+	"(": {
+		{
+			Text:      "(",
+			TokenName: "LPAREN",
+		},
+	},
+	")": {
+		{
+			Text:      ")",
+			TokenName: "RPAREN",
+		},
+	},
+	"^": {
+		{
+			Text:      "^",
+			TokenName: "POW",
+		},
+	},
+	"~": {
+		{
+			Text:      "~",
+			TokenName: "SQUARE_ROOT",
+		}},
+	"if": {
+		{
+			Text:      "if",
+			TokenName: "IF",
+		},
+	},
+	"{": {
+		{
+			Text:      "{",
+			TokenName: "START",
+		},
+	},
+	"}": {
+		{
+			Text:      "}",
+			TokenName: "END",
+		},
+	},
 }
 
 func (lexer *Lexer) Tokens() (*[]Token, bool) {
@@ -89,19 +151,62 @@ func (lexer *Lexer) Tokens() (*[]Token, bool) {
 			continue
 		}
 
-		type_, ok := LanguageSyntax[*lexer.current_char]
+		token, ok := lexer.getToken()
+
 		if !ok {
 			customErrors := CustomErrors.New()
 			customErrors.IllegalCharacter(*lexer.text, *lexer.current_char, lexer.idx, lexer.idx)
-			return nil, false
+			return nil, true
 		}
-		*lexer.tokens = append(*lexer.tokens, Token{
-			Type_: type_,
-			Value: nil,
-		})
+
+		*lexer.tokens = append(*lexer.tokens, *token)
 		lexer.advance()
 	}
 	return lexer.tokens, false
+}
+
+func (lexer *Lexer) getToken() (*Token, bool) {
+	simbols, ok := LanguageSyntax[*lexer.current_char]
+
+	if !ok {
+		return nil, false
+	}
+
+	if len(simbols) == 1 && len(simbols[0].Text) == 1 {
+		return &Token{
+			Type_: simbols[0].TokenName,
+			Value: nil,
+		}, true
+	}
+
+	var simbolText string = ""
+	for i := 0; simbolText != " " || simbolText != "\r" || simbolText != "\n" || simbolText != "\t"; i++ {
+		simbolText += string((*lexer.text)[lexer.idx+i])
+	}
+
+	var type_ *string = nil
+	for _, simbol := range simbols {
+		if simbolText != simbol.Text {
+			continue
+		}
+
+		length := len(simbol.Text)
+		for i := 0; i < length; i++ {
+			lexer.advance()
+		}
+
+		*type_ = simbol.TokenName
+		break
+	}
+
+	if type_ == nil {
+		return nil, true
+	}
+
+	return &Token{
+		Type_: *type_,
+		Value: nil,
+	}, false
 }
 
 func (lexer *Lexer) advance() bool {
