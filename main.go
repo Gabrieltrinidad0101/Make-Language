@@ -7,9 +7,13 @@ import (
 )
 
 func main() {
-	input := "-+5"
+	input := "@"
 	lexer_ := lexer.NewLexer(&input)
-	tokens := lexer_.Tokens()
+	tokens, ok := lexer_.Tokens()
+
+	if ok {
+		return
+	}
 
 	parser_ := parser.NewParser(tokens)
 	ast := parser_.Parse()

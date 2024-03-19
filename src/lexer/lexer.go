@@ -2,6 +2,7 @@ package lexer
 
 import (
 	"fmt"
+	CustomErrors "makeLanguages/src/customErrors"
 	"strconv"
 )
 
@@ -26,8 +27,10 @@ func NewLexer(text *string) *Lexer {
 }
 
 type Token struct {
-	Type_ string
-	Value interface{}
+	Type_         string
+	Value         interface{}
+	PositionEnd   int
+	PositionStart int
 }
 
 var numbers = map[string]string{
@@ -68,7 +71,7 @@ var LanguageSyntax = map[string]string{
 	"~": "SQUARE_ROOT",
 }
 
-func (lexer *Lexer) Tokens() *[]Token {
+func (lexer *Lexer) Tokens() (*[]Token, bool) {
 	lexer.advance()
 	for lexer.current_char != nil {
 		if *lexer.current_char == " " {
@@ -88,8 +91,9 @@ func (lexer *Lexer) Tokens() *[]Token {
 
 		type_, ok := LanguageSyntax[*lexer.current_char]
 		if !ok {
-			fmt.Print("Error")
-			break
+			customErrors := CustomErrors.New()
+			customErrors.IllegalCharacter(*lexer.text, *lexer.current_char, lexer.idx, lexer.idx)
+			return nil, false
 		}
 		*lexer.tokens = append(*lexer.tokens, Token{
 			Type_: type_,
@@ -97,7 +101,7 @@ func (lexer *Lexer) Tokens() *[]Token {
 		})
 		lexer.advance()
 	}
-	return lexer.tokens
+	return lexer.tokens, false
 }
 
 func (lexer *Lexer) advance() bool {
@@ -121,6 +125,7 @@ func (lexer *Lexer) makeNumber() bool {
 		return false
 	}
 	dotNumber := 0
+	positionStart := lexer.idx
 	for lexer.current_char != nil && lexer.advance() {
 		numberNext, ok := numbers[*lexer.current_char]
 		if !ok {
@@ -140,8 +145,10 @@ func (lexer *Lexer) makeNumber() bool {
 	}
 
 	*lexer.tokens = append(*lexer.tokens, Token{
-		Type_: "number",
-		Value: number,
+		Type_:         "number",
+		Value:         number,
+		PositionStart: positionStart,
+		PositionEnd:   lexer.idx,
 	})
 	return true
 }
