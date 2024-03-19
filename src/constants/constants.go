@@ -1,0 +1,18 @@
+package constants
+
+var TT_PLUS string = "PLUS"
+var TT_MINUS string = "MINUS"
+var TT_MUL string = "MUL"
+var TT_DIV string = "DIV"
+var TT_LPAREN string = "LPAREN"
+var TT_RPAREN string = "RPAREN"
+var TT_POW string = "POW"
+var TT_SQUARE_ROOT string = "SQUARE_ROOT"
+var TT_EQ string = "EQ"
+var TT_GT string = "GT"
+var TT_LT string = "LT"
+var TT_NEQ string = "NEQ"
+var TT_EQE string = "EQE"
+var TT_GTE string = "GTE"
+var TT_LTE string = "LTE"
+var TT_NEQE string = "NEQE"

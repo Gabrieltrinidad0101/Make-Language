@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"makeLanguages/src/constants"
 	"makeLanguages/src/features/numbers"
 	"makeLanguages/src/lexer"
 	"reflect"
@@ -59,20 +60,20 @@ func (parser *Parser) expr() interface{} {
 }
 
 func (parser *Parser) compare() interface{} {
-	return parser.binOP(parser.plus, "GT", "GTE", "LT", "LTE", "EQE")
+	return parser.binOP(parser.plus, constants.TT_GT, constants.TT_GTE, constants.TT_GT, constants.TT_LT, constants.TT_LTE, constants.TT_EQE)
 }
 
 func (parser *Parser) plus() interface{} {
-	ast := parser.binOP(parser.factor, "PLUS", "MINUS")
+	ast := parser.binOP(parser.factor, constants.TT_PLUS, constants.TT_MINUS)
 	return ast
 }
 
 func (parser *Parser) factor() interface{} {
-	return parser.binOP(parser.pow, "MUL", "DIV")
+	return parser.binOP(parser.pow, constants.TT_MUL, constants.TT_DIV)
 }
 
 func (parser *Parser) pow() interface{} {
-	return parser.binOP(parser.term, "POW", "SQUARE_ROOT")
+	return parser.binOP(parser.term, constants.TT_POW, constants.TT_SQUARE_ROOT)
 }
 
 func (parser *Parser) term() interface{} {
@@ -80,12 +81,12 @@ func (parser *Parser) term() interface{} {
 
 	nodeType := parser.currentToken.Type_
 
-	if nodeType == "PLUS" || nodeType == "MINUS" {
+	if nodeType == constants.TT_PLUS || nodeType == constants.TT_MINUS {
 		token, ok := parser.getToken(parser.idx + 1)
 
 		rigthNode := parser.term()
 
-		if ok && reflect.TypeOf(rigthNode).Name() == "UnaryOP" && token.Type_ != "LPAREN" {
+		if ok && reflect.TypeOf(rigthNode).Name() == "UnaryOP" && token.Type_ != constants.TT_LPAREN {
 			panic("Error is necesery a ( between - and + simbols")
 		}
 
@@ -102,9 +103,9 @@ func (parser *Parser) term() interface{} {
 		parser.advance()
 		return number
 	}
-	if parser.currentToken.Type_ == "LPAREN" {
+	if parser.currentToken.Type_ == constants.TT_LPAREN {
 		node := parser.expr()
-		if !(parser.currentToken.Type_ == "RPAREN") {
+		if !(parser.currentToken.Type_ == constants.TT_RPAREN) {
 			panic("error )")
 		}
 		parser.advance()
