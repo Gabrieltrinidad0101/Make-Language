@@ -23,6 +23,7 @@ func NewLexer(text *string) *Lexer {
 		current_char: &currentChar,
 		len:          len(*text),
 		tokens:       &[]Token{},
+		idx:          -1,
 	}
 }
 
@@ -66,9 +67,9 @@ var comparesContinues = map[string][]string{
 }
 
 var LanguageSyntax = map[string][]Simbols{
-	"+": {
+	"s": {
 		{
-			Text:      "+",
+			Text:      "suma",
 			TokenName: "PLUS",
 		},
 	},
@@ -179,14 +180,19 @@ func (lexer *Lexer) getToken() (*Token, bool) {
 		}, true
 	}
 
+	var current_char string = ""
 	var simbolText string = ""
-	for i := 0; simbolText != " " || simbolText != "\r" || simbolText != "\n" || simbolText != "\t"; i++ {
+	for i := 0; i < lexer.len; i++ {
+		current_char = string((*lexer.text)[lexer.idx+i])
+		if current_char == " " || current_char == "\r" || current_char == "\n" || current_char == "\t" {
+			break
+		}
 		simbolText += string((*lexer.text)[lexer.idx+i])
 	}
 
 	var type_ *string = nil
 	for _, simbol := range simbols {
-		if simbolText != simbol.Text {
+		if simbol.Text != simbolText {
 			continue
 		}
 
@@ -195,7 +201,7 @@ func (lexer *Lexer) getToken() (*Token, bool) {
 			lexer.advance()
 		}
 
-		*type_ = simbol.TokenName
+		type_ = &simbol.TokenName
 		break
 	}
 
@@ -206,16 +212,17 @@ func (lexer *Lexer) getToken() (*Token, bool) {
 	return &Token{
 		Type_: *type_,
 		Value: nil,
-	}, false
+	}, true
 }
 
 func (lexer *Lexer) advance() bool {
+	lexer.idx++
 	if lexer.idx > lexer.len-1 {
 		lexer.current_char = nil
 		return false
 	}
+
 	*lexer.current_char = string((*lexer.text)[lexer.idx])
-	lexer.idx++
 	if *lexer.current_char == "\n" {
 		lexer.line++
 		lexer.col = 0

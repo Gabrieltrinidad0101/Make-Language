@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	input := "1 * 1"
+	input := "1 suma 1"
 	lexer_ := lexer.NewLexer(&input)
 	tokens, ok := lexer_.Tokens()
 
