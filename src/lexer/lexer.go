@@ -114,10 +114,20 @@ var LanguageSyntax = map[string][]Simbols{
 			Text:      "~",
 			TokenName: "SQUARE_ROOT",
 		}},
-	"if": {
+	"i": {
 		{
 			Text:      "if",
 			TokenName: "IF",
+		},
+	},
+	"e": {
+		{
+			Text:      "elif",
+			TokenName: "ELIF",
+		},
+		{
+			Text:      "else",
+			TokenName: "ELSE",
 		},
 	},
 	"{": {

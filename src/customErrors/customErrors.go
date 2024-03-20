@@ -30,3 +30,7 @@ func (customError *CustomError) show(text string, positionStart int, positionEnd
 func (customErrors *CustomError) IllegalCharacter(text, character string, positionStart, positionEnd int) {
 	customErrors.show(text, positionStart, positionEnd, fmt.Sprintf("Illegal Character: %s", character))
 }
+
+func (customErrors *CustomError) IfInvalidSyntax(text, character string, positionStart, positionEnd int) {
+	customErrors.show(text, positionStart, positionEnd, fmt.Sprintf("Invalid if: %s", character))
+}

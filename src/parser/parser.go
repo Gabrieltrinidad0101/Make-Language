@@ -26,21 +26,29 @@ type UnaryOP struct {
 	RigthNode interface{}
 }
 
+type IfNode struct {
+	Condition interface{}
+	Body      interface{}
+}
+
+type NullNode struct{}
+
 func NewParser(tokens *[]lexer.Token) *Parser {
 	return &Parser{
-		idx:          0,
+		idx:          -1,
 		tokens:       tokens,
 		currentToken: &lexer.Token{},
 		len:          len(*tokens),
 	}
 }
 
-func (parser *Parser) advance() {
+func (parser *Parser) advance() bool {
 	if parser.idx >= parser.len {
-		return
+		return false
 	}
-	*parser.currentToken = (*parser.tokens)[parser.idx]
 	parser.idx++
+	*parser.currentToken = (*parser.tokens)[parser.idx]
+	return true
 }
 
 func (parser *Parser) getToken(idx int) (*lexer.Token, bool) {
@@ -48,6 +56,39 @@ func (parser *Parser) getToken(idx int) (*lexer.Token, bool) {
 		return nil, false
 	}
 	return &(*parser.tokens)[idx], true
+}
+
+func (parser *Parser) verifyNextToken(tokenType string) bool {
+	ok := parser.advance()
+
+	if !ok {
+		panic("Expect " + tokenType)
+	}
+
+	if constants.TT_IF_START_CONDITION == constants.TT_NOTHING {
+		return true
+	}
+
+	if parser.currentToken.Type_ != tokenType {
+		panic("Expect " + tokenType)
+	}
+
+	return true
+}
+
+func (parser *Parser) binOP(callBack func() interface{}, ops ...string) interface{} {
+	leftNode := callBack()
+	for slices.Contains[[]string](ops, parser.currentToken.Type_) {
+		operation := *parser.currentToken
+		rigthNode := callBack()
+		leftNode = BinOP{
+			LeftNode:  leftNode,
+			Operation: operation,
+			RigthNode: rigthNode,
+		}
+	}
+
+	return leftNode
 }
 
 func (parser *Parser) Parse() interface{} {
@@ -103,6 +144,7 @@ func (parser *Parser) term() interface{} {
 		parser.advance()
 		return number
 	}
+
 	if parser.currentToken.Type_ == constants.TT_LPAREN {
 		node := parser.expr()
 		if !(parser.currentToken.Type_ == constants.TT_RPAREN) {
@@ -111,20 +153,35 @@ func (parser *Parser) term() interface{} {
 		parser.advance()
 		return node
 	}
+
+	if ifNode, ok := parser.if_(); ok {
+		return ifNode
+	}
+
 	panic("Error")
 }
 
-func (parser *Parser) binOP(callBack func() interface{}, ops ...string) interface{} {
-	leftNode := callBack()
-	for slices.Contains[[]string](ops, parser.currentToken.Type_) {
-		operation := *parser.currentToken
-		rigthNode := callBack()
-		leftNode = BinOP{
-			LeftNode:  leftNode,
-			Operation: operation,
-			RigthNode: rigthNode,
-		}
+func (parser *Parser) if_() (interface{}, bool) {
+	if parser.currentToken.Type_ != constants.TT_IF {
+		return nil, false
 	}
 
-	return leftNode
+	ok := parser.verifyNextToken(constants.TT_IF_START_CONDITION)
+	if !ok {
+		return nil, false
+	}
+
+	condition := parser.expr()
+
+	ok = parser.verifyNextToken(constants.TT_IF_END_CONDITION)
+	if !ok {
+		return nil, false
+	}
+
+	body := parser.expr()
+
+	return IfNode{
+		Condition: condition,
+		Body:      body,
+	}, true
 }
