@@ -27,6 +27,11 @@ type UnaryOP struct {
 }
 
 type IfNode struct {
+	Ifs   []*IfBaseNode
+	Else_ interface{}
+}
+
+type IfBaseNode struct {
 	Condition interface{}
 	Body      interface{}
 }
@@ -162,13 +167,55 @@ func (parser *Parser) term() interface{} {
 }
 
 func (parser *Parser) if_() (interface{}, bool) {
+	ifs := []*IfBaseNode{}
+	var elseNode interface{}
 	if parser.currentToken.Type_ != constants.TT_IF {
 		return nil, false
 	}
 
+	node, ok := parser.conditionBase()
+
+	if !ok {
+		return nil, false
+	}
+
+	ifs = append(ifs, node)
+
+	for (*parser.currentToken).Type_ == constants.TT_ELSE {
+		node, ok := parser.conditionBase()
+
+		if !ok {
+			return nil, false
+		}
+
+		ifs = append(ifs, node)
+	}
+
+	if parser.currentToken.Type_ == constants.TT_ELSE {
+		if (*parser.currentToken).Type_ != constants.TT_IF_START_BODY {
+			panic("Expect " + constants.TT_IF_START_BODY)
+		}
+
+		elseNode = parser.expr()
+
+		if (*parser.currentToken).Type_ != constants.TT_IF_START_BODY {
+			panic("Expect " + constants.TT_IF_START_BODY)
+		}
+	}
+
+	return IfNode{
+		Ifs:   ifs,
+		Else_: elseNode,
+	}, true
+}
+
+func (parser *Parser) conditionBase() (*IfBaseNode, bool) {
+
 	ok := parser.verifyNextToken(constants.TT_IF_START_CONDITION)
 	if !ok {
 		return nil, false
+	} else {
+		parser.advance()
 	}
 
 	condition := parser.expr()
@@ -176,11 +223,21 @@ func (parser *Parser) if_() (interface{}, bool) {
 	ok = parser.verifyNextToken(constants.TT_IF_END_CONDITION)
 	if !ok {
 		return nil, false
+	} else {
+		parser.advance()
+	}
+
+	if (*parser.currentToken).Type_ != constants.TT_IF_START_BODY {
+		panic("Expect " + constants.TT_IF_START_BODY)
 	}
 
 	body := parser.expr()
 
-	return IfNode{
+	if (*parser.currentToken).Type_ != constants.TT_IF_START_BODY {
+		panic("Expect " + constants.TT_IF_START_BODY)
+	}
+
+	return &IfBaseNode{
 		Condition: condition,
 		Body:      body,
 	}, true
