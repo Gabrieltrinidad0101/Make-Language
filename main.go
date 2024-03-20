@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	input := "IF{}{}"
+	input := "if ( 2 == 1) { 1 + 2 } else { 4 }"
 	lexer_ := lexer.NewLexer(&input)
 	tokens, ok := lexer_.Tokens()
 

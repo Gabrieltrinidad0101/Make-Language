@@ -67,9 +67,9 @@ var comparesContinues = map[string][]string{
 }
 
 var LanguageSyntax = map[string][]Simbols{
-	"s": {
+	"+": {
 		{
-			Text:      "suma",
+			Text:      "+",
 			TokenName: "PLUS",
 		},
 	},
@@ -94,13 +94,13 @@ var LanguageSyntax = map[string][]Simbols{
 	"(": {
 		{
 			Text:      "(",
-			TokenName: "LPAREN",
+			TokenName: "(",
 		},
 	},
 	")": {
 		{
 			Text:      ")",
-			TokenName: "RPAREN",
+			TokenName: ")",
 		},
 	},
 	"^": {
@@ -133,13 +133,13 @@ var LanguageSyntax = map[string][]Simbols{
 	"{": {
 		{
 			Text:      "{",
-			TokenName: "START",
+			TokenName: "{",
 		},
 	},
 	"}": {
 		{
 			Text:      "}",
-			TokenName: "END",
+			TokenName: "}",
 		},
 	},
 }

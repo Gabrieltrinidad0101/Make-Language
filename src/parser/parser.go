@@ -48,10 +48,10 @@ func NewParser(tokens *[]lexer.Token) *Parser {
 }
 
 func (parser *Parser) advance() bool {
+	parser.idx++
 	if parser.idx >= parser.len {
 		return false
 	}
-	parser.idx++
 	*parser.currentToken = (*parser.tokens)[parser.idx]
 	return true
 }
@@ -64,12 +64,6 @@ func (parser *Parser) getToken(idx int) (*lexer.Token, bool) {
 }
 
 func (parser *Parser) verifyNextToken(tokenType string) bool {
-	ok := parser.advance()
-
-	if !ok {
-		panic("Expect " + tokenType)
-	}
-
 	if constants.TT_IF_START_CONDITION == constants.TT_NOTHING {
 		return true
 	}
@@ -173,6 +167,8 @@ func (parser *Parser) if_() (interface{}, bool) {
 		return nil, false
 	}
 
+	parser.advance()
+
 	node, ok := parser.conditionBase()
 
 	if !ok {
@@ -190,6 +186,8 @@ func (parser *Parser) if_() (interface{}, bool) {
 
 		ifs = append(ifs, node)
 	}
+
+	parser.advance()
 
 	if parser.currentToken.Type_ == constants.TT_ELSE {
 		if (*parser.currentToken).Type_ != constants.TT_IF_START_BODY {
@@ -214,8 +212,6 @@ func (parser *Parser) conditionBase() (*IfBaseNode, bool) {
 	ok := parser.verifyNextToken(constants.TT_IF_START_CONDITION)
 	if !ok {
 		return nil, false
-	} else {
-		parser.advance()
 	}
 
 	condition := parser.expr()
@@ -223,9 +219,9 @@ func (parser *Parser) conditionBase() (*IfBaseNode, bool) {
 	ok = parser.verifyNextToken(constants.TT_IF_END_CONDITION)
 	if !ok {
 		return nil, false
-	} else {
-		parser.advance()
 	}
+
+	parser.advance()
 
 	if (*parser.currentToken).Type_ != constants.TT_IF_START_BODY {
 		panic("Expect " + constants.TT_IF_START_BODY)
@@ -233,7 +229,7 @@ func (parser *Parser) conditionBase() (*IfBaseNode, bool) {
 
 	body := parser.expr()
 
-	if (*parser.currentToken).Type_ != constants.TT_IF_START_BODY {
+	if (*parser.currentToken).Type_ != constants.TT_IF_END_BODY {
 		panic("Expect " + constants.TT_IF_START_BODY)
 	}
 

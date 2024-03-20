@@ -69,16 +69,23 @@ func (interprete *Interprete) UnaryOP(node interface{}) *numbers.Number {
 func (interprete *Interprete) IfNode(node interface{}) interface{} {
 	ifNode := node.(parser.IfNode)
 
-	conditionInterface := interprete.call(ifNode.Condition)
+	for _, if_ := range ifNode.Ifs {
+		conditionInterface := interprete.call(if_.Condition)
 
-	if reflect.TypeOf(conditionInterface).Name() != "bool" {
-		panic("Error if expression need to a condition")
+		if reflect.TypeOf(conditionInterface).Name() != "bool" {
+			panic("Error if expression need to a condition")
+		}
+
+		condition := conditionInterface.(bool)
+
+		if condition {
+			node := interprete.call(if_.Body)
+			return node
+		}
 	}
 
-	condition := conditionInterface.(bool)
-
-	if condition {
-		node := interprete.call(ifNode.Body)
+	if ifNode.Else_ != nil {
+		node := interprete.call(ifNode.Else_)
 		return node
 	}
 
