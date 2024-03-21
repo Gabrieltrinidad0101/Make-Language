@@ -190,13 +190,15 @@ func (parser *Parser) if_() (interface{}, bool) {
 	parser.advance()
 
 	if parser.currentToken.Type_ == constants.TT_ELSE {
+		parser.advance()
+
 		if (*parser.currentToken).Type_ != constants.TT_IF_START_BODY {
 			panic("Expect " + constants.TT_IF_START_BODY)
 		}
 
 		elseNode = parser.expr()
 
-		if (*parser.currentToken).Type_ != constants.TT_IF_START_BODY {
+		if (*parser.currentToken).Type_ != constants.TT_IF_END_BODY {
 			panic("Expect " + constants.TT_IF_START_BODY)
 		}
 	}
