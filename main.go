@@ -2,6 +2,7 @@ package main
 
 import (
 	"makeLanguages/src/interprete"
+	"makeLanguages/src/languageContext"
 	"makeLanguages/src/lexer"
 	"makeLanguages/src/parser"
 )
@@ -27,6 +28,8 @@ func main() {
 	parser_ := parser.NewParser(tokens)
 	ast := parser_.Parse()
 
-	interprete_ := interprete.NewInterprete(ast)
+	languageContext := languageContext.NewContext(nil)
+
+	interprete_ := interprete.NewInterprete(ast, &languageContext)
 	interprete_.Run()
 }

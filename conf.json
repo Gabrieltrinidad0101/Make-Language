@@ -12,15 +12,11 @@
         "0": "0"
     },
     "compares": {
-        "=": "EQ",
         ">": "GT",
         "<": "LT",
         "!": "NEQ"
     },
     "compares_continues": {
-        "EQ": [
-            "="
-        ],
         "GT": [
             "="
         ],
@@ -32,6 +28,16 @@
         ]
     },
     "language_syntax": {
+        "=": [
+            {
+                "text": "=",
+                "token_name": "="
+            },
+            {
+                "text": "==",
+                "token_name": "=="
+            }
+        ],
         "+": [
             {
                 "text": "+",

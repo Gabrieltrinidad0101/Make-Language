@@ -36,7 +36,7 @@ type IfBaseNode struct {
 	Body      interface{}
 }
 
-type VarNode struct {
+type VarAssignNode struct {
 	Identifier string
 	Node       interface{}
 }
@@ -69,10 +69,6 @@ func (parser *Parser) getToken(idx int) (*lexer.Token, bool) {
 }
 
 func (parser *Parser) verifyNextToken(tokenType string) bool {
-	if constants.TT_IF_START_CONDITION == constants.TT_NOTHING {
-		return true
-	}
-
 	if parser.currentToken.Type_ != tokenType {
 		panic("Expect " + tokenType)
 	}
@@ -84,6 +80,7 @@ func (parser *Parser) binOP(callBack func() interface{}, ops ...string) interfac
 	leftNode := callBack()
 	for slices.Contains[[]string](ops, parser.currentToken.Type_) {
 		operation := *parser.currentToken
+		parser.advance()
 		rigthNode := callBack()
 		leftNode = BinOP{
 			LeftNode:  leftNode,
@@ -100,6 +97,7 @@ func (parser *Parser) Parse() interface{} {
 }
 
 func (parser *Parser) expr() interface{} {
+	parser.advance()
 	ast := parser.variableAndConst()
 	return ast
 }
@@ -111,9 +109,10 @@ func (parser *Parser) variableAndConst() interface{} {
 		identifier := parser.currentToken.Value
 		parser.advance()
 		parser.verifyNextToken(constants.TT_VAR_EQ)
+		parser.advance()
 		node := parser.compare()
 
-		return VarNode{
+		return VarAssignNode{
 			Identifier: identifier.(string),
 			Node:       node,
 		}
@@ -141,8 +140,6 @@ func (parser *Parser) pow() interface{} {
 }
 
 func (parser *Parser) term() interface{} {
-	parser.advance()
-
 	nodeType := parser.currentToken.Type_
 
 	if nodeType == constants.TT_PLUS || nodeType == constants.TT_MINUS {

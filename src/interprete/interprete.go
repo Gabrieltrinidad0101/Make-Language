@@ -3,6 +3,7 @@ package interprete
 import (
 	"fmt"
 	"makeLanguages/src/features/numbers"
+	"makeLanguages/src/languageContext"
 	"makeLanguages/src/parser"
 	"reflect"
 )
@@ -10,11 +11,13 @@ import (
 type Interprete struct {
 	ast         interface{}
 	currentNode interface{}
+	context     *languageContext.Context
 }
 
-func NewInterprete(ast interface{}) *Interprete {
+func NewInterprete(ast interface{}, context *languageContext.Context) *Interprete {
 	return &Interprete{
-		ast: ast,
+		ast:     ast,
+		context: context,
 	}
 }
 
@@ -54,6 +57,13 @@ func (interprete *Interprete) BinOP(node interface{}) interface{} {
 	nodeRigth := interprete.call(binOP.RigthNode)
 	newNode := interprete.callMethod(nodeLeft, binOP.Operation.Type_, nodeRigth)
 	return newNode
+}
+
+func (interprete Interprete) VarAssignNode(node interface{}) interface{} {
+	varAssignNode := node.(parser.VarAssignNode)
+	result := interprete.call(varAssignNode.Node)
+	interprete.context.Set(varAssignNode.Identifier, result)
+	return parser.NullNode{}
 }
 
 func (interprete *Interprete) UnaryOP(node interface{}) *numbers.Number {

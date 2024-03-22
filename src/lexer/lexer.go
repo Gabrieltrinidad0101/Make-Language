@@ -3,9 +3,11 @@ package lexer
 import (
 	"encoding/json"
 	"fmt"
+	"makeLanguages/src/constants"
 	CustomErrors "makeLanguages/src/customErrors"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type LanguageConfiguraction struct {
@@ -14,6 +16,9 @@ type LanguageConfiguraction struct {
 	ComparesContinues map[string][]string  `json:"compares_continues"`
 	LanguageSyntax    map[string][]Simbols `json:"language_syntax"`
 }
+
+const LETTERS = "qwertyuiopasdfghjklñzxcvbnmQWERTYUIOPASDFGHJKLÑZXCVBNM_"
+const ASCII = "123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
 
 type Lexer struct {
 	col                    int
@@ -102,6 +107,10 @@ func (lexer *Lexer) Tokens() (*[]Token, bool) {
 		token, ok := lexer.getToken()
 
 		if !ok {
+			token, ok = lexer.getIdentifier()
+		}
+
+		if !ok {
 			customErrors := CustomErrors.New()
 			customErrors.IllegalCharacter(*lexer.text, *lexer.current_char, lexer.idx, lexer.idx)
 			return nil, true
@@ -159,6 +168,25 @@ func (lexer *Lexer) getToken() (*Token, bool) {
 	return &Token{
 		Type_: *type_,
 		Value: nil,
+	}, true
+}
+
+func (lexer *Lexer) getIdentifier() (*Token, bool) {
+	if !strings.Contains(LETTERS, *lexer.current_char) {
+		return nil, false
+	}
+	identifier := ""
+	for {
+		if !strings.Contains(LETTERS, *lexer.current_char) {
+			break
+		}
+		identifier += *lexer.current_char
+		lexer.advance()
+	}
+
+	return &Token{
+		Type_: constants.TT_IDENTIFIER,
+		Value: identifier,
 	}, true
 }
 
