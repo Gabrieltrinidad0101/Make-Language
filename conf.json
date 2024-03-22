@@ -1,6 +1,130 @@
 {
-    "numbers": {},
-    "compares": {},
-    "comparesContinues": {},
-    "languageSyntax": {}
+    "numbers": {
+        "1": "1",
+        "2": "2",
+        "3": "3",
+        "4": "4",
+        "5": "5",
+        "6": "6",
+        "7": "7",
+        "8": "8",
+        "9": "9",
+        "0": "0"
+    },
+    "compares": {
+        "=": "EQ",
+        ">": "GT",
+        "<": "LT",
+        "!": "NEQ"
+    },
+    "compares_continues": {
+        "EQ": [
+            "="
+        ],
+        "GT": [
+            "="
+        ],
+        "LT": [
+            "="
+        ],
+        "NEQ": [
+            "="
+        ]
+    },
+    "language_syntax": {
+        "+": [
+            {
+                "text": "+",
+                "token_name": "PLUS"
+            }
+        ],
+        "-": [
+            {
+                "text": "-",
+                "token_name": "MINUS"
+            }
+        ],
+        "*": [
+            {
+                "text": "*",
+                "token_name": "MUL"
+            }
+        ],
+        "/": [
+            {
+                "text": "/",
+                "token_name": "DIV"
+            }
+        ],
+        "(": [
+            {
+                "text": "(",
+                "token_name": "("
+            }
+        ],
+        ")": [
+            {
+                "text": ")",
+                "token_name": ")"
+            }
+        ],
+        "^": [
+            {
+                "text": "^",
+                "token_name": "POW"
+            }
+        ],
+        "~": [
+            {
+                "text": "~",
+                "token_name": "SQUARE_ROOT"
+            }
+        ],
+        "i": [
+            {
+                "text": "if",
+                "token_name": "IF"
+            }
+        ],
+        "e": [
+            {
+                "text": "elif",
+                "token_name": "ELIF"
+            },
+            {
+                "text": "else",
+                "token_name": "ELSE"
+            }
+        ],
+        "{": [
+            {
+                "text": "{",
+                "token_name": "{"
+            }
+        ],
+        "}": [
+            {
+                "text": "}",
+                "token_name": "}"
+            }
+        ],
+        "v": [
+            {
+                "text": "var",
+                "token_name": "VAR"
+            }
+        ],
+        "c": [
+            {
+                "text": "const",
+                "token_name": "CONST"
+            }
+        ],
+        "\"": [
+            {
+                "text": "\"",
+                "token_name": "STRING"
+            }
+        ]
+    }
 }

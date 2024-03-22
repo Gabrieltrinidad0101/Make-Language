@@ -7,8 +7,17 @@ import (
 )
 
 func main() {
-	input := "if ( 2 == 1) { 1 + 2 } else { 4 }"
-	lexer_ := lexer.NewLexer(&input)
+	conf, ok := lexer.ReadLanguageConfiguraction("./conf.json")
+	if !ok {
+		return
+	}
+
+	input, ok := lexer.ReadFile("./main.makeLanguage")
+	if !ok {
+		return
+	}
+
+	lexer_ := lexer.NewLexer(input, conf)
 	tokens, ok := lexer_.Tokens()
 
 	if ok {

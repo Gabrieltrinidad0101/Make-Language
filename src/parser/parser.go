@@ -36,6 +36,11 @@ type IfBaseNode struct {
 	Body      interface{}
 }
 
+type VarNode struct {
+	Identifier string
+	Node       interface{}
+}
+
 type NullNode struct{}
 
 func NewParser(tokens *[]lexer.Token) *Parser {
@@ -95,6 +100,25 @@ func (parser *Parser) Parse() interface{} {
 }
 
 func (parser *Parser) expr() interface{} {
+	ast := parser.variableAndConst()
+	return ast
+}
+
+func (parser *Parser) variableAndConst() interface{} {
+	if parser.currentToken.Type_ == constants.TT_VAR {
+		parser.advance()
+		parser.verifyNextToken(constants.TT_IDENTIFIER)
+		identifier := parser.currentToken.Value
+		parser.advance()
+		parser.verifyNextToken(constants.TT_VAR_EQ)
+		node := parser.compare()
+
+		return VarNode{
+			Identifier: identifier.(string),
+			Node:       node,
+		}
+	}
+
 	ast := parser.compare()
 	return ast
 }

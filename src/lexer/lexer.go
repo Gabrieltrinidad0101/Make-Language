@@ -1,29 +1,71 @@
 package lexer
 
 import (
+	"encoding/json"
 	"fmt"
 	CustomErrors "makeLanguages/src/customErrors"
+	"os"
 	"strconv"
 )
 
-type Lexer struct {
-	col          int
-	line         int
-	idx          int
-	current_char *string
-	tokens       *[]Token
-	text         *string
-	len          int
+type LanguageConfiguraction struct {
+	Numbers           map[string]string    `json:"numbers"`
+	Compares          map[string]string    `json:"compares"`
+	ComparesContinues map[string][]string  `json:"compares_continues"`
+	LanguageSyntax    map[string][]Simbols `json:"language_syntax"`
 }
 
-func NewLexer(text *string) *Lexer {
+type Lexer struct {
+	col                    int
+	line                   int
+	idx                    int
+	current_char           *string
+	tokens                 *[]Token
+	text                   *string
+	len                    int
+	languageConfiguraction LanguageConfiguraction
+}
+
+func ReadLanguageConfiguraction(path string) (LanguageConfiguraction, bool) {
+	file, err := os.ReadFile(path)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return LanguageConfiguraction{}, false
+	}
+
+	// Define a variable to hold the data
+	var languageConfiguraction LanguageConfiguraction
+
+	// Unmarshal the JSON data into the defined structure
+	err = json.Unmarshal(file, &languageConfiguraction)
+	if err != nil {
+		fmt.Println("Error unmarshalling JSON:", err)
+		return LanguageConfiguraction{}, false
+	}
+
+	return languageConfiguraction, true
+}
+
+func ReadFile(path string) (*string, bool) {
+	file, err := os.ReadFile(path)
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return nil, false
+	}
+	text := string(file)
+	return &text, true
+
+}
+
+func NewLexer(text *string, languageConfiguraction LanguageConfiguraction) *Lexer {
 	currentChar := ""
 	return &Lexer{
-		text:         text,
-		current_char: &currentChar,
-		len:          len(*text),
-		tokens:       &[]Token{},
-		idx:          -1,
+		text:                   text,
+		current_char:           &currentChar,
+		len:                    len(*text),
+		tokens:                 &[]Token{},
+		idx:                    -1,
+		languageConfiguraction: languageConfiguraction,
 	}
 }
 
@@ -35,113 +77,8 @@ type Token struct {
 }
 
 type Simbols struct {
-	Text      string
-	TokenName string
-}
-
-var numbers = map[string]string{
-	"1": "1",
-	"2": "2",
-	"3": "3",
-	"4": "4",
-	"5": "5",
-	"6": "6",
-	"7": "7",
-	"8": "8",
-	"9": "9",
-	"0": "0",
-}
-
-var compares = map[string]string{
-	"=": "EQ",
-	">": "GT",
-	"<": "LT",
-	"!": "NEQ",
-}
-
-var comparesContinues = map[string][]string{
-	"EQ":  {"="},
-	"GT":  {"="},
-	"LT":  {"="},
-	"NEQ": {"="},
-}
-
-var LanguageSyntax = map[string][]Simbols{
-	"+": {
-		{
-			Text:      "+",
-			TokenName: "PLUS",
-		},
-	},
-	"-": {
-		{
-			Text:      "-",
-			TokenName: "MINUS",
-		},
-	},
-	"*": {
-		{
-			Text:      "*",
-			TokenName: "MUL",
-		},
-	},
-	"/": {
-		{
-			Text:      "/",
-			TokenName: "DIV",
-		},
-	},
-	"(": {
-		{
-			Text:      "(",
-			TokenName: "(",
-		},
-	},
-	")": {
-		{
-			Text:      ")",
-			TokenName: ")",
-		},
-	},
-	"^": {
-		{
-			Text:      "^",
-			TokenName: "POW",
-		},
-	},
-	"~": {
-		{
-			Text:      "~",
-			TokenName: "SQUARE_ROOT",
-		}},
-	"i": {
-		{
-			Text:      "if",
-			TokenName: "IF",
-		},
-	},
-	"e": {
-		{
-			Text:      "elif",
-			TokenName: "ELIF",
-		},
-		{
-			Text:      "else",
-			TokenName: "ELSE",
-		},
-	},
-	"{": {
-		{
-			Text:      "{",
-			TokenName: "{",
-		},
-	},
-	"}": {
-		{
-			Text:      "}",
-			TokenName: "}",
-		},
-	},
+	Text      string `json:"text"`
+	TokenName string `json:"token_name"`
 }
 
 func (lexer *Lexer) Tokens() (*[]Token, bool) {
@@ -177,7 +114,7 @@ func (lexer *Lexer) Tokens() (*[]Token, bool) {
 }
 
 func (lexer *Lexer) getToken() (*Token, bool) {
-	simbols, ok := LanguageSyntax[*lexer.current_char]
+	simbols, ok := lexer.languageConfiguraction.LanguageSyntax[*lexer.current_char]
 
 	if !ok {
 		return nil, false
@@ -242,14 +179,14 @@ func (lexer *Lexer) advance() bool {
 }
 
 func (lexer *Lexer) makeNumber() bool {
-	numberString, ok := numbers[*lexer.current_char]
+	numberString, ok := lexer.languageConfiguraction.Numbers[*lexer.current_char]
 	if !ok {
 		return false
 	}
 	dotNumber := 0
 	positionStart := lexer.idx
 	for lexer.current_char != nil && lexer.advance() {
-		numberNext, ok := numbers[*lexer.current_char]
+		numberNext, ok := lexer.languageConfiguraction.Numbers[*lexer.current_char]
 		if !ok {
 			if *lexer.current_char == "." && dotNumber < 1 {
 				dotNumber++
@@ -276,12 +213,12 @@ func (lexer *Lexer) makeNumber() bool {
 }
 
 func (lexer *Lexer) makeCompares() bool {
-	compare, ok := compares[*lexer.current_char]
+	compare, ok := lexer.languageConfiguraction.Compares[*lexer.current_char]
 	if !ok {
 		return false
 	}
 	lexer.advance()
-	continues := comparesContinues[compare]
+	continues := lexer.languageConfiguraction.ComparesContinues[compare]
 	if continues[0] != *lexer.current_char {
 		*lexer.tokens = append(*lexer.tokens,
 			Token{
