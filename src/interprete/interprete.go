@@ -66,6 +66,15 @@ func (interprete Interprete) VarAssignNode(node interface{}) interface{} {
 	return parser.NullNode{}
 }
 
+func (interprete Interprete) VarAccessNode(node interface{}) interface{} {
+	varAccessNode := node.(*parser.VarAccessNode)
+	valueNode, ok := interprete.context.Get(varAccessNode.Identifier)
+	if !ok {
+		panic("Variable is undefined")
+	}
+	return interprete.call(valueNode)
+}
+
 func (interprete *Interprete) UnaryOP(node interface{}) *numbers.Number {
 	unaryOP := node.(parser.UnaryOP)
 	number := interprete.call(unaryOP.RigthNode).(*numbers.Number)

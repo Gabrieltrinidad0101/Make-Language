@@ -28,109 +28,25 @@
         ]
     },
     "language_syntax": {
-        "=": [
-            {
-                "text": "=",
-                "token_name": "="
-            },
-            {
-                "text": "==",
-                "token_name": "=="
-            }
-        ],
-        "+": [
-            {
-                "text": "+",
-                "token_name": "PLUS"
-            }
-        ],
-        "-": [
-            {
-                "text": "-",
-                "token_name": "MINUS"
-            }
-        ],
-        "*": [
-            {
-                "text": "*",
-                "token_name": "MUL"
-            }
-        ],
-        "/": [
-            {
-                "text": "/",
-                "token_name": "DIV"
-            }
-        ],
-        "(": [
-            {
-                "text": "(",
-                "token_name": "("
-            }
-        ],
-        ")": [
-            {
-                "text": ")",
-                "token_name": ")"
-            }
-        ],
-        "^": [
-            {
-                "text": "^",
-                "token_name": "POW"
-            }
-        ],
-        "~": [
-            {
-                "text": "~",
-                "token_name": "SQUARE_ROOT"
-            }
-        ],
-        "i": [
-            {
-                "text": "if",
-                "token_name": "IF"
-            }
-        ],
-        "e": [
-            {
-                "text": "elif",
-                "token_name": "ELIF"
-            },
-            {
-                "text": "else",
-                "token_name": "ELSE"
-            }
-        ],
-        "{": [
-            {
-                "text": "{",
-                "token_name": "{"
-            }
-        ],
-        "}": [
-            {
-                "text": "}",
-                "token_name": "}"
-            }
-        ],
-        "v": [
-            {
-                "text": "var",
-                "token_name": "VAR"
-            }
-        ],
-        "c": [
-            {
-                "text": "const",
-                "token_name": "CONST"
-            }
-        ],
-        "\"": [
-            {
-                "text": "\"",
-                "token_name": "STRING"
-            }
-        ]
+        "=": "=",
+        "==": "==",
+        "+": "PLUS",
+        "-": "MINUS",
+        "*": "MUL",
+        "/": "DIV",
+        "(": "(",
+        ")": ")",
+        "^":  "^",
+        "~": "~",
+        "if": "IF",
+        "elif": "ELIF",
+        "else": "ELSE",
+        "{": "{",
+        "}": "}",
+        "var": "VAR",
+        "const": "CONST",
+        "\"": "STRING",
+        "\n": "NEWLINE",
+        "\r": "NEWLINE"
     }
 }

@@ -41,6 +41,10 @@ type VarAssignNode struct {
 	Node       interface{}
 }
 
+type VarAccessNode struct {
+	Identifier string
+}
+
 type NullNode struct{}
 
 func NewParser(tokens *[]lexer.Token) *Parser {
@@ -98,6 +102,9 @@ func (parser *Parser) Parse() interface{} {
 
 func (parser *Parser) expr() interface{} {
 	parser.advance()
+	for parser.currentToken.Type_ == constants.TT_NEWLINE {
+		parser.advance()
+	}
 	ast := parser.variableAndConst()
 	return ast
 }
@@ -176,6 +183,10 @@ func (parser *Parser) term() interface{} {
 
 	if ifNode, ok := parser.if_(); ok {
 		return ifNode
+	}
+
+	if varAccess, ok := parser.varAccess(); ok {
+		return varAccess
 	}
 
 	panic("Error")
@@ -259,5 +270,15 @@ func (parser *Parser) conditionBase() (*IfBaseNode, bool) {
 	return &IfBaseNode{
 		Condition: condition,
 		Body:      body,
+	}, true
+}
+
+func (parser *Parser) varAccess() (*VarAccessNode, bool) {
+	if parser.currentToken.Type_ != constants.TT_IDENTIFIER {
+		return nil, false
+	}
+
+	return &VarAccessNode{
+		Identifier: parser.currentToken.Value.(string),
 	}, true
 }

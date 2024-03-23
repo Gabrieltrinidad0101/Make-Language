@@ -5,31 +5,38 @@ import (
 	"makeLanguages/src/languageContext"
 	"makeLanguages/src/lexer"
 	"makeLanguages/src/parser"
+	"strings"
 )
 
+var languageContext_ = languageContext.NewContext(nil)
+
 func main() {
-	conf, ok := lexer.ReadLanguageConfiguraction("./conf.json")
-	if !ok {
-		return
-	}
 
 	input, ok := lexer.ReadFile("./main.makeLanguage")
 	if !ok {
 		return
 	}
 
-	lexer_ := lexer.NewLexer(input, conf)
-	tokens, ok := lexer_.Tokens()
+	lines := strings.Split(*input, "\n")
 
-	if ok {
+	conf, ok := lexer.ReadLanguageConfiguraction("./conf.json")
+	if !ok {
 		return
 	}
 
-	parser_ := parser.NewParser(tokens)
-	ast := parser_.Parse()
+	for _, line := range lines {
 
-	languageContext := languageContext.NewContext(nil)
+		lexer_ := lexer.NewLexer(&line, conf)
+		tokens, ok := lexer_.Tokens()
 
-	interprete_ := interprete.NewInterprete(ast, &languageContext)
-	interprete_.Run()
+		if ok {
+			return
+		}
+
+		parser_ := parser.NewParser(tokens)
+		ast := parser_.Parse()
+
+		interprete_ := interprete.NewInterprete(ast, &languageContext_)
+		interprete_.Run()
+	}
 }

@@ -8,13 +8,27 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"golang.org/x/exp/maps"
 )
 
 type LanguageConfiguraction struct {
-	Numbers           map[string]string    `json:"numbers"`
-	Compares          map[string]string    `json:"compares"`
-	ComparesContinues map[string][]string  `json:"compares_continues"`
-	LanguageSyntax    map[string][]Simbols `json:"language_syntax"`
+	Numbers           map[string]string   `json:"numbers"`
+	Compares          map[string]string   `json:"compares"`
+	ComparesContinues map[string][]string `json:"compares_continues"`
+	LanguageSyntax    map[string]string   `json:"language_syntax"`
+}
+
+type Token struct {
+	Type_         string
+	Value         interface{}
+	PositionEnd   int
+	PositionStart int
+}
+
+type Simbols struct {
+	Text      string `json:"text"`
+	TokenName string `json:"token_name"`
 }
 
 const LETTERS = "qwertyuiopasdfghjklñzxcvbnmQWERTYUIOPASDFGHJKLÑZXCVBNM_"
@@ -29,6 +43,7 @@ type Lexer struct {
 	text                   *string
 	len                    int
 	languageConfiguraction LanguageConfiguraction
+	characterMaxLength     int
 }
 
 func ReadLanguageConfiguraction(path string) (LanguageConfiguraction, bool) {
@@ -71,19 +86,23 @@ func NewLexer(text *string, languageConfiguraction LanguageConfiguraction) *Lexe
 		tokens:                 &[]Token{},
 		idx:                    -1,
 		languageConfiguraction: languageConfiguraction,
+		characterMaxLength:     getMaxLengthCharacter(languageConfiguraction.LanguageSyntax),
 	}
 }
 
-type Token struct {
-	Type_         string
-	Value         interface{}
-	PositionEnd   int
-	PositionStart int
-}
+func getMaxLengthCharacter(characters map[string]string) int {
+	charactersKeys := maps.Keys(characters)
+	maxLength := 0
 
-type Simbols struct {
-	Text      string `json:"text"`
-	TokenName string `json:"token_name"`
+	for _, charactersKey := range charactersKeys {
+		length := len(charactersKey)
+		if length > maxLength {
+			maxLength = length
+		}
+	}
+
+	return maxLength
+
 }
 
 func (lexer *Lexer) Tokens() (*[]Token, bool) {
@@ -125,40 +144,38 @@ func (lexer *Lexer) Tokens() (*[]Token, bool) {
 func (lexer *Lexer) getToken() (*Token, bool) {
 	simbols, ok := lexer.languageConfiguraction.LanguageSyntax[*lexer.current_char]
 
-	if !ok {
-		return nil, false
-	}
-
-	if len(simbols) == 1 && len(simbols[0].Text) == 1 {
+	if ok {
 		return &Token{
-			Type_: simbols[0].TokenName,
+			Type_: simbols,
 			Value: nil,
 		}, true
 	}
 
-	var current_char string = ""
+	var type_ *string = nil
 	var simbolText string = ""
+	var maxLength = 0
+
 	for i := 0; i < lexer.len; i++ {
-		current_char = string((*lexer.text)[lexer.idx+i])
-		if current_char == " " || current_char == "\r" || current_char == "\n" || current_char == "\t" {
+		if i > lexer.characterMaxLength {
+			return nil, false
+		}
+
+		simbolText += string((*lexer.text)[lexer.idx+i])
+
+		for _, simbol := range lexer.languageConfiguraction.LanguageSyntax {
+			length := len(simbol)
+
+			if maxLength < length {
+				maxLength = length
+			}
+
+			if simbol != simbolText {
+				break
+			}
+
+			type_ = &simbol
 			break
 		}
-		simbolText += string((*lexer.text)[lexer.idx+i])
-	}
-
-	var type_ *string = nil
-	for _, simbol := range simbols {
-		if simbol.Text != simbolText {
-			continue
-		}
-
-		length := len(simbol.Text)
-		for i := 0; i < length; i++ {
-			lexer.advance()
-		}
-
-		type_ = &simbol.TokenName
-		break
 	}
 
 	if type_ == nil {
@@ -181,7 +198,10 @@ func (lexer *Lexer) getIdentifier() (*Token, bool) {
 			break
 		}
 		identifier += *lexer.current_char
-		lexer.advance()
+		ok := lexer.advance()
+		if !ok {
+			break
+		}
 	}
 
 	return &Token{
