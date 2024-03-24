@@ -115,7 +115,7 @@ func (parser *Parser) variableAndConst() interface{} {
 		parser.verifyNextToken(constants.TT_IDENTIFIER)
 		identifier := parser.currentToken.Value
 		parser.advance()
-		parser.verifyNextToken(constants.TT_VAR_EQ)
+		parser.verifyNextToken(constants.TT_EQ)
 		parser.advance()
 		node := parser.compare()
 
@@ -209,7 +209,7 @@ func (parser *Parser) if_() (interface{}, bool) {
 
 	ifs = append(ifs, node)
 
-	for (*parser.currentToken).Type_ == constants.TT_ELSE {
+	for (*parser.currentToken).Type_ == constants.TT_ELIF {
 		node, ok := parser.conditionBase()
 
 		if !ok {
@@ -224,14 +224,14 @@ func (parser *Parser) if_() (interface{}, bool) {
 	if parser.currentToken.Type_ == constants.TT_ELSE {
 		parser.advance()
 
-		if (*parser.currentToken).Type_ != constants.TT_IF_START_BODY {
-			panic("Expect " + constants.TT_IF_START_BODY)
+		if (*parser.currentToken).Type_ != constants.TT_START_BODY {
+			panic("Expect " + constants.TT_START_BODY)
 		}
 
 		elseNode = parser.expr()
 
-		if (*parser.currentToken).Type_ != constants.TT_IF_END_BODY {
-			panic("Expect " + constants.TT_IF_START_BODY)
+		if (*parser.currentToken).Type_ != constants.TT_END_BODY {
+			panic("Expect " + constants.TT_START_BODY)
 		}
 	}
 
@@ -243,28 +243,28 @@ func (parser *Parser) if_() (interface{}, bool) {
 
 func (parser *Parser) conditionBase() (*IfBaseNode, bool) {
 
-	ok := parser.verifyNextToken(constants.TT_IF_START_CONDITION)
+	ok := parser.verifyNextToken(constants.TT_LPAREN)
 	if !ok {
 		return nil, false
 	}
 
 	condition := parser.expr()
 
-	ok = parser.verifyNextToken(constants.TT_IF_END_CONDITION)
+	ok = parser.verifyNextToken(constants.TT_RPAREN)
 	if !ok {
 		return nil, false
 	}
 
 	parser.advance()
 
-	if (*parser.currentToken).Type_ != constants.TT_IF_START_BODY {
-		panic("Expect " + constants.TT_IF_START_BODY)
+	if (*parser.currentToken).Type_ != constants.TT_START_BODY {
+		panic("Expect " + constants.TT_START_BODY)
 	}
 
 	body := parser.expr()
 
-	if (*parser.currentToken).Type_ != constants.TT_IF_END_BODY {
-		panic("Expect " + constants.TT_IF_START_BODY)
+	if (*parser.currentToken).Type_ != constants.TT_END_BODY {
+		panic("Expect " + constants.TT_START_BODY)
 	}
 
 	return &IfBaseNode{
@@ -278,7 +278,9 @@ func (parser *Parser) varAccess() (*VarAccessNode, bool) {
 		return nil, false
 	}
 
-	return &VarAccessNode{
+	varAccessNode := &VarAccessNode{
 		Identifier: parser.currentToken.Value.(string),
-	}, true
+	}
+	parser.advance()
+	return varAccessNode, true
 }

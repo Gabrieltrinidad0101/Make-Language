@@ -11,38 +11,28 @@
         "9": "9",
         "0": "0"
     },
-    "compares": {
+    "language_syntax": {
         ">": "GT",
         "<": "LT",
-        "!": "NEQ"
-    },
-    "compares_continues": {
-        "GT": [
-            "="
-        ],
-        "LT": [
-            "="
-        ],
-        "NEQ": [
-            "="
-        ]
-    },
-    "language_syntax": {
-        "=": "=",
-        "==": "==",
+        "!": "NEQ",
+        "=": "EQ",
+        "==": "EQE",
+        ">=": "GTE",
+        "<=": "LTE",
+        "!=": "NEQE",
         "+": "PLUS",
         "-": "MINUS",
         "*": "MUL",
         "/": "DIV",
-        "(": "(",
-        ")": ")",
-        "^":  "^",
-        "~": "~",
+        "(": "LPAREN",
+        ")": "RPAREN",
+        "^":  "POW",
+        "~": "SQUARE_ROOT",
         "if": "IF",
         "elif": "ELIF",
         "else": "ELSE",
-        "{": "{",
-        "}": "}",
+        "{": "OPEN_CURLY_BRACE",
+        "}": "CLOSING_CURLY_BRACE",
         "var": "VAR",
         "const": "CONST",
         "\"": "STRING",
