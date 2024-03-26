@@ -45,6 +45,10 @@ type VarAccessNode struct {
 	Identifier string
 }
 
+type ListNode struct {
+	nodes []interface{}
+}
+
 type NullNode struct{}
 
 func NewParser(tokens *[]lexer.Token) *Parser {
@@ -97,15 +101,38 @@ func (parser *Parser) binOP(callBack func() interface{}, ops ...string) interfac
 }
 
 func (parser *Parser) Parse() interface{} {
+	parser.advance()
 	return parser.expr()
 }
 
 func (parser *Parser) expr() interface{} {
-	parser.advance()
-	for parser.currentToken.Type_ == constants.TT_NEWLINE {
-		parser.advance()
+	return parser.statements()
+}
+
+func (parser *Parser) statements() interface{} {
+	listNodes := ListNode{}
+	for {
+		if parser.currentToken.Type_ == constants.EOF {
+			break
+		}
+		for parser.currentToken.Type_ == constants.TT_NEWLINE {
+			parser.advance()
+			continue
+		}
+		ast := parser.statement()
+		listNodes.nodes = append(listNodes.nodes, ast)
 	}
-	ast := parser.variableAndConst()
+	return listNodes
+}
+
+func (parser *Parser) statement() interface{} {
+
+	variableAndConst := parser.variableAndConst()
+	if variableAndConst != nil {
+		return variableAndConst
+	}
+
+	ast := parser.compare()
 	return ast
 }
 
@@ -124,9 +151,7 @@ func (parser *Parser) variableAndConst() interface{} {
 			Node:       node,
 		}
 	}
-
-	ast := parser.compare()
-	return ast
+	return nil
 }
 
 func (parser *Parser) compare() interface{} {
@@ -173,7 +198,8 @@ func (parser *Parser) term() interface{} {
 	}
 
 	if parser.currentToken.Type_ == constants.TT_LPAREN {
-		node := parser.expr()
+		parser.advance()
+		node := parser.statement()
 		if !(parser.currentToken.Type_ == constants.TT_RPAREN) {
 			panic("error )")
 		}
@@ -247,8 +273,9 @@ func (parser *Parser) conditionBase() (*IfBaseNode, bool) {
 	if !ok {
 		return nil, false
 	}
+	parser.advance()
 
-	condition := parser.expr()
+	condition := parser.compare()
 
 	ok = parser.verifyNextToken(constants.TT_RPAREN)
 	if !ok {
@@ -257,15 +284,7 @@ func (parser *Parser) conditionBase() (*IfBaseNode, bool) {
 
 	parser.advance()
 
-	if (*parser.currentToken).Type_ != constants.TT_START_BODY {
-		panic("Expect " + constants.TT_START_BODY)
-	}
-
 	body := parser.expr()
-
-	if (*parser.currentToken).Type_ != constants.TT_END_BODY {
-		panic("Expect " + constants.TT_START_BODY)
-	}
 
 	return &IfBaseNode{
 		Condition: condition,

@@ -129,6 +129,9 @@ func (lexer *Lexer) Tokens() (*[]Token, bool) {
 			return nil, true
 		}
 	}
+	*lexer.tokens = append(*lexer.tokens, Token{
+		Type_: constants.EOF,
+	})
 	return lexer.tokens, false
 }
 
@@ -147,7 +150,6 @@ func (lexer *Lexer) syntaxToken() bool {
 
 	var type_ *string = nil
 	var simbolText string = ""
-	var maxLength = 0
 
 main:
 	for i := 0; i < lexer.len; i++ {
@@ -158,11 +160,6 @@ main:
 		simbolText += string((*lexer.text)[lexer.idx+i])
 
 		for simbol, value := range lexer.languageConfiguraction.LanguageSyntax {
-			length := len(simbol)
-
-			if maxLength < length {
-				maxLength = length
-			}
 
 			if simbol != simbolText {
 				continue
