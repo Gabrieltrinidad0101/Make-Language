@@ -112,13 +112,17 @@ func (parser *Parser) expr() interface{} {
 func (parser *Parser) statements() interface{} {
 	listNodes := ListNode{}
 	for {
-		if parser.currentToken.Type_ == constants.EOF {
-			break
-		}
+		thereIsANewLine := false
 		for parser.currentToken.Type_ == constants.TT_NEWLINE {
 			parser.advance()
+			thereIsANewLine = true
 			continue
 		}
+
+		if !thereIsANewLine {
+			break
+		}
+
 		ast := parser.statement()
 		listNodes.nodes = append(listNodes.nodes, ast)
 	}
@@ -284,7 +288,7 @@ func (parser *Parser) conditionBase() (*IfBaseNode, bool) {
 
 	parser.advance()
 
-	body := parser.expr()
+	body := parser.statement()
 
 	return &IfBaseNode{
 		Condition: condition,
