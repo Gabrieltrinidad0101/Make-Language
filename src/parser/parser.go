@@ -27,11 +27,11 @@ type UnaryOP struct {
 }
 
 type IfNode struct {
-	Ifs   []*IfBaseNode
+	Ifs   []*ConditionAndBody
 	Else_ interface{}
 }
 
-type IfBaseNode struct {
+type ConditionAndBody struct {
 	Condition interface{}
 	Body      interface{}
 }
@@ -81,6 +81,8 @@ func (parser *Parser) verifyNextToken(tokenType string) bool {
 		panic("Expect " + tokenType)
 	}
 
+	parser.advance()
+
 	return true
 }
 
@@ -106,10 +108,10 @@ func (parser *Parser) Parse() interface{} {
 }
 
 func (parser *Parser) expr() interface{} {
-	return parser.statements()
+	return parser.statements(constants.EOF)
 }
 
-func (parser *Parser) statements() interface{} {
+func (parser *Parser) statements(tokenEnd string) interface{} {
 	listNodes := ListNode{}
 	ast := parser.statement()
 	listNodes.Nodes = append(listNodes.Nodes, ast)
@@ -122,6 +124,11 @@ func (parser *Parser) statements() interface{} {
 		}
 
 		if !thereIsANewLine {
+			break
+		}
+
+		if parser.currentToken.Type_ == tokenEnd {
+			parser.advance()
 			break
 		}
 
@@ -229,7 +236,7 @@ func (parser *Parser) term() interface{} {
 }
 
 func (parser *Parser) if_() (interface{}, bool) {
-	ifs := []*IfBaseNode{}
+	ifs := []*ConditionAndBody{}
 	var elseNode interface{}
 	if parser.currentToken.Type_ != constants.TT_IF {
 		return nil, false
@@ -237,7 +244,7 @@ func (parser *Parser) if_() (interface{}, bool) {
 
 	parser.advance()
 
-	node, ok := parser.conditionBase()
+	node, ok := parser.conditionAndBodyBase()
 
 	if !ok {
 		return nil, false
@@ -246,7 +253,7 @@ func (parser *Parser) if_() (interface{}, bool) {
 	ifs = append(ifs, node)
 
 	for (*parser.currentToken).Type_ == constants.TT_ELIF {
-		node, ok := parser.conditionBase()
+		node, ok := parser.conditionAndBodyBase()
 
 		if !ok {
 			return nil, false
@@ -256,7 +263,7 @@ func (parser *Parser) if_() (interface{}, bool) {
 	}
 	if parser.currentToken.Type_ == constants.TT_ELSE {
 		parser.advance()
-		elseNode = parser.AndOr()
+		elseNode = parser.BodyBase()
 	}
 
 	return IfNode{
@@ -265,13 +272,12 @@ func (parser *Parser) if_() (interface{}, bool) {
 	}, true
 }
 
-func (parser *Parser) conditionBase() (*IfBaseNode, bool) {
+func (parser *Parser) conditionAndBodyBase() (*ConditionAndBody, bool) {
 
 	ok := parser.verifyNextToken(constants.TT_LPAREN)
 	if !ok {
 		return nil, false
 	}
-	parser.advance()
 
 	condition := parser.AndOr()
 
@@ -280,14 +286,23 @@ func (parser *Parser) conditionBase() (*IfBaseNode, bool) {
 		return nil, false
 	}
 
-	parser.advance()
+	body := parser.BodyBase()
 
-	body := parser.statement()
-
-	return &IfBaseNode{
+	return &ConditionAndBody{
 		Condition: condition,
 		Body:      body,
 	}, true
+}
+
+func (parser *Parser) BodyBase() interface{} {
+	var body interface{}
+	if ok := parser.verifyNextToken(constants.TT_START_BODY); ok {
+		parser.verifyNextToken(constants.TT_NEWLINE)
+		body = parser.statements(constants.TT_END_BODY)
+	} else {
+		body = parser.statement()
+	}
+	return body
 }
 
 func (parser *Parser) varAccess() (*VarAccessNode, bool) {
