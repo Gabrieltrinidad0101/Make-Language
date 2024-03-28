@@ -111,6 +111,14 @@ func (interprete *Interprete) IfNode(node interface{}) interface{} {
 	return parser.NullNode{}
 }
 
+func (interprete *Interprete) ListNode(node interface{}) interface{} {
+	listNode := node.(parser.ListNode)
+	for _, node := range listNode.Nodes {
+		fmt.Println(interprete.call(node))
+	}
+	return 1
+}
+
 func (interprete *Interprete) Number(node interface{}) *numbers.Number {
 	return node.(*numbers.Number)
 }

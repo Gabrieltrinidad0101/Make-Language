@@ -112,11 +112,6 @@ func (lexer *Lexer) Tokens() (*[]Token, bool) {
 			continue
 		}
 
-		isCompare := lexer.makeCompares()
-		if isCompare {
-			continue
-		}
-
 		ok := lexer.syntaxToken()
 
 		if !ok {
@@ -136,28 +131,16 @@ func (lexer *Lexer) Tokens() (*[]Token, bool) {
 }
 
 func (lexer *Lexer) syntaxToken() bool {
-	simbols, ok := lexer.languageConfiguraction.LanguageSyntax[*lexer.current_char]
-
-	if ok {
-		token := &Token{
-			Type_: simbols,
-			Value: nil,
-		}
-		*lexer.tokens = append(*lexer.tokens, *token)
-		lexer.advance()
-		return true
-	}
-
 	var type_ *string = nil
 	var simbolText string = ""
 
 main:
-	for i := 0; i < lexer.len; i++ {
-		if i >= lexer.characterMaxLength || lexer.idx+i >= lexer.len {
+	for i := lexer.idx; i < lexer.len; i++ {
+		if i >= lexer.characterMaxLength {
 			return false
 		}
 
-		simbolText += string((*lexer.text)[lexer.idx+i])
+		simbolText += string((*lexer.text)[i])
 
 		for simbol, value := range lexer.languageConfiguraction.LanguageSyntax {
 
@@ -174,8 +157,7 @@ main:
 		return false
 	}
 
-	for i := 0; i < len(simbolText); {
-		i++
+	for i := 0; i < len(simbolText); i++ {
 		lexer.advance()
 	}
 
@@ -190,19 +172,21 @@ main:
 }
 
 func (lexer *Lexer) getIdentifier() bool {
-	if !strings.Contains(LETTERS, *lexer.current_char) {
-		return false
-	}
-	identifier := ""
+	var identifier *string
+
 	for {
 		if !strings.Contains(LETTERS, *lexer.current_char) {
 			break
 		}
-		identifier += *lexer.current_char
+		*identifier += *lexer.current_char
 		ok := lexer.advance()
 		if !ok {
 			break
 		}
+	}
+
+	if identifier == nil {
+		return false
 	}
 
 	token := Token{
@@ -262,38 +246,5 @@ func (lexer *Lexer) makeNumber() bool {
 		PositionStart: positionStart,
 		PositionEnd:   lexer.idx,
 	})
-	return true
-}
-
-func (lexer *Lexer) makeCompares() bool {
-	compare, ok := lexer.languageConfiguraction.Compares[*lexer.current_char]
-	if !ok {
-		return false
-	}
-	lexer.advance()
-	continues := lexer.languageConfiguraction.ComparesContinues[compare]
-	if continues[0] != *lexer.current_char {
-		*lexer.tokens = append(*lexer.tokens,
-			Token{
-				Type_: compare,
-				Value: nil,
-			},
-		)
-		return true
-	}
-	for _, character := range continues {
-		if *lexer.current_char != character {
-			panic("Error compare")
-		}
-		lexer.advance()
-	}
-
-	*lexer.tokens = append(*lexer.tokens,
-		Token{
-			Type_: compare + "E",
-			Value: nil,
-		},
-	)
-
 	return true
 }

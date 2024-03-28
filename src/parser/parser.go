@@ -46,7 +46,7 @@ type VarAccessNode struct {
 }
 
 type ListNode struct {
-	nodes []interface{}
+	Nodes []interface{}
 }
 
 type NullNode struct{}
@@ -111,12 +111,14 @@ func (parser *Parser) expr() interface{} {
 
 func (parser *Parser) statements() interface{} {
 	listNodes := ListNode{}
+	ast := parser.statement()
+	listNodes.Nodes = append(listNodes.Nodes, ast)
+
 	for {
 		thereIsANewLine := false
 		for parser.currentToken.Type_ == constants.TT_NEWLINE {
 			parser.advance()
 			thereIsANewLine = true
-			continue
 		}
 
 		if !thereIsANewLine {
@@ -124,7 +126,7 @@ func (parser *Parser) statements() interface{} {
 		}
 
 		ast := parser.statement()
-		listNodes.nodes = append(listNodes.nodes, ast)
+		listNodes.Nodes = append(listNodes.Nodes, ast)
 	}
 	return listNodes
 }
@@ -248,21 +250,9 @@ func (parser *Parser) if_() (interface{}, bool) {
 
 		ifs = append(ifs, node)
 	}
-
-	parser.advance()
-
 	if parser.currentToken.Type_ == constants.TT_ELSE {
 		parser.advance()
-
-		if (*parser.currentToken).Type_ != constants.TT_START_BODY {
-			panic("Expect " + constants.TT_START_BODY)
-		}
-
-		elseNode = parser.expr()
-
-		if (*parser.currentToken).Type_ != constants.TT_END_BODY {
-			panic("Expect " + constants.TT_START_BODY)
-		}
+		elseNode = parser.compare()
 	}
 
 	return IfNode{
