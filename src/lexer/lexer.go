@@ -27,8 +27,7 @@ const LETTERS = "qwertyuiopasdfghjklñzxcvbnmQWERTYUIOPASDFGHJKLÑZXCVBNM_"
 const ASCII = "123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
 
 type Lexer struct {
-	col                    int
-	line                   int
+	token.Position
 	idx                    int
 	current_char           *string
 	tokens                 *[]token.Token
@@ -87,10 +86,11 @@ func (lexer *Lexer) advance() bool {
 		return false
 	}
 
+	lexer.Col++
 	*lexer.current_char = string((*lexer.text)[lexer.idx])
 	if *lexer.current_char == "\n" {
-		lexer.line++
-		lexer.col = 0
+		lexer.Line++
+		lexer.Col = 0
 	}
 
 	return true
@@ -136,9 +136,8 @@ func (lexer *Lexer) Tokens() (*[]token.Token, bool) {
 
 		if !ok {
 			CustomErrors.IllegalCharacter(token.Token{
-				Value:         *lexer.current_char,
-				PositionEnd:   lexer.idx,
-				PositionStart: lexer.idx,
+				Value:    *lexer.current_char,
+				Position: lexer.Position,
 			})
 			return nil, true
 		}
@@ -152,6 +151,8 @@ func (lexer *Lexer) Tokens() (*[]token.Token, bool) {
 func (lexer *Lexer) syntaxToken(syntax map[string]string) bool {
 	var type_ *string = nil
 	var simbolText string = ""
+
+	startPosition := lexer.idx
 
 	for i := lexer.idx; i < lexer.len && i-lexer.idx < lexer.characterMaxLength; i++ {
 		simbolText += string((*lexer.text)[i])
@@ -176,6 +177,12 @@ func (lexer *Lexer) syntaxToken(syntax map[string]string) bool {
 	token := token.Token{
 		Type_: *type_,
 		Value: simbolText,
+		Position: token.Position{
+			PositionStart: startPosition,
+			PositionEnd:   startPosition + len(simbolText),
+			Line:          lexer.Line,
+			Col:           lexer.Col,
+		},
 	}
 
 	*lexer.tokens = append(*lexer.tokens, token)
@@ -237,10 +244,14 @@ func (lexer *Lexer) makeNumber() bool {
 	}
 
 	*lexer.tokens = append(*lexer.tokens, token.Token{
-		Type_:         "number",
-		Value:         number,
-		PositionStart: positionStart,
-		PositionEnd:   lexer.idx,
+		Type_: "number",
+		Value: number,
+		Position: token.Position{
+			PositionStart: positionStart,
+			PositionEnd:   lexer.idx,
+			Line:          lexer.Line,
+			Col:           lexer.Col,
+		},
 	})
 	return true
 }

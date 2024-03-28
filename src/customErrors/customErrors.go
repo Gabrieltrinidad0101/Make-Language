@@ -25,16 +25,22 @@ func New(text string) *customError {
 
 func show(token token.Token, details string) {
 	lines := strings.Split(CustomError.text, "\n")
+	fmt.Printf("Line: %d\n", token.Line)
+	fmt.Printf("Col: %d\n", token.Col)
 	errorText := ""
 	for i, line := range lines {
 		if i == 0 {
-			padding := strings.Repeat(" ", len(line)-token.PositionStart)
-			errorSignal := strings.Repeat("^", max(token.PositionEnd-token.PositionStart, 1))
+			characterLength := max(token.PositionEnd-token.PositionStart, 1)
+			padding := strings.Repeat(" ", len(string(line))-characterLength-1)
+			errorSignal := strings.Repeat("^", characterLength)
 			errorText += fmt.Sprintf("%s\n %s\n", line, padding+errorSignal)
+			continue
 		}
+		errorText += string(line)
 	}
 
-	fmt.Printf("%s:\n %s", details, errorText)
+	fmt.Printf("%s\n", details)
+	fmt.Printf("%s\n", errorText)
 	os.Exit(0)
 }
 
@@ -43,5 +49,6 @@ func IllegalCharacter(token token.Token) {
 }
 
 func InvalidSyntax(token token.Token, details string) {
-	show(token, fmt.Sprintf("Invalid: %s\n%s", token.Value, details))
+	fmt.Printf("Invalid Syntax: %s\n", token.Value)
+	show(token, details)
 }

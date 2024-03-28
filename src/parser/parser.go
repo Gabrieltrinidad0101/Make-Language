@@ -5,7 +5,6 @@ import (
 	"makeLanguages/src/constants"
 	"makeLanguages/src/features/numbers"
 	"makeLanguages/src/token"
-	"reflect"
 	"slices"
 )
 
@@ -170,13 +169,16 @@ func (parser *Parser) statement() (interface{}, error) {
 }
 
 func (parser *Parser) variableAndConst() (interface{}, error) {
-	if parser.CurrentToken.Type_ == constants.TT_VAR {
-		parser.advance()
-		parser.verifyNextToken(constants.TT_IDENTIFIER)
+	if err := parser.verifyNextToken(constants.TT_VAR); err == nil {
 		identifier := parser.CurrentToken.Value
-		parser.advance()
-		parser.verifyNextToken(constants.TT_EQ)
-		parser.advance()
+		err := parser.verifyNextToken(constants.TT_IDENTIFIER)
+		if err != nil {
+			return nil, err
+		}
+		err = parser.verifyNextToken(constants.TT_EQ)
+		if err != nil {
+			return nil, err
+		}
 		node, err := parser.compare()
 
 		if err != nil {
@@ -216,15 +218,14 @@ func (parser *Parser) term() (interface{}, error) {
 
 	if nodeType == constants.TT_PLUS || nodeType == constants.TT_MINUS {
 		token, ok := parser.getToken(parser.idx + 1)
-
+		if ok && token.Type_ == constants.TT_PLUS || token.Type_ == constants.TT_MINUS {
+			return nil, fmt.Errorf("Error is necesery a ( between - and + simbols")
+		}
+		parser.advance()
 		rigthNode, err := parser.term()
 
 		if err != nil {
 			return nil, err
-		}
-
-		if ok && reflect.TypeOf(rigthNode).Name() == "UnaryOP" && token.Type_ != constants.TT_LPAREN {
-			return nil, fmt.Errorf("Error is necesery a ( between - and + simbols")
 		}
 
 		unaryOP := UnaryOP{
@@ -331,7 +332,7 @@ func (parser *Parser) conditionAndBodyBase() (*ConditionAndBody, error) {
 }
 
 func (parser *Parser) BodyBase() (interface{}, error) {
-	if err := parser.verifyNextToken(constants.TT_START_BODY); err != nil {
+	if err := parser.verifyNextToken(constants.TT_START_BODY); err == nil {
 		parser.verifyNextToken(constants.TT_NEWLINE)
 		return parser.statements(constants.TT_END_BODY)
 	}

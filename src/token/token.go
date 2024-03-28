@@ -1,8 +1,14 @@
 package token
 
 type Token struct {
-	Type_         string
-	Value         interface{}
+	Position
+	Type_ string
+	Value interface{}
+}
+
+type Position struct {
 	PositionEnd   int
 	PositionStart int
+	Line          int
+	Col           int
 }
