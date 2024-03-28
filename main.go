@@ -7,8 +7,6 @@ import (
 	"makeLanguages/src/parser"
 )
 
-var languageContext_ = languageContext.NewContext(nil)
-
 func main() {
 
 	input, ok := lexer.ReadFile("./main.makeLanguage")
@@ -30,6 +28,10 @@ func main() {
 
 	parser_ := parser.NewParser(tokens)
 	ast := parser_.Parse()
+
+	var languageContext_ = languageContext.NewContext(nil)
+	languageContext_.Set("TRUE", true)
+	languageContext_.Set("FALSE", false)
 
 	interprete_ := interprete.NewInterprete(ast, &languageContext_)
 	interprete_.Run()

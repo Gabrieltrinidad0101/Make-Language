@@ -160,6 +160,10 @@ func (parser *Parser) variableAndConst() interface{} {
 	return nil
 }
 
+func (parser *Parser) AndOr() interface{} {
+	return parser.binOP(parser.compare, constants.TT_AND, constants.TT_AND)
+}
+
 func (parser *Parser) compare() interface{} {
 	return parser.binOP(parser.plus, constants.TT_GT, constants.TT_GTE, constants.TT_GT, constants.TT_LT, constants.TT_LTE, constants.TT_EQE)
 }
@@ -252,7 +256,7 @@ func (parser *Parser) if_() (interface{}, bool) {
 	}
 	if parser.currentToken.Type_ == constants.TT_ELSE {
 		parser.advance()
-		elseNode = parser.compare()
+		elseNode = parser.AndOr()
 	}
 
 	return IfNode{
@@ -269,7 +273,7 @@ func (parser *Parser) conditionBase() (*IfBaseNode, bool) {
 	}
 	parser.advance()
 
-	condition := parser.compare()
+	condition := parser.AndOr()
 
 	ok = parser.verifyNextToken(constants.TT_RPAREN)
 	if !ok {

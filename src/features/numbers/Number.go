@@ -1,6 +1,7 @@
 package numbers
 
 import (
+	"makeLanguages/src/features/booleans"
 	"math"
 )
 
@@ -44,27 +45,27 @@ func (number *Number) SQUARE_ROOT(number_ *Number) *Number {
 	return NewNumbers(value)
 }
 
-func (number *Number) GT(number_ *Number) bool {
+func (number *Number) GT(number_ *Number) *booleans.Boolean {
 	value := number.Value > number_.Value
-	return value
+	return booleans.NewBoolean(value)
 }
 
-func (number *Number) GTE(number_ *Number) bool {
+func (number *Number) GTE(number_ *Number) *booleans.Boolean {
 	value := number.Value >= number_.Value
-	return value
+	return booleans.NewBoolean(value)
 }
 
-func (number *Number) LT(number_ *Number) bool {
+func (number *Number) LT(number_ *Number) *booleans.Boolean {
 	value := number.Value < number_.Value
-	return value
+	return booleans.NewBoolean(value)
 }
 
-func (number *Number) LTE(number_ *Number) bool {
+func (number *Number) LTE(number_ *Number) *booleans.Boolean {
 	value := number.Value <= number_.Value
-	return value
+	return booleans.NewBoolean(value)
 }
 
-func (number *Number) EQE(number_ *Number) bool {
+func (number *Number) EQE(number_ *Number) *booleans.Boolean {
 	value := number.Value == number_.Value
-	return value
+	return booleans.NewBoolean(value)
 }
