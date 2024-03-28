@@ -2,6 +2,7 @@ package interprete
 
 import (
 	"fmt"
+	"makeLanguages/src/features/booleans"
 	"makeLanguages/src/features/numbers"
 	"makeLanguages/src/languageContext"
 	"makeLanguages/src/parser"
@@ -26,7 +27,7 @@ func (interprete *Interprete) Run() {
 	fmt.Println(value)
 }
 
-func getMethodName(node interface{}) string {
+func (interprete *Interprete) getMethodName(node interface{}) string {
 	method := reflect.TypeOf(node)
 	if method.Kind() == reflect.Ptr {
 		return method.Elem().Name()
@@ -36,7 +37,7 @@ func getMethodName(node interface{}) string {
 }
 
 func (interprete *Interprete) call(node interface{}) interface{} {
-	methodName := getMethodName(node)
+	methodName := interprete.getMethodName(node)
 	return interprete.callMethod(interprete, methodName, node)
 }
 
@@ -91,13 +92,13 @@ func (interprete *Interprete) IfNode(node interface{}) interface{} {
 	for _, if_ := range ifNode.Ifs {
 		conditionInterface := interprete.call(if_.Condition)
 
-		if reflect.TypeOf(conditionInterface).Name() != "bool" {
+		if interprete.getMethodName(conditionInterface) != "Boolean" {
 			panic("Error if expression need to a condition")
 		}
 
-		condition := conditionInterface.(bool)
+		condition := conditionInterface.(*booleans.Boolean)
 
-		if condition {
+		if condition.Value {
 			node := interprete.call(if_.Body)
 			return node
 		}

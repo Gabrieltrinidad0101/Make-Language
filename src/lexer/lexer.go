@@ -112,7 +112,13 @@ func (lexer *Lexer) Tokens() (*[]Token, bool) {
 			continue
 		}
 
-		ok := lexer.syntaxToken()
+		isCompare := lexer.syntaxToken(lexer.languageConfiguraction.Compares)
+
+		if isCompare {
+			continue
+		}
+
+		ok := lexer.syntaxToken(lexer.languageConfiguraction.LanguageSyntax)
 
 		if !ok {
 			ok = lexer.getIdentifier()
@@ -130,27 +136,20 @@ func (lexer *Lexer) Tokens() (*[]Token, bool) {
 	return lexer.tokens, false
 }
 
-func (lexer *Lexer) syntaxToken() bool {
+func (lexer *Lexer) syntaxToken(syntax map[string]string) bool {
 	var type_ *string = nil
 	var simbolText string = ""
 
-main:
-	for i := lexer.idx; i < lexer.len; i++ {
-		if i >= lexer.characterMaxLength {
-			return false
-		}
-
+	for i := lexer.idx; i < lexer.len && i-lexer.idx < lexer.characterMaxLength; i++ {
 		simbolText += string((*lexer.text)[i])
 
-		for simbol, value := range lexer.languageConfiguraction.LanguageSyntax {
+		simbol, ok := syntax[simbolText]
 
-			if simbol != simbolText {
-				continue
-			}
-
-			type_ = &value
-			break main
+		if !ok {
+			continue
 		}
+		type_ = &simbol
+		break
 	}
 
 	if type_ == nil {
@@ -172,20 +171,20 @@ main:
 }
 
 func (lexer *Lexer) getIdentifier() bool {
-	var identifier *string
+	identifier := ""
 
 	for {
 		if !strings.Contains(LETTERS, *lexer.current_char) {
 			break
 		}
-		*identifier += *lexer.current_char
+		identifier += *lexer.current_char
 		ok := lexer.advance()
 		if !ok {
 			break
 		}
 	}
 
-	if identifier == nil {
+	if identifier == "" {
 		return false
 	}
 

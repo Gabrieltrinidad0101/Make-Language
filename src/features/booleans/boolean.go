@@ -1,24 +1,24 @@
 package booleans
 
 type Boolean struct {
-	value bool
+	Value bool
 }
 
 func NewBoolean(value_ bool) *Boolean {
 	return &Boolean{
-		value: value_,
+		Value: value_,
 	}
 }
 
 func (boolean *Boolean) AND(boolean_ *Boolean) *Boolean {
-	if boolean.value && boolean_.value {
+	if boolean.Value && boolean_.Value {
 		return NewBoolean(true)
 	}
 	return NewBoolean(false)
 }
 
 func (boolean *Boolean) OR(boolean_ *Boolean) *Boolean {
-	if boolean.value || boolean_.value {
+	if boolean.Value || boolean_.Value {
 		return NewBoolean(true)
 	}
 	return NewBoolean(false)
