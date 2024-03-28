@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"makeLanguages/src/constants"
 	CustomErrors "makeLanguages/src/customErrors"
+	"makeLanguages/src/token"
 	"os"
 	"strconv"
 	"strings"
@@ -15,13 +16,6 @@ type LanguageConfiguraction struct {
 	Compares          map[string]string   `json:"compares"`
 	ComparesContinues map[string][]string `json:"compares_continues"`
 	LanguageSyntax    map[string]string   `json:"language_syntax"`
-}
-
-type Token struct {
-	Type_         string
-	Value         interface{}
-	PositionEnd   int
-	PositionStart int
 }
 
 type Simbols struct {
@@ -37,7 +31,7 @@ type Lexer struct {
 	line                   int
 	idx                    int
 	current_char           *string
-	tokens                 *[]Token
+	tokens                 *[]token.Token
 	text                   *string
 	len                    int
 	languageConfiguraction LanguageConfiguraction
@@ -86,20 +80,36 @@ func getMaxLengthCharacter(characters map[string]string) int {
 	return maxLength
 }
 
+func (lexer *Lexer) advance() bool {
+	lexer.idx++
+	if lexer.idx >= lexer.len {
+		lexer.current_char = nil
+		return false
+	}
+
+	*lexer.current_char = string((*lexer.text)[lexer.idx])
+	if *lexer.current_char == "\n" {
+		lexer.line++
+		lexer.col = 0
+	}
+
+	return true
+}
+
 func NewLexer(text *string, languageConfiguraction LanguageConfiguraction) *Lexer {
 	currentChar := ""
 	return &Lexer{
 		text:                   text,
 		current_char:           &currentChar,
 		len:                    len(*text),
-		tokens:                 &[]Token{},
+		tokens:                 &[]token.Token{},
 		idx:                    -1,
 		languageConfiguraction: languageConfiguraction,
 		characterMaxLength:     getMaxLengthCharacter(languageConfiguraction.LanguageSyntax),
 	}
 }
 
-func (lexer *Lexer) Tokens() (*[]Token, bool) {
+func (lexer *Lexer) Tokens() (*[]token.Token, bool) {
 	lexer.advance()
 	for lexer.current_char != nil {
 		if *lexer.current_char == " " {
@@ -125,12 +135,15 @@ func (lexer *Lexer) Tokens() (*[]Token, bool) {
 		}
 
 		if !ok {
-			customErrors := CustomErrors.New()
-			customErrors.IllegalCharacter(*lexer.text, *lexer.current_char, lexer.idx, lexer.idx)
+			CustomErrors.IllegalCharacter(token.Token{
+				Value:         *lexer.current_char,
+				PositionEnd:   lexer.idx,
+				PositionStart: lexer.idx,
+			})
 			return nil, true
 		}
 	}
-	*lexer.tokens = append(*lexer.tokens, Token{
+	*lexer.tokens = append(*lexer.tokens, token.Token{
 		Type_: constants.EOF,
 	})
 	return lexer.tokens, false
@@ -160,9 +173,9 @@ func (lexer *Lexer) syntaxToken(syntax map[string]string) bool {
 		lexer.advance()
 	}
 
-	token := Token{
+	token := token.Token{
 		Type_: *type_,
-		Value: nil,
+		Value: simbolText,
 	}
 
 	*lexer.tokens = append(*lexer.tokens, token)
@@ -188,29 +201,13 @@ func (lexer *Lexer) getIdentifier() bool {
 		return false
 	}
 
-	token := Token{
+	token := token.Token{
 		Type_: constants.TT_IDENTIFIER,
 		Value: identifier,
 	}
 
 	*lexer.tokens = append(*lexer.tokens, token)
 	lexer.advance()
-	return true
-}
-
-func (lexer *Lexer) advance() bool {
-	lexer.idx++
-	if lexer.idx >= lexer.len {
-		lexer.current_char = nil
-		return false
-	}
-
-	*lexer.current_char = string((*lexer.text)[lexer.idx])
-	if *lexer.current_char == "\n" {
-		lexer.line++
-		lexer.col = 0
-	}
-
 	return true
 }
 
@@ -239,7 +236,7 @@ func (lexer *Lexer) makeNumber() bool {
 		panic(fmt.Sprintf("Internal error analize the number %s", numberString))
 	}
 
-	*lexer.tokens = append(*lexer.tokens, Token{
+	*lexer.tokens = append(*lexer.tokens, token.Token{
 		Type_:         "number",
 		Value:         number,
 		PositionStart: positionStart,

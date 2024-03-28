@@ -1,6 +1,7 @@
 package main
 
 import (
+	"makeLanguages/src/customErrors"
 	"makeLanguages/src/interprete"
 	"makeLanguages/src/languageContext"
 	"makeLanguages/src/lexer"
@@ -19,6 +20,8 @@ func main() {
 		return
 	}
 
+	customErrors.New(*input)
+
 	lexer_ := lexer.NewLexer(input, conf)
 	tokens, ok := lexer_.Tokens()
 
@@ -27,7 +30,12 @@ func main() {
 	}
 
 	parser_ := parser.NewParser(tokens)
-	ast := parser_.Parse()
+	ast, err := parser_.Parse()
+
+	if err != nil {
+		customErrors.InvalidSyntax(*parser_.CurrentToken, err.Error())
+		return
+	}
 
 	var languageContext_ = languageContext.NewContext(nil)
 	languageContext_.Set("TRUE", true)

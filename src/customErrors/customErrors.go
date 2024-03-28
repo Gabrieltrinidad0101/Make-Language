@@ -1,24 +1,35 @@
-package CustomErrors
+package customErrors
 
 import (
 	"fmt"
+	"makeLanguages/src/token"
 	"os"
 	"strings"
 )
 
-type CustomError struct{}
-
-func New() *CustomError {
-	return &CustomError{}
+type customError struct {
+	text string
 }
 
-func (customError *CustomError) show(text string, positionStart int, positionEnd int, details string) {
-	lines := strings.Split(text, "\n")
+var CustomError *customError
+
+func New(text string) *customError {
+	if CustomError != nil {
+		return CustomError
+	}
+	CustomError = &customError{
+		text,
+	}
+	return CustomError
+}
+
+func show(token token.Token, details string) {
+	lines := strings.Split(CustomError.text, "\n")
 	errorText := ""
 	for i, line := range lines {
 		if i == 0 {
-			padding := strings.Repeat(" ", len(line)-positionStart)
-			errorSignal := strings.Repeat("^", max(positionEnd-positionStart, 1))
+			padding := strings.Repeat(" ", len(line)-token.PositionStart)
+			errorSignal := strings.Repeat("^", max(token.PositionEnd-token.PositionStart, 1))
 			errorText += fmt.Sprintf("%s\n %s\n", line, padding+errorSignal)
 		}
 	}
@@ -27,10 +38,10 @@ func (customError *CustomError) show(text string, positionStart int, positionEnd
 	os.Exit(0)
 }
 
-func (customErrors *CustomError) IllegalCharacter(text, character string, positionStart, positionEnd int) {
-	customErrors.show(text, positionStart, positionEnd, fmt.Sprintf("Illegal Character: %s", character))
+func IllegalCharacter(token token.Token) {
+	show(token, fmt.Sprintf("Illegal Character: %s", token.Value))
 }
 
-func (customErrors *CustomError) IfInvalidSyntax(text, character string, positionStart, positionEnd int) {
-	customErrors.show(text, positionStart, positionEnd, fmt.Sprintf("Invalid if: %s", character))
+func InvalidSyntax(token token.Token, details string) {
+	show(token, fmt.Sprintf("Invalid: %s\n%s", token.Value, details))
 }
