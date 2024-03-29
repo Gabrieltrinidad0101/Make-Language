@@ -50,6 +50,11 @@ type ListNode struct {
 	Nodes []interface{}
 }
 
+type WhileNode struct {
+	Condition interface{}
+	Body      interface{}
+}
+
 type NullNode struct{}
 
 func NewParser(tokens *[]token.Token) *Parser {
@@ -171,31 +176,52 @@ func (parser *Parser) statement() (interface{}, error) {
 		return variableAndConst, err
 	}
 
+	while, err := parser.while()
+	if while != nil || err != nil {
+		return while, err
+	}
+
 	return parser.compare()
 }
 
 func (parser *Parser) variableAndConst() (interface{}, error) {
 	constError := parser.verifyNextToken(constants.TT_CONST)
 	varError := parser.verifyNextToken(constants.TT_VAR)
-	if constError == nil || varError == nil {
-		identifier := parser.CurrentToken.Value
-		err := parser.verifyNextToken(constants.TT_IDENTIFIER, constants.TT_EQ)
-		if err != nil {
-			return nil, err
-		}
-		node, err := parser.compare()
-
-		if err != nil {
-			return nil, err
-		}
-
-		return VarAssignNode{
-			Identifier: identifier.(string),
-			Node:       node,
-			IsConstant: constError == nil,
-		}, nil
+	if constError != nil && varError != nil {
+		return nil, nil
 	}
-	return nil, nil
+	identifier := parser.CurrentToken.Value
+	err := parser.verifyNextToken(constants.TT_IDENTIFIER, constants.TT_EQ)
+	if err != nil {
+		return nil, err
+	}
+	node, err := parser.compare()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return VarAssignNode{
+		Identifier: identifier.(string),
+		Node:       node,
+		IsConstant: constError == nil,
+	}, nil
+}
+
+func (parser *Parser) while() (interface{}, error) {
+	while := parser.verifyNextToken(constants.TT_WHILE)
+	if while != nil {
+		return nil, nil
+	}
+	conditionAndBodyBase, err := parser.conditionAndBodyBase()
+
+	if err != nil {
+		return nil, err
+	}
+	return WhileNode{
+		Condition: conditionAndBodyBase.Condition,
+		Body:      conditionAndBodyBase.Body,
+	}, nil
 }
 
 func (parser *Parser) AndOr() (interface{}, error) {

@@ -115,6 +115,20 @@ func (interprete *Interprete) IfNode(node interface{}) interface{} {
 	return parser.NullNode{}
 }
 
+func (interprete *Interprete) WhileNode(node interface{}) interface{} {
+	whileNode := node.(parser.WhileNode)
+
+	for {
+		boolean := interprete.call(whileNode.Condition).(*booleans.Boolean)
+		if !boolean.Value {
+			break
+		}
+		fmt.Print(interprete.call(whileNode.Body))
+	}
+
+	return parser.NullNode{}
+}
+
 func (interprete *Interprete) ListNode(node interface{}) interface{} {
 	listNode := node.(parser.ListNode)
 	for _, node := range listNode.Nodes {
