@@ -25,22 +25,27 @@ func New(text string) *customError {
 
 func show(token token.Token, details string) {
 	lines := strings.Split(CustomError.text, "\n")
+	linesCanShow := min(3, token.Line-1)
+	startText := token.Line - linesCanShow - 1
+	endText := token.Line + min(3, len(lines)-token.Line-1)
+	linesCut := lines[startText:endText]
 	fmt.Printf("Line: %d\n", token.Line)
 	fmt.Printf("Col: %d\n", token.Col)
 	errorText := ""
-	for i, line := range lines {
-		if i == 0 {
-			characterLength := max(token.PositionEnd-token.PositionStart, 1)
-			padding := strings.Repeat(" ", len(string(line))-characterLength-1)
+	for i, line := range linesCut {
+		lineNumber := i + token.Line - linesCanShow
+		if i == linesCanShow {
+			characterLength := len(fmt.Sprint(token.Value))
+			padding := strings.Repeat(" ", token.Col+len(string(rune(lineNumber)))+1)
 			errorSignal := strings.Repeat("^", characterLength)
-			errorText += fmt.Sprintf("%s\n %s\n", line, padding+errorSignal)
+			errorText += fmt.Sprintf("%d: %s\n%s\n", lineNumber, line, padding+errorSignal)
 			continue
 		}
-		errorText += string(line)
+		errorText += fmt.Sprintf("%d: %s\n", lineNumber, line)
 	}
 
-	fmt.Printf("%s\n", details)
-	fmt.Printf("%s\n", errorText)
+	fmt.Printf("%s\n\n", details)
+	fmt.Printf("%s\n\n", errorText)
 	os.Exit(0)
 }
 

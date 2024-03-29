@@ -99,7 +99,10 @@ func (lexer *Lexer) advance() bool {
 func NewLexer(text *string, languageConfiguraction LanguageConfiguraction) *Lexer {
 	currentChar := ""
 	return &Lexer{
-		text:                   text,
+		text: text,
+		Position: token.Position{
+			Line: 1,
+		},
 		current_char:           &currentChar,
 		len:                    len(*text),
 		tokens:                 &[]token.Token{},
@@ -152,8 +155,7 @@ func (lexer *Lexer) syntaxToken(syntax map[string]string) bool {
 	var type_ *string = nil
 	var simbolText string = ""
 
-	startPosition := lexer.idx
-
+	positionCopy := lexer.Position.Copy()
 	for i := lexer.idx; i < lexer.len && i-lexer.idx < lexer.characterMaxLength; i++ {
 		simbolText += string((*lexer.text)[i])
 
@@ -175,14 +177,9 @@ func (lexer *Lexer) syntaxToken(syntax map[string]string) bool {
 	}
 
 	token := token.Token{
-		Type_: *type_,
-		Value: simbolText,
-		Position: token.Position{
-			PositionStart: startPosition,
-			PositionEnd:   startPosition + len(simbolText),
-			Line:          lexer.Line,
-			Col:           lexer.Col,
-		},
+		Type_:    *type_,
+		Value:    simbolText,
+		Position: positionCopy,
 	}
 
 	*lexer.tokens = append(*lexer.tokens, token)
@@ -224,7 +221,7 @@ func (lexer *Lexer) makeNumber() bool {
 		return false
 	}
 	dotNumber := 0
-	positionStart := lexer.idx
+	positionStart := lexer.Position.Copy()
 	for lexer.current_char != nil && lexer.advance() {
 		numberNext, ok := lexer.languageConfiguraction.Numbers[*lexer.current_char]
 		if !ok {
@@ -244,14 +241,9 @@ func (lexer *Lexer) makeNumber() bool {
 	}
 
 	*lexer.tokens = append(*lexer.tokens, token.Token{
-		Type_: "number",
-		Value: number,
-		Position: token.Position{
-			PositionStart: positionStart,
-			PositionEnd:   lexer.idx,
-			Line:          lexer.Line,
-			Col:           lexer.Col,
-		},
+		Type_:    "number",
+		Value:    number,
+		Position: positionStart,
 	})
 	return true
 }

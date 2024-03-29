@@ -39,6 +39,7 @@ type ConditionAndBody struct {
 type VarAssignNode struct {
 	Identifier string
 	Node       interface{}
+	IsConstant bool
 }
 
 type VarAccessNode struct {
@@ -126,6 +127,9 @@ func (parser *Parser) expr() (interface{}, error) {
 }
 
 func (parser *Parser) statements(tokenEnd string) (interface{}, error) {
+	for parser.CurrentToken.Type_ == constants.TT_NEWLINE {
+		parser.advance()
+	}
 	listNodes := ListNode{}
 	ast, err := parser.statement()
 	if err != nil {

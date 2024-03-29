@@ -7,8 +7,10 @@ type Token struct {
 }
 
 type Position struct {
-	PositionEnd   int
-	PositionStart int
-	Line          int
-	Col           int
+	Line int
+	Col  int
+}
+
+func (position *Position) Copy() Position {
+	return *position
 }
