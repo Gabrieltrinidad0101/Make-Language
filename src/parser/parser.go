@@ -77,11 +77,13 @@ func (parser *Parser) getToken(idx int) (*token.Token, bool) {
 	return &(*parser.tokens)[idx], true
 }
 
-func (parser *Parser) verifyNextToken(tokenType string) error {
-	if parser.CurrentToken.Type_ != tokenType {
-		return fmt.Errorf("Expect: %s", tokenType)
+func (parser *Parser) verifyNextToken(tokensType ...string) error {
+	for _, type_ := range tokensType {
+		if parser.CurrentToken.Type_ != type_ {
+			return fmt.Errorf("Expect: %s", type_)
+		}
+		parser.advance()
 	}
-	parser.advance()
 	return nil
 }
 
@@ -173,13 +175,11 @@ func (parser *Parser) statement() (interface{}, error) {
 }
 
 func (parser *Parser) variableAndConst() (interface{}, error) {
-	if err := parser.verifyNextToken(constants.TT_VAR); err == nil {
+	constError := parser.verifyNextToken(constants.TT_CONST)
+	varError := parser.verifyNextToken(constants.TT_VAR)
+	if constError == nil || varError == nil {
 		identifier := parser.CurrentToken.Value
-		err := parser.verifyNextToken(constants.TT_IDENTIFIER)
-		if err != nil {
-			return nil, err
-		}
-		err = parser.verifyNextToken(constants.TT_EQ)
+		err := parser.verifyNextToken(constants.TT_IDENTIFIER, constants.TT_EQ)
 		if err != nil {
 			return nil, err
 		}
@@ -192,6 +192,7 @@ func (parser *Parser) variableAndConst() (interface{}, error) {
 		return VarAssignNode{
 			Identifier: identifier.(string),
 			Node:       node,
+			IsConstant: constError == nil,
 		}, nil
 	}
 	return nil, nil

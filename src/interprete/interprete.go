@@ -62,6 +62,9 @@ func (interprete *Interprete) BinOP(node interface{}) interface{} {
 
 func (interprete Interprete) VarAssignNode(node interface{}) interface{} {
 	varAssignNode := node.(parser.VarAssignNode)
+	if _, ok := interprete.context.Get(varAssignNode.Identifier); ok && varAssignNode.IsConstant {
+		panic("Const " + varAssignNode.Identifier)
+	}
 	result := interprete.call(varAssignNode.Node)
 	interprete.context.Set(varAssignNode.Identifier, result)
 	return parser.NullNode{}
