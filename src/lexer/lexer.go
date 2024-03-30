@@ -24,7 +24,6 @@ type Simbols struct {
 }
 
 const LETTERS = "qwertyuiopasdfghjklñzxcvbnmQWERTYUIOPASDFGHJKLÑZXCVBNM_"
-const ASCII = "123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~"
 
 type Lexer struct {
 	token.Position
@@ -189,7 +188,7 @@ func (lexer *Lexer) syntaxToken(syntax map[string]string) bool {
 
 func (lexer *Lexer) getIdentifier() bool {
 	identifier := ""
-
+	position := lexer.Position.Copy()
 	for {
 		if !strings.Contains(LETTERS, *lexer.current_char) {
 			break
@@ -206,12 +205,12 @@ func (lexer *Lexer) getIdentifier() bool {
 	}
 
 	token := token.Token{
-		Type_: constants.TT_IDENTIFIER,
-		Value: identifier,
+		Type_:    constants.TT_IDENTIFIER,
+		Value:    identifier,
+		Position: position,
 	}
 
 	*lexer.tokens = append(*lexer.tokens, token)
-	lexer.advance()
 	return true
 }
 

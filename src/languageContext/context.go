@@ -18,6 +18,14 @@ func NewContext(parent *Context) Context {
 
 func (context *Context) Get(name string) (interface{}, bool) {
 	value, ok := (*context.variables)[name]
+	if !ok {
+		currentContext := context
+		if currentContext.Parent == nil {
+			return value, ok
+		}
+		currentContext = currentContext.Parent.(*Context)
+		return currentContext.Get(name)
+	}
 	return value, ok
 }
 
