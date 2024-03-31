@@ -45,5 +45,8 @@
         "\"": "STRING",
         "\n": "NEWLINE",
         "\r": "NEWLINE"
+    },
+    "functions": {
+        "print": "print"
     }
 }

@@ -78,13 +78,41 @@ func (interprete Interprete) VarAccessNode(node interface{}, context *languageCo
 	return interprete.call(valueNode, context)
 }
 
-func (interprete *Interprete) CallFuncNode(node interface{}, context *languageContext.Context) {
+func (interprete *Interprete) FuncNode(node interface{}, context *languageContext.Context) interface{} {
+	funcNode := node.(*parser.FuncNode)
+	newContext := languageContext.NewContext(context)
+
+	for _, param := range *funcNode.Params {
+		newContext.Set(param.Value.(string), parser.NullNode{})
+	}
+	context.Set(funcNode.Name, function.Function{
+		Body:    funcNode.Body,
+		Context: &newContext,
+		Params:  funcNode.Params,
+	})
+	return parser.NullNode{}
+}
+
+func (interprete *Interprete) CallFuncNode(node interface{}, context *languageContext.Context) interface{} {
 	callFuncNode := node.(*parser.CallFuncNode)
 	func_, ok := context.Get(callFuncNode.Name)
 	if !ok {
 		panic(callFuncNode.Name)
 	}
-	func_.(function.Function).SetParams(callFuncNode.Params)
+	funcNode := func_.(function.IFunction)
+
+	var params []interface{}
+
+	for _, param := range *callFuncNode.Params {
+		params = append(params, interprete.call(param, context))
+	}
+
+	funcNodeBody, hasACustomExecute := funcNode.Execute(&params)
+	if hasACustomExecute {
+		return funcNodeBody
+	}
+	interprete.call(funcNode.GetBody(), funcNode.GetContext())
+	return parser.NullNode{}
 }
 
 func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext.Context) *numbers.Number {
@@ -137,29 +165,14 @@ func (interprete *Interprete) WhileNode(node interface{}, context *languageConte
 	return parser.NullNode{}
 }
 
-func (interprete *Interprete) FuncNode(node interface{}, context *languageContext.Context) interface{} {
-	funcNode := node.(*parser.FuncNode)
-	newContext := languageContext.NewContext(context)
-
-	for _, param := range *funcNode.Params {
-		newContext.Set(param.Value.(string), parser.NullNode{})
-	}
-	context.Set(funcNode.Name, function.Function{
-		Body:    funcNode.Body,
-		Context: newContext,
-		Params:  funcNode.Params,
-	})
-	return parser.NullNode{}
-}
-
 func (interprete *Interprete) ListNode(node interface{}, context *languageContext.Context) interface{} {
 	listNode := node.(parser.ListNode)
 	for _, node := range listNode.Nodes {
-		fmt.Println(interprete.call(node, context))
+		interprete.call(node, context)
 	}
 	return 1
 }
 
-func (interprete *Interprete) Number(node interface{}) *numbers.Number {
+func (interprete *Interprete) Number(node interface{}, context *languageContext.Context) *numbers.Number {
 	return node.(*numbers.Number)
 }

@@ -20,7 +20,7 @@ func (context *Context) Get(name string) (interface{}, bool) {
 	value, ok := (*context.variables)[name]
 	if !ok {
 		currentContext := context
-		if currentContext.Parent == nil {
+		if currentContext.Parent.(*Context) == nil {
 			return value, ok
 		}
 		currentContext = currentContext.Parent.(*Context)

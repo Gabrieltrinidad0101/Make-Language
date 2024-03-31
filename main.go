@@ -2,6 +2,7 @@ package main
 
 import (
 	"makeLanguages/src/customErrors"
+	"makeLanguages/src/features/function"
 	"makeLanguages/src/interprete"
 	"makeLanguages/src/languageContext"
 	"makeLanguages/src/lexer"
@@ -9,7 +10,6 @@ import (
 )
 
 func main() {
-
 	input, ok := lexer.ReadFile("./main.makeLanguage")
 	if !ok {
 		return
@@ -40,6 +40,12 @@ func main() {
 	var languageContext_ = languageContext.NewContext(nil)
 	languageContext_.Set("TRUE", true)
 	languageContext_.Set("FALSE", false)
+
+	functions := function.BuildFunctions(conf.Functions)
+
+	for key, value := range functions {
+		languageContext_.Set(key, value)
+	}
 
 	interprete_ := interprete.NewInterprete(ast)
 	interprete_.Run(&languageContext_)

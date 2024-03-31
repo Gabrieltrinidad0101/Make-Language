@@ -16,6 +16,7 @@ type LanguageConfiguraction struct {
 	Compares          map[string]string   `json:"compares"`
 	ComparesContinues map[string][]string `json:"compares_continues"`
 	LanguageSyntax    map[string]string   `json:"language_syntax"`
+	Functions         map[string]string   `json:"functions"`
 }
 
 type Simbols struct {

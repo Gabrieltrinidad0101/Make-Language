@@ -1,1 +1,8 @@
-var a = 2 + 3
+func a(k){
+    if (k == 2) {
+        print(4)
+    }else {
+        print(7)
+    }
+}
+a(2)

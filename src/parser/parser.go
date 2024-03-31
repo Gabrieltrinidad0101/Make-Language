@@ -78,11 +78,18 @@ func NewParser(tokens *[]token.Token) *Parser {
 }
 
 func (parser *Parser) advance() bool {
-	parser.idx++
-	if parser.idx >= parser.len {
-		return false
+	return parser.advances(1)
+}
+
+func (parser *Parser) advances(number int) bool {
+	for number > 0 {
+		parser.idx++
+		if parser.idx >= parser.len {
+			return false
+		}
+		*parser.CurrentToken = (*parser.tokens)[parser.idx]
+		number--
 	}
-	*parser.CurrentToken = (*parser.tokens)[parser.idx]
 	return true
 }
 
@@ -95,13 +102,14 @@ func (parser *Parser) getToken(idx int) (*token.Token, bool) {
 
 func (parser *Parser) verifyNextToken(tokensType ...string) (*token.Token, error) {
 	var lastToken *token.Token = nil
-	for _, type_ := range tokensType {
-		if parser.CurrentToken.Type_ != type_ {
+	for i, type_ := range tokensType {
+		token, ok := parser.getToken(parser.idx + i)
+		if ok && token.Type_ != type_ {
 			return nil, fmt.Errorf("Expect: %s", type_)
 		}
-		lastToken = parser.CurrentToken
-		parser.advance()
+		lastToken = token
 	}
+	parser.advances(len(tokensType))
 	return lastToken, nil
 }
 
@@ -307,7 +315,7 @@ func (parser *Parser) term() (interface{}, error) {
 		return callFuncNode, err
 	}
 
-	if varAccess, ok := parser.varAccess(); ok {
+	if varAccess, err := parser.varAccess(); err != nil || varAccess != nil {
 		return varAccess, nil
 	}
 
@@ -358,7 +366,7 @@ func (parser *Parser) if_() (interface{}, error) {
 func (parser *Parser) func_() (*FuncNode, error) {
 	identoifierToken, err := parser.verifyNextToken(constants.TT_FUNC, constants.TT_IDENTIFIER)
 	if err != nil {
-		return nil, nil
+		return nil, err
 	}
 	params, err := parser.params()
 	if err != nil {
@@ -376,7 +384,8 @@ func (parser *Parser) func_() (*FuncNode, error) {
 }
 
 func (parser *Parser) callFunc() (*CallFuncNode, error) {
-	token, err := parser.verifyNextToken(constants.TT_IDENTIFIER, constants.TT_LPAREN)
+	funcName := parser.CurrentToken.Value
+	_, err := parser.verifyNextToken(constants.TT_IDENTIFIER, constants.TT_LPAREN)
 	if err != nil {
 		return nil, nil
 	}
@@ -386,7 +395,7 @@ func (parser *Parser) callFunc() (*CallFuncNode, error) {
 	}
 	return &CallFuncNode{
 		Params: params,
-		Name:   token.Value.(string),
+		Name:   funcName.(string),
 	}, nil
 }
 
@@ -426,16 +435,16 @@ func (parser *Parser) BodyBase() (interface{}, error) {
 	return parser.statement()
 }
 
-func (parser *Parser) varAccess() (*VarAccessNode, bool) {
+func (parser *Parser) varAccess() (*VarAccessNode, error) {
 	if parser.CurrentToken.Type_ != constants.TT_IDENTIFIER {
-		return nil, false
+		return nil, nil
 	}
 
 	varAccessNode := &VarAccessNode{
 		Identifier: parser.CurrentToken.Value.(string),
 	}
 	parser.advance()
-	return varAccessNode, true
+	return varAccessNode, nil
 }
 
 func (parser *Parser) params() (*[]token.Token, error) {
@@ -466,24 +475,20 @@ func (parser *Parser) params() (*[]token.Token, error) {
 }
 
 func (parser *Parser) args() (*[]interface{}, error) {
-	_, err := parser.verifyNextToken(constants.TT_LPAREN)
-	if err != nil {
-		return nil, err
-	}
 	params := []interface{}{}
 	for {
-		_, err = parser.verifyNextToken(constants.TT_IDENTIFIER, constants.TT_COMMA)
-		if err != nil {
-			return nil, err
-		}
 		param, err := parser.term()
 		if err != nil {
 			return nil, err
 		}
 		params = append(params, param)
-		_, err = parser.verifyNextToken(constants.TT_RPAREN)
-		if err == nil {
-			break
+		_, err = parser.verifyNextToken(constants.TT_COMMA)
+		if err != nil {
+			_, err = parser.verifyNextToken(constants.TT_RPAREN)
+			if err == nil {
+				break
+			}
+			return nil, err
 		}
 	}
 
