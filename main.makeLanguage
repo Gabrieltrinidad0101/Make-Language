@@ -1,8 +1,5 @@
-func a(k){
-    if (k == 2) {
-        print(4)
-    }else {
-        print(7)
-    }
+var a = 10
+while(a > 0){
+    print(a)
+    a = a - 1 
 }
-a(2)

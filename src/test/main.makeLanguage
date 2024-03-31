@@ -1,0 +1,6 @@
+var a = 1
+var b = a + 1
+var c = if(a < b) 2 else 3
+var d = if(a > b) 2 else 3
+print(c)
+print(d)
