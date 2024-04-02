@@ -25,6 +25,16 @@ func (number *Number) MINUS(number_ *Number) *Number {
 	return NewNumbers(value)
 }
 
+func (number *Number) PLUS1() *Number {
+	value := number.Value + 1
+	return NewNumbers(value)
+}
+
+func (number *Number) MINUS1(number_ *Number) *Number {
+	value := number.Value - 1
+	return NewNumbers(value)
+}
+
 func (number *Number) MUL(number_ *Number) *Number {
 	value := number.Value * number_.Value
 	return NewNumbers(value)

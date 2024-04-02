@@ -15,6 +15,11 @@ type Interprete struct {
 	currentNode interface{}
 }
 
+type VarType struct {
+	Value      interface{}
+	IsConstant bool
+}
+
 func NewInterprete(ast interface{}) *Interprete {
 	return &Interprete{
 		ast: ast,
@@ -65,16 +70,39 @@ func (interprete Interprete) VarAssignNode(node interface{}, context *languageCo
 		panic("Const " + varAssignNode.Identifier)
 	}
 	result := interprete.call(varAssignNode.Node, context)
-	context.Set(varAssignNode.Identifier, result)
+	context.Set(varAssignNode.Identifier, VarType{
+		Value:      result,
+		IsConstant: varAssignNode.IsConstant,
+	})
+	return parser.NullNode{}
+}
+
+func (interprete Interprete) UpdateVariableNode(node interface{}, context *languageContext.Context) interface{} {
+	updateVariableNode := node.(parser.UpdateVariableNode)
+	varType, ok := context.Get(updateVariableNode.Identifier)
+	if !ok {
+		panic("The variable no exist" + updateVariableNode.Identifier)
+	}
+	varTypeNode := varType.(VarType)
+	if varTypeNode.IsConstant {
+		panic("Const")
+	}
+
+	result := interprete.call(updateVariableNode.Node, context)
+
+	varTypeNode.Value = result
+
+	context.Set(updateVariableNode.Identifier, varTypeNode)
 	return parser.NullNode{}
 }
 
 func (interprete Interprete) VarAccessNode(node interface{}, context *languageContext.Context) interface{} {
 	varAccessNode := node.(*parser.VarAccessNode)
-	valueNode, ok := context.Get(varAccessNode.Identifier)
+	varType, ok := context.Get(varAccessNode.Identifier)
 	if !ok {
 		panic("Variable is undefined")
 	}
+	valueNode := varType.(VarType).Value
 	return interprete.call(valueNode, context)
 }
 
@@ -122,6 +150,12 @@ func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext
 	if unaryOP.Operation == "MINUS" {
 		number.Value *= -1
 	}
+	if unaryOP.Operation == "PLUS1" {
+		number.Value += 1
+	}
+	if unaryOP.Operation == "MINUS1" {
+		number.Value -= 1
+	}
 	return number
 }
 
@@ -160,6 +194,23 @@ func (interprete *Interprete) WhileNode(node interface{}, context *languageConte
 			break
 		}
 		fmt.Print(interprete.call(whileNode.Body, context))
+	}
+
+	return parser.NullNode{}
+}
+
+func (interprete *Interprete) ForNode(node interface{}, context *languageContext.Context) interface{} {
+	forNode := node.(parser.ForNode)
+
+	for {
+		interprete.call(forNode.Expr1, context)
+		condition := interprete.call(forNode.Condition, context)
+		coditionNode := condition.(*booleans.Boolean)
+		if !coditionNode.Value {
+			break
+		}
+		interprete.call(forNode.Expr2, context)
+		interprete.call(forNode.Body, context)
 	}
 
 	return parser.NullNode{}

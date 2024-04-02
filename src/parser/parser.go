@@ -42,6 +42,11 @@ type VarAssignNode struct {
 	IsConstant bool
 }
 
+type UpdateVariableNode struct {
+	Identifier string
+	Node       interface{}
+}
+
 type VarAccessNode struct {
 	Identifier string
 }
@@ -59,6 +64,13 @@ type FuncNode struct {
 	Params *[]token.Token
 	Body   interface{}
 	Name   string
+}
+
+type ForNode struct {
+	Expr1     interface{}
+	Expr2     interface{}
+	Condition interface{}
+	Body      interface{}
 }
 
 type CallFuncNode struct {
@@ -197,9 +209,19 @@ func (parser *Parser) statement() (interface{}, error) {
 		return variableAndConst, err
 	}
 
+	updateVariable, err := parser.updateVariable()
+	if updateVariable != nil || err != nil {
+		return updateVariable, err
+	}
+
 	while, err := parser.while()
 	if while != nil || err != nil {
 		return while, err
+	}
+
+	for_, err := parser.for_()
+	if for_ != nil || err != nil {
+		return for_, err
 	}
 
 	return parser.compare()
@@ -229,6 +251,24 @@ func (parser *Parser) variableAndConst() (interface{}, error) {
 	}, nil
 }
 
+func (parser *Parser) updateVariable() (interface{}, error) {
+	value := parser.CurrentToken.Value
+	_, err := parser.verifyNextToken(constants.TT_IDENTIFIER, constants.TT_EQ)
+	if err != nil {
+		return nil, nil
+	}
+	expr, err := parser.compare()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return UpdateVariableNode{
+		Identifier: value.(string),
+		Node:       expr,
+	}, nil
+}
+
 func (parser *Parser) while() (interface{}, error) {
 	_, err := parser.verifyNextToken(constants.TT_WHILE)
 	if err != nil {
@@ -242,6 +282,60 @@ func (parser *Parser) while() (interface{}, error) {
 	return WhileNode{
 		Condition: conditionAndBodyBase.Condition,
 		Body:      conditionAndBodyBase.Body,
+	}, nil
+}
+
+func (parser *Parser) for_() (interface{}, error) {
+	_, err := parser.verifyNextToken(constants.TT_FOR)
+	if err != nil {
+		return nil, nil
+	}
+
+	_, err = parser.verifyNextToken(constants.TT_LPAREN)
+	if err != nil {
+		return nil, nil
+	}
+
+	expr1, err := parser.statement()
+	if err != nil {
+		return nil, nil
+	}
+
+	_, err = parser.verifyNextToken(constants.TT_SEMICOLON)
+	if err != nil {
+		return nil, nil
+	}
+
+	condition, err := parser.compare()
+	if err != nil {
+		return nil, nil
+	}
+
+	_, err = parser.verifyNextToken(constants.TT_SEMICOLON)
+	if err != nil {
+		return nil, nil
+	}
+
+	expr2, err := parser.statement()
+	if err != nil {
+		return nil, nil
+	}
+
+	_, err = parser.verifyNextToken(constants.TT_RPAREN)
+	if err != nil {
+		return nil, nil
+	}
+
+	body, err := parser.BodyBase()
+	if err != nil {
+		return nil, nil
+	}
+
+	return ForNode{
+		Expr1:     expr1,
+		Condition: condition,
+		Expr2:     expr2,
+		Body:      body,
 	}, nil
 }
 
@@ -268,7 +362,7 @@ func (parser *Parser) pow() (interface{}, error) {
 func (parser *Parser) term() (interface{}, error) {
 	nodeType := parser.CurrentToken.Type_
 
-	if nodeType == constants.TT_PLUS || nodeType == constants.TT_MINUS {
+	if nodeType == constants.TT_PLUS || nodeType == constants.TT_MINUS || nodeType == constants.TT_PLUS1 || nodeType == constants.TT_MINUS1 {
 		token, ok := parser.getToken(parser.idx + 1)
 		if ok && token.Type_ == constants.TT_PLUS || token.Type_ == constants.TT_MINUS {
 			return nil, fmt.Errorf("Error is necesery a ( between - and + simbols")
@@ -477,7 +571,7 @@ func (parser *Parser) params() (*[]token.Token, error) {
 func (parser *Parser) args() (*[]interface{}, error) {
 	params := []interface{}{}
 	for {
-		param, err := parser.term()
+		param, err := parser.compare()
 		if err != nil {
 			return nil, err
 		}

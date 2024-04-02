@@ -65,17 +65,19 @@ func getLanguageContext(confPath string) *languageContext.Context {
 }
 
 type Print struct {
+	function.BaseFunction
 	assert *assert.Assertions
 	call   int
 }
 
 func (print Print) Execute(params *[]interface{}) (interface{}, bool) {
-	number := (*params)[0].(numbers.Number)
+	number := (*params)[0].(*numbers.Number)
 	if print.call == 0 {
-		print.assert.Equal(number.Value, 2)
+		print.assert.Equal(number.Value, float64(3))
 	} else {
-		print.assert.Equal(number.Value, 3)
+		print.assert.Equal(number.Value, float64(2))
 	}
+	print.call++
 	return nil, true
 }
 
@@ -95,8 +97,8 @@ func TestVariablesAndIfs(t *testing.T) {
 	assert.True(ok)
 	d, ok := context.Get("d")
 	assert.True(ok)
-	assert.Equal(a.(numbers.Number), 1)
-	assert.Equal(b.(numbers.Number), 2)
-	assert.Equal(c.(numbers.Number), 2)
-	assert.Equal(d.(numbers.Number), 3)
+	assert.Equal(a.(numbers.Number), float64(1))
+	assert.Equal(b.(numbers.Number), float64(2))
+	assert.Equal(c.(numbers.Number), float64(2))
+	assert.Equal(d.(numbers.Number), float64(3))
 }

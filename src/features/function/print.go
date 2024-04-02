@@ -14,7 +14,7 @@ type Print struct {
 }
 
 func (func_ Print) Execute(params *[]interface{}) (interface{}, bool) {
-	fmt.Print(*params...)
+	fmt.Println(*params...)
 	hasACustomExecute := true
 	return nil, hasACustomExecute
 }
