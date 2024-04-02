@@ -15,7 +15,9 @@
         "==": "EQE",
         ">=": "GTE",
         "<=": "LTE",
-        "!=": "NEQE"
+        "!=": "NEQE",
+        "++": "PLUS1",
+        "--": "MINUS1"
     },
     "language_syntax": {
         "&&": "AND",
@@ -35,6 +37,7 @@
         "~": "SQUARE_ROOT",
         "func": "FUNC",
         "while": "WHILE",
+        "for": "FOR",
         "if": "IF",
         "elif": "ELIF",
         "else": "ELSE",
@@ -44,7 +47,8 @@
         "const": "CONST",
         "\"": "STRING",
         "\n": "NEWLINE",
-        "\r": "NEWLINE"
+        "\r": "NEWLINE",
+        ";": "SEMICOLON"
     },
     "functions": {
         "print": "print"

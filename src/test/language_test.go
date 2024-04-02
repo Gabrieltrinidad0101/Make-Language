@@ -64,20 +64,26 @@ func getLanguageContext(confPath string) *languageContext.Context {
 	return &languageContext_
 }
 
+var call = 0
+
 type Print struct {
 	function.BaseFunction
 	assert *assert.Assertions
-	call   int
 }
 
 func (print Print) Execute(params *[]interface{}) (interface{}, bool) {
 	number := (*params)[0].(*numbers.Number)
-	if print.call == 0 {
-		print.assert.Equal(number.Value, float64(3))
-	} else {
+	if call == 0 {
 		print.assert.Equal(number.Value, float64(2))
+	} else if call == 1 {
+		print.assert.Equal(number.Value, float64(3))
+	} else if call == 2 {
+		print.assert.Equal(number.Value, float64(10))
+	} else if call == 3 {
+		print.assert.Equal(number.Value, float64(20))
 	}
-	print.call++
+
+	call++
 	return nil, true
 }
 
@@ -97,8 +103,8 @@ func TestVariablesAndIfs(t *testing.T) {
 	assert.True(ok)
 	d, ok := context.Get("d")
 	assert.True(ok)
-	assert.Equal(a.(numbers.Number), float64(1))
-	assert.Equal(b.(numbers.Number), float64(2))
-	assert.Equal(c.(numbers.Number), float64(2))
-	assert.Equal(d.(numbers.Number), float64(3))
+	assert.Equal(a.(interprete.VarType).Value.(*numbers.Number).Value, float64(1))
+	assert.Equal(b.(interprete.VarType).Value.(*numbers.Number).Value, float64(2))
+	assert.Equal(c.(interprete.VarType).Value.(*numbers.Number).Value, float64(2))
+	assert.Equal(d.(interprete.VarType).Value.(*numbers.Number).Value, float64(3))
 }

@@ -4,3 +4,17 @@ var c = if(a < b) 2 else 3
 var d = if(a > b) 2 else 3
 print(c)
 print(d)
+var e = 0
+while(e <= 10){
+    ++e
+}
+print(e)
+for(var i = 0; i <= 10; ++i){
+    --e
+}
+print(e)
+func changeE(value){
+    e = value
+}
+changeE(20)
+print(e)
