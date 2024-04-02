@@ -2,7 +2,7 @@ package customErrors
 
 import (
 	"fmt"
-	"makeLanguages/src/token"
+	lexerStructs "makeLanguages/src/lexer/structs"
 	"os"
 	"strings"
 )
@@ -23,7 +23,7 @@ func New(text string) *customError {
 	return CustomError
 }
 
-func show(token token.Token, details string) {
+func show(token lexerStructs.Token, details string) {
 	lines := strings.Split(CustomError.text, "\n")
 	linesCanShow := min(3, token.Line-1)
 	startText := token.Line - linesCanShow - 1
@@ -49,11 +49,11 @@ func show(token token.Token, details string) {
 	os.Exit(0)
 }
 
-func IllegalCharacter(token token.Token) {
+func IllegalCharacter(token lexerStructs.Token) {
 	show(token, fmt.Sprintf("Illegal Character: %s", token.Value))
 }
 
-func InvalidSyntax(token token.Token, details string) {
+func InvalidSyntax(token lexerStructs.Token, details string) {
 	fmt.Printf("Invalid Syntax: %s\n", token.Value)
 	show(token, details)
 }

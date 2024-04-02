@@ -5,6 +5,7 @@ import (
 	"makeLanguages/src/features/booleans"
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/features/numbers"
+	interpreteStructs "makeLanguages/src/interprete/structs"
 	"makeLanguages/src/languageContext"
 	"makeLanguages/src/parser"
 	"reflect"
@@ -13,11 +14,6 @@ import (
 type Interprete struct {
 	ast         interface{}
 	currentNode interface{}
-}
-
-type VarType struct {
-	Value      interface{}
-	IsConstant bool
 }
 
 func NewInterprete(ast interface{}) *Interprete {
@@ -70,7 +66,7 @@ func (interprete Interprete) VarAssignNode(node interface{}, context *languageCo
 		panic("Const " + varAssignNode.Identifier)
 	}
 	result := interprete.call(varAssignNode.Node, context)
-	context.Set(varAssignNode.Identifier, VarType{
+	context.Set(varAssignNode.Identifier, interpreteStructs.VarType{
 		Value:      result,
 		IsConstant: varAssignNode.IsConstant,
 	})
@@ -83,7 +79,7 @@ func (interprete Interprete) UpdateVariableNode(node interface{}, context *langu
 	if !ok {
 		panic("The variable no exist" + updateVariableNode.Identifier)
 	}
-	varTypeNode := varType.(VarType)
+	varTypeNode := varType.(interpreteStructs.VarType)
 	if varTypeNode.IsConstant {
 		panic("Const")
 	}
@@ -92,7 +88,10 @@ func (interprete Interprete) UpdateVariableNode(node interface{}, context *langu
 
 	varTypeNode.Value = result
 
-	context.Set(updateVariableNode.Identifier, varTypeNode)
+	ok = context.Update(updateVariableNode.Identifier, varTypeNode)
+	if !ok {
+		panic("The variable no exist" + updateVariableNode.Identifier)
+	}
 	return parser.NullNode{}
 }
 
@@ -100,10 +99,13 @@ func (interprete Interprete) VarAccessNode(node interface{}, context *languageCo
 	varAccessNode := node.(*parser.VarAccessNode)
 	varType, ok := context.Get(varAccessNode.Identifier)
 	if !ok {
-		panic("Variable is undefined")
+		panic("Variable is undefined " + varAccessNode.Identifier)
 	}
-	valueNode := varType.(VarType).Value
-	return interprete.call(valueNode, context)
+	valueNode, ok := varType.(interpreteStructs.VarType)
+	if !ok {
+		fmt.Print("")
+	}
+	return interprete.call(valueNode.Value, context)
 }
 
 func (interprete *Interprete) FuncNode(node interface{}, context *languageContext.Context) interface{} {
@@ -111,12 +113,20 @@ func (interprete *Interprete) FuncNode(node interface{}, context *languageContex
 	newContext := languageContext.NewContext(context)
 
 	for _, param := range *funcNode.Params {
-		newContext.Set(param.Value.(string), parser.NullNode{})
+		newContext.Set(param.Value.(string), interpreteStructs.VarType{
+			Value: parser.NullNode{},
+		})
 	}
-	context.Set(funcNode.Name, function.Function{
+
+	func_ := function.Function{
 		Body:    funcNode.Body,
 		Context: &newContext,
 		Params:  funcNode.Params,
+	}
+
+	context.Set(funcNode.Name, interpreteStructs.VarType{
+		Value:      func_,
+		IsConstant: true,
 	})
 	return parser.NullNode{}
 }
@@ -127,7 +137,9 @@ func (interprete *Interprete) CallFuncNode(node interface{}, context *languageCo
 	if !ok {
 		panic(callFuncNode.Name)
 	}
-	funcNode := func_.(function.IFunction)
+	varType := func_.(interpreteStructs.VarType)
+
+	funcNode := varType.Value.(function.Function)
 
 	var params []interface{}
 

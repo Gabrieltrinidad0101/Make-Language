@@ -4,20 +4,21 @@ import (
 	"fmt"
 	"makeLanguages/src/constants"
 	"makeLanguages/src/features/numbers"
-	"makeLanguages/src/token"
+	"makeLanguages/src/lexer/structs"
+	lexerStructs "makeLanguages/src/lexer/structs"
 	"slices"
 )
 
 type Parser struct {
-	tokens       *[]token.Token
+	tokens       *[]lexerStructs.Token
 	idx          int
-	CurrentToken *token.Token
+	CurrentToken *lexerStructs.Token
 	len          int
 }
 
 type BinOP struct {
 	LeftNode  interface{}
-	Operation token.Token
+	Operation lexerStructs.Token
 	RigthNode interface{}
 }
 
@@ -61,7 +62,7 @@ type WhileNode struct {
 }
 
 type FuncNode struct {
-	Params *[]token.Token
+	Params *[]structs.Token
 	Body   interface{}
 	Name   string
 }
@@ -80,11 +81,11 @@ type CallFuncNode struct {
 
 type NullNode struct{}
 
-func NewParser(tokens *[]token.Token) *Parser {
+func NewParser(tokens *[]lexerStructs.Token) *Parser {
 	return &Parser{
 		idx:          -1,
 		tokens:       tokens,
-		CurrentToken: &token.Token{},
+		CurrentToken: &lexerStructs.Token{},
 		len:          len(*tokens),
 	}
 }
@@ -105,15 +106,15 @@ func (parser *Parser) advances(number int) bool {
 	return true
 }
 
-func (parser *Parser) getToken(idx int) (*token.Token, bool) {
+func (parser *Parser) getToken(idx int) (*lexerStructs.Token, bool) {
 	if parser.idx >= parser.len {
 		return nil, false
 	}
 	return &(*parser.tokens)[idx], true
 }
 
-func (parser *Parser) verifyNextToken(tokensType ...string) (*token.Token, error) {
-	var lastToken *token.Token = nil
+func (parser *Parser) verifyNextToken(tokensType ...string) (*lexerStructs.Token, error) {
+	var lastToken *lexerStructs.Token = nil
 	for i, type_ := range tokensType {
 		token, ok := parser.getToken(parser.idx + i)
 		if ok && token.Type_ != type_ {
@@ -541,9 +542,9 @@ func (parser *Parser) varAccess() (*VarAccessNode, error) {
 	return varAccessNode, nil
 }
 
-func (parser *Parser) params() (*[]token.Token, error) {
+func (parser *Parser) params() (*[]lexerStructs.Token, error) {
 	_, err := parser.verifyNextToken(constants.TT_LPAREN)
-	params := &[]token.Token{}
+	params := &[]lexerStructs.Token{}
 	if err != nil {
 		return nil, err
 	}

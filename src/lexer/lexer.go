@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"makeLanguages/src/constants"
 	CustomErrors "makeLanguages/src/customErrors"
-	"makeLanguages/src/token"
+	"makeLanguages/src/lexer/structs"
+	lexerStructs "makeLanguages/src/lexer/structs"
 	"os"
 	"strconv"
 	"strings"
@@ -27,10 +28,10 @@ type Simbols struct {
 const LETTERS = "qwertyuiopasdfghjklñzxcvbnmQWERTYUIOPASDFGHJKLÑZXCVBNM_"
 
 type Lexer struct {
-	token.Position
+	lexerStructs.Position
 	idx                    int
 	current_char           *string
-	tokens                 *[]token.Token
+	tokens                 *[]lexerStructs.Token
 	text                   *string
 	len                    int
 	languageConfiguraction LanguageConfiguraction
@@ -100,19 +101,19 @@ func NewLexer(text *string, languageConfiguraction LanguageConfiguraction) *Lexe
 	currentChar := ""
 	return &Lexer{
 		text: text,
-		Position: token.Position{
+		Position: lexerStructs.Position{
 			Line: 1,
 		},
 		current_char:           &currentChar,
 		len:                    len(*text),
-		tokens:                 &[]token.Token{},
+		tokens:                 &[]lexerStructs.Token{},
 		idx:                    -1,
 		languageConfiguraction: languageConfiguraction,
 		characterMaxLength:     getMaxLengthCharacter(languageConfiguraction.LanguageSyntax),
 	}
 }
 
-func (lexer *Lexer) Tokens() (*[]token.Token, bool) {
+func (lexer *Lexer) Tokens() (*[]structs.Token, bool) {
 	lexer.advance()
 	for lexer.current_char != nil {
 		if *lexer.current_char == " " {
@@ -138,14 +139,14 @@ func (lexer *Lexer) Tokens() (*[]token.Token, bool) {
 		}
 
 		if !ok {
-			CustomErrors.IllegalCharacter(token.Token{
+			CustomErrors.IllegalCharacter(lexerStructs.Token{
 				Value:    *lexer.current_char,
 				Position: lexer.Position,
 			})
 			return nil, true
 		}
 	}
-	*lexer.tokens = append(*lexer.tokens, token.Token{
+	*lexer.tokens = append(*lexer.tokens, lexerStructs.Token{
 		Type_: constants.EOF,
 	})
 	return lexer.tokens, false
@@ -176,7 +177,7 @@ func (lexer *Lexer) syntaxToken(syntax map[string]string) bool {
 		lexer.advance()
 	}
 
-	token := token.Token{
+	token := lexerStructs.Token{
 		Type_:    *type_,
 		Value:    simbolText,
 		Position: positionCopy,
@@ -205,7 +206,7 @@ func (lexer *Lexer) getIdentifier() bool {
 		return false
 	}
 
-	token := token.Token{
+	token := lexerStructs.Token{
 		Type_:    constants.TT_IDENTIFIER,
 		Value:    identifier,
 		Position: position,
@@ -240,7 +241,7 @@ func (lexer *Lexer) makeNumber() bool {
 		panic(fmt.Sprintf("Internal error analize the number %s", numberString))
 	}
 
-	*lexer.tokens = append(*lexer.tokens, token.Token{
+	*lexer.tokens = append(*lexer.tokens, lexerStructs.Token{
 		Type_:    "number",
 		Value:    number,
 		Position: positionStart,

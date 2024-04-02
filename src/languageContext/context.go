@@ -1,5 +1,9 @@
 package languageContext
 
+import (
+	interpreteStructs "makeLanguages/src/interprete/structs"
+)
+
 type Variables *map[string]interface{}
 
 type Context struct {
@@ -29,6 +33,20 @@ func (context *Context) Get(name string) (interface{}, bool) {
 	return value, ok
 }
 
-func (context *Context) Set(name string, value interface{}) {
-	(*context.variables)[name] = value
+func (context *Context) Update(name string, varType interpreteStructs.VarType) bool {
+	_, ok := (*context.variables)[name]
+	if !ok {
+		currentContext := context
+		if currentContext.Parent.(*Context) == nil {
+			return false
+		}
+		currentContext = currentContext.Parent.(*Context)
+		currentContext.Set(name, varType)
+	}
+	context.Set(name, varType)
+	return true
+}
+
+func (context *Context) Set(name string, varType interpreteStructs.VarType) {
+	(*context.variables)[name] = varType.Value
 }

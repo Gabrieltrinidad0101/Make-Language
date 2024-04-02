@@ -3,13 +3,13 @@ package function
 import (
 	"fmt"
 	"makeLanguages/src/languageContext"
-	"makeLanguages/src/token"
+	lexerStructs "makeLanguages/src/lexer/structs"
 )
 
 type Print struct {
 	BaseFunction
 	Context *languageContext.Context
-	Params  *[]token.Token
+	Params  *[]lexerStructs.Token
 	Body    interface{}
 }
 

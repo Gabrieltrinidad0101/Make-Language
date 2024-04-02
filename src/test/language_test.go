@@ -78,7 +78,7 @@ func (print Print) Execute(params *[]interface{}) (interface{}, bool) {
 	} else if call == 1 {
 		print.assert.Equal(number.Value, float64(3))
 	} else if call == 2 {
-		print.assert.Equal(number.Value, float64(10))
+		print.assert.Equal(number.Value, float64(11))
 	} else if call == 3 {
 		print.assert.Equal(number.Value, float64(20))
 	}

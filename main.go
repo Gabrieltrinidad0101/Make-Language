@@ -4,6 +4,7 @@ import (
 	"makeLanguages/src/customErrors"
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/interprete"
+	"makeLanguages/src/interprete/structs"
 	"makeLanguages/src/languageContext"
 	"makeLanguages/src/lexer"
 	"makeLanguages/src/parser"
@@ -38,8 +39,14 @@ func main() {
 	}
 
 	var languageContext_ = languageContext.NewContext(nil)
-	languageContext_.Set("TRUE", true)
-	languageContext_.Set("FALSE", false)
+	languageContext_.Set("TRUE", structs.VarType{
+		Value:      true,
+		IsConstant: true,
+	})
+	languageContext_.Set("FALSE", structs.VarType{
+		Value:      false,
+		IsConstant: true,
+	})
 
 	functions := function.BuildFunctions(conf.Functions)
 

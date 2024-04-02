@@ -1,4 +1,4 @@
-package token
+package structs
 
 type Token struct {
 	Position
