@@ -48,5 +48,5 @@ func (context *Context) Update(name string, varType interpreteStructs.VarType) b
 }
 
 func (context *Context) Set(name string, varType interpreteStructs.VarType) {
-	(*context.variables)[name] = varType.Value
+	(*context.variables)[name] = varType
 }

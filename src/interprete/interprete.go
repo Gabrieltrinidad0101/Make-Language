@@ -1,7 +1,6 @@
 package interprete
 
 import (
-	"fmt"
 	"makeLanguages/src/features/booleans"
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/features/numbers"
@@ -102,9 +101,6 @@ func (interprete Interprete) VarAccessNode(node interface{}, context *languageCo
 		panic("Variable is undefined " + varAccessNode.Identifier)
 	}
 	valueNode, ok := varType.(interpreteStructs.VarType)
-	if !ok {
-		fmt.Print("")
-	}
 	return interprete.call(valueNode.Value, context)
 }
 
@@ -139,7 +135,7 @@ func (interprete *Interprete) CallFuncNode(node interface{}, context *languageCo
 	}
 	varType := func_.(interpreteStructs.VarType)
 
-	funcNode := varType.Value.(function.Function)
+	funcNode := varType.Value.(function.IFunction)
 
 	var params []interface{}
 
@@ -205,7 +201,7 @@ func (interprete *Interprete) WhileNode(node interface{}, context *languageConte
 		if !boolean.Value {
 			break
 		}
-		fmt.Print(interprete.call(whileNode.Body, context))
+		interprete.call(whileNode.Body, context)
 	}
 
 	return parser.NullNode{}
