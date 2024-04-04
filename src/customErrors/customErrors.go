@@ -2,7 +2,7 @@ package customErrors
 
 import (
 	"fmt"
-	lexerStructs "makeLanguages/src/lexer/structs"
+	"makeLanguages/src/lexer/lexerStructs"
 	"os"
 	"strings"
 )
@@ -23,20 +23,22 @@ func New(text string) *customError {
 	return CustomError
 }
 
-func show(token lexerStructs.Token, details string) {
+func show(token lexerStructs.IPositionBase, details string) {
 	lines := strings.Split(CustomError.text, "\n")
-	linesCanShow := min(3, token.Line-1)
-	startText := token.Line - linesCanShow - 1
-	endText := token.Line + min(3, len(lines)-token.Line-1)
+	positionStart := token.GetPositionStart()
+	positionEnd := token.GetPositionEnd()
+	linesCanShow := min(3, positionStart.Line-1)
+	startText := positionStart.Line - linesCanShow - 1
+	endText := min(3, len(lines)-(positionStart.Line-1))
 	linesCut := lines[startText:endText]
-	fmt.Printf("Line: %d\n", token.Line)
-	fmt.Printf("Col: %d\n", token.Col)
+	fmt.Printf("Line: %d\n", positionStart.Line)
+	fmt.Printf("Col: %d\n", positionStart.Col)
 	errorText := ""
 	for i, line := range linesCut {
-		lineNumber := i + token.Line - linesCanShow
+		lineNumber := i + positionStart.Line - linesCanShow
 		if i == linesCanShow {
-			characterLength := len(fmt.Sprint(token.Value))
-			padding := strings.Repeat(" ", token.Col+len(string(rune(lineNumber)))+1)
+			characterLength := positionEnd.Col - positionStart.Col + 1
+			padding := strings.Repeat(" ", positionStart.Col+len(string(rune(lineNumber)))+1)
 			errorSignal := strings.Repeat("^", characterLength)
 			errorText += fmt.Sprintf("%d: %s\n%s\n", lineNumber, line, padding+errorSignal)
 			continue
@@ -50,10 +52,15 @@ func show(token lexerStructs.Token, details string) {
 }
 
 func IllegalCharacter(token lexerStructs.Token) {
-	show(token, fmt.Sprintf("Illegal Character: %s", token.Value))
+	show(&token.PositionBase, fmt.Sprintf("Illegal Character: %s", token.Value))
 }
 
 func InvalidSyntax(token lexerStructs.Token, details string) {
 	fmt.Printf("Invalid Syntax: %s\n", token.Value)
+	show(&token.PositionBase, details)
+}
+
+func RunTimeError(token lexerStructs.IPositionBase, details string) {
+	fmt.Println("Run Time Error")
 	show(token, details)
 }

@@ -3,7 +3,7 @@ package function
 import (
 	interpreteStructs "makeLanguages/src/interprete/structs"
 	"makeLanguages/src/languageContext"
-	lexerStructs "makeLanguages/src/lexer/structs"
+	lexerStructs "makeLanguages/src/lexer/lexerStructs"
 )
 
 type IFunction interface {

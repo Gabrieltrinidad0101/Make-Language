@@ -5,6 +5,7 @@ import (
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/features/numbers"
 	"makeLanguages/src/interprete"
+	interpreteStructs "makeLanguages/src/interprete/structs"
 	"makeLanguages/src/languageContext"
 	"makeLanguages/src/lexer"
 	"makeLanguages/src/parser"
@@ -55,8 +56,14 @@ func getLanguageContext(confPath string) *languageContext.Context {
 	functions := function.BuildFunctions(conf.Functions)
 
 	languageContext_ := languageContext.NewContext(nil)
-	languageContext_.Set("TRUE", true)
-	languageContext_.Set("FALSE", false)
+	languageContext_.Set("TRUE", interpreteStructs.VarType{
+		Value:      true,
+		IsConstant: true,
+	})
+	languageContext_.Set("FALSE", interpreteStructs.VarType{
+		Value:      true,
+		IsConstant: true,
+	})
 
 	for key, value := range functions {
 		languageContext_.Set(key, value)
@@ -80,6 +87,8 @@ func (print Print) Execute(params *[]interface{}) (interface{}, bool) {
 	} else if call == 2 {
 		print.assert.Equal(number.Value, float64(11))
 	} else if call == 3 {
+		print.assert.Equal(number.Value, float64(0))
+	} else if call == 4 {
 		print.assert.Equal(number.Value, float64(20))
 	}
 
@@ -90,8 +99,11 @@ func (print Print) Execute(params *[]interface{}) (interface{}, bool) {
 func TestVariablesAndIfs(t *testing.T) {
 	assert := assert.New(t)
 	context := getLanguageContext("./conf.json")
-	context.Set("print", Print{
-		assert: assert,
+	context.Set("print", interpreteStructs.VarType{
+		Value: Print{
+			assert: assert,
+		},
+		IsConstant: true,
 	})
 	context = BaseInterprete(context, "./main.makeLanguage", "./conf.json")
 
@@ -103,8 +115,8 @@ func TestVariablesAndIfs(t *testing.T) {
 	assert.True(ok)
 	d, ok := context.Get("d")
 	assert.True(ok)
-	assert.Equal(a.(interprete.VarType).Value.(*numbers.Number).Value, float64(1))
-	assert.Equal(b.(interprete.VarType).Value.(*numbers.Number).Value, float64(2))
-	assert.Equal(c.(interprete.VarType).Value.(*numbers.Number).Value, float64(2))
-	assert.Equal(d.(interprete.VarType).Value.(*numbers.Number).Value, float64(3))
+	assert.Equal(a.(interpreteStructs.VarType).Value.(*numbers.Number).Value, float64(1))
+	assert.Equal(b.(interpreteStructs.VarType).Value.(*numbers.Number).Value, float64(2))
+	assert.Equal(c.(interpreteStructs.VarType).Value.(*numbers.Number).Value, float64(2))
+	assert.Equal(d.(interpreteStructs.VarType).Value.(*numbers.Number).Value, float64(3))
 }

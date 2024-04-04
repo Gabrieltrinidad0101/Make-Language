@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"makeLanguages/src/constants"
 	"makeLanguages/src/features/numbers"
-	"makeLanguages/src/lexer/structs"
-	lexerStructs "makeLanguages/src/lexer/structs"
+	lexerStructs "makeLanguages/src/lexer/lexerStructs"
 	"slices"
 )
 
@@ -20,11 +19,13 @@ type BinOP struct {
 	LeftNode  interface{}
 	Operation lexerStructs.Token
 	RigthNode interface{}
+	lexerStructs.PositionBase
 }
 
 type UnaryOP struct {
 	Operation string
 	RigthNode interface{}
+	lexerStructs.PositionBase
 }
 
 type IfNode struct {
@@ -49,6 +50,7 @@ type UpdateVariableNode struct {
 }
 
 type VarAccessNode struct {
+	lexerStructs.PositionBase
 	Identifier string
 }
 
@@ -62,7 +64,7 @@ type WhileNode struct {
 }
 
 type FuncNode struct {
-	Params *[]structs.Token
+	Params *[]lexerStructs.Token
 	Body   interface{}
 	Name   string
 }
@@ -361,8 +363,8 @@ func (parser *Parser) pow() (interface{}, error) {
 }
 
 func (parser *Parser) term() (interface{}, error) {
-	nodeType := parser.CurrentToken.Type_
-
+	currentNode := *parser.CurrentToken
+	nodeType := currentNode.Type_
 	if nodeType == constants.TT_PLUS || nodeType == constants.TT_MINUS || nodeType == constants.TT_PLUS1 || nodeType == constants.TT_MINUS1 {
 		token, ok := parser.getToken(parser.idx + 1)
 		if ok && token.Type_ == constants.TT_PLUS || token.Type_ == constants.TT_MINUS {
@@ -379,13 +381,14 @@ func (parser *Parser) term() (interface{}, error) {
 			Operation: nodeType,
 			RigthNode: rigthNode,
 		}
-		return unaryOP, nil
+		return &unaryOP, nil
 	}
 
 	if nodeType == "number" {
 		value := parser.CurrentToken.Value.(float64)
 		number := numbers.NewNumbers(value)
 		parser.advance()
+
 		return number, nil
 	}
 
@@ -537,6 +540,10 @@ func (parser *Parser) varAccess() (*VarAccessNode, error) {
 
 	varAccessNode := &VarAccessNode{
 		Identifier: parser.CurrentToken.Value.(string),
+		PositionBase: lexerStructs.PositionBase{
+			PositionStart: parser.CurrentToken.PositionStart,
+			PositionEnd:   parser.CurrentToken.PositionEnd,
+		},
 	}
 	parser.advance()
 	return varAccessNode, nil

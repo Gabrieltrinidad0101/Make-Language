@@ -5,8 +5,7 @@ import (
 	"fmt"
 	"makeLanguages/src/constants"
 	CustomErrors "makeLanguages/src/customErrors"
-	"makeLanguages/src/lexer/structs"
-	lexerStructs "makeLanguages/src/lexer/structs"
+	"makeLanguages/src/lexer/lexerStructs"
 	"os"
 	"strconv"
 	"strings"
@@ -113,7 +112,7 @@ func NewLexer(text *string, languageConfiguraction LanguageConfiguraction) *Lexe
 	}
 }
 
-func (lexer *Lexer) Tokens() (*[]structs.Token, bool) {
+func (lexer *Lexer) Tokens() (*[]lexerStructs.Token, bool) {
 	lexer.advance()
 	for lexer.current_char != nil {
 		if *lexer.current_char == " " {
@@ -140,8 +139,11 @@ func (lexer *Lexer) Tokens() (*[]structs.Token, bool) {
 
 		if !ok {
 			CustomErrors.IllegalCharacter(lexerStructs.Token{
-				Value:    *lexer.current_char,
-				Position: lexer.Position,
+				Value: *lexer.current_char,
+				PositionBase: lexerStructs.PositionBase{
+					PositionStart: lexer.Position,
+					PositionEnd:   lexer.Position,
+				},
 			})
 			return nil, true
 		}
@@ -156,7 +158,7 @@ func (lexer *Lexer) syntaxToken(syntax map[string]string) bool {
 	var type_ *string = nil
 	var simbolText string = ""
 
-	positionCopy := lexer.Position.Copy()
+	positionCopy := lexer.PositionCopy()
 	for i := lexer.idx; i < lexer.len && i-lexer.idx < lexer.characterMaxLength; i++ {
 		simbolText += string((*lexer.text)[i])
 
@@ -178,9 +180,12 @@ func (lexer *Lexer) syntaxToken(syntax map[string]string) bool {
 	}
 
 	token := lexerStructs.Token{
-		Type_:    *type_,
-		Value:    simbolText,
-		Position: positionCopy,
+		Type_: *type_,
+		Value: simbolText,
+		PositionBase: lexerStructs.PositionBase{
+			PositionStart: positionCopy,
+			PositionEnd:   lexer.PositionCopy(),
+		},
 	}
 
 	*lexer.tokens = append(*lexer.tokens, token)
@@ -190,12 +195,14 @@ func (lexer *Lexer) syntaxToken(syntax map[string]string) bool {
 
 func (lexer *Lexer) getIdentifier() bool {
 	identifier := ""
-	position := lexer.Position.Copy()
+	positionStart := lexer.PositionCopy()
+	positionEnd := positionStart
 	for {
 		if !strings.Contains(LETTERS, *lexer.current_char) {
 			break
 		}
 		identifier += *lexer.current_char
+		positionEnd = lexer.PositionCopy()
 		ok := lexer.advance()
 		if !ok {
 			break
@@ -207,9 +214,12 @@ func (lexer *Lexer) getIdentifier() bool {
 	}
 
 	token := lexerStructs.Token{
-		Type_:    constants.TT_IDENTIFIER,
-		Value:    identifier,
-		Position: position,
+		Type_: constants.TT_IDENTIFIER,
+		Value: identifier,
+		PositionBase: lexerStructs.PositionBase{
+			PositionStart: positionStart,
+			PositionEnd:   positionEnd,
+		},
 	}
 
 	*lexer.tokens = append(*lexer.tokens, token)
@@ -222,7 +232,7 @@ func (lexer *Lexer) makeNumber() bool {
 		return false
 	}
 	dotNumber := 0
-	positionStart := lexer.Position.Copy()
+	positionStart := lexer.PositionCopy()
 	for lexer.current_char != nil && lexer.advance() {
 		numberNext, ok := lexer.languageConfiguraction.Numbers[*lexer.current_char]
 		if !ok {
@@ -242,9 +252,12 @@ func (lexer *Lexer) makeNumber() bool {
 	}
 
 	*lexer.tokens = append(*lexer.tokens, lexerStructs.Token{
-		Type_:    "number",
-		Value:    number,
-		Position: positionStart,
+		Type_: "number",
+		Value: number,
+		PositionBase: lexerStructs.PositionBase{
+			PositionStart: positionStart,
+			PositionEnd:   lexer.PositionCopy(),
+		},
 	})
 	return true
 }

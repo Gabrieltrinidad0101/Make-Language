@@ -1,6 +1,7 @@
 package interprete
 
 import (
+	"makeLanguages/src/customErrors"
 	"makeLanguages/src/features/booleans"
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/features/numbers"
@@ -98,7 +99,7 @@ func (interprete Interprete) VarAccessNode(node interface{}, context *languageCo
 	varAccessNode := node.(*parser.VarAccessNode)
 	varType, ok := context.Get(varAccessNode.Identifier)
 	if !ok {
-		panic("Variable is undefined " + varAccessNode.Identifier)
+		customErrors.RunTimeError(&varAccessNode.PositionBase, "Variable is undefined "+varAccessNode.Identifier)
 	}
 	valueNode, ok := varType.(interpreteStructs.VarType)
 	return interprete.call(valueNode.Value, context)
@@ -152,7 +153,7 @@ func (interprete *Interprete) CallFuncNode(node interface{}, context *languageCo
 }
 
 func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext.Context) *numbers.Number {
-	unaryOP := node.(parser.UnaryOP)
+	unaryOP := node.(*parser.UnaryOP)
 	number := interprete.call(unaryOP.RigthNode, context).(*numbers.Number)
 
 	if unaryOP.Operation == "MINUS" {

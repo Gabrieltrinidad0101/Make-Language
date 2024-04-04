@@ -3,7 +3,7 @@ package function
 import (
 	"fmt"
 	"makeLanguages/src/languageContext"
-	lexerStructs "makeLanguages/src/lexer/structs"
+	lexerStructs "makeLanguages/src/lexer/lexerStructs"
 )
 
 type Print struct {

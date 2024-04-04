@@ -11,7 +11,7 @@ type Number struct {
 
 func NewNumbers(value float64) *Number {
 	return &Number{
-		value,
+		Value: value,
 	}
 }
 
