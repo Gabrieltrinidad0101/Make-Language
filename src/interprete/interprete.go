@@ -52,6 +52,10 @@ func (interprete *Interprete) callMethod(object interface{}, methodName string, 
 	return returnValue[0].Interface()
 }
 
+func (interprete *Interprete) ClassNode(node interface{}, context *languageContext.Context) interface{} {
+	return nil
+}
+
 func (interprete *Interprete) BinOP(node interface{}, context *languageContext.Context) interface{} {
 	binOP := node.(parser.BinOP)
 	nodeLeft := interprete.call(binOP.LeftNode, context)

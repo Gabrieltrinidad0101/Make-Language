@@ -69,6 +69,12 @@ type FuncNode struct {
 	Name   string
 }
 
+type ClassNode struct {
+	Methods    interface{}
+	Properties string
+	Name       string
+}
+
 type ForNode struct {
 	Expr1     interface{}
 	Expr2     interface{}
@@ -170,11 +176,15 @@ func (parser *Parser) expr() (interface{}, error) {
 }
 
 func (parser *Parser) statements(tokenEnd string) (interface{}, error) {
+	return parser.statementsBase(tokenEnd, parser.statement)
+}
+
+func (parser *Parser) statementsBase(tokenEnd string, callBack func() (interface{}, error)) (interface{}, error) {
 	for parser.CurrentToken.Type_ == constants.TT_NEWLINE {
 		parser.advance()
 	}
 	listNodes := ListNode{}
-	ast, err := parser.statement()
+	ast, err := callBack()
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +206,7 @@ func (parser *Parser) statements(tokenEnd string) (interface{}, error) {
 			break
 		}
 
-		ast, err := parser.statement()
+		ast, err := callBack()
 		if err != nil {
 			return nil, err
 		}
@@ -227,7 +237,33 @@ func (parser *Parser) statement() (interface{}, error) {
 		return for_, err
 	}
 
+	class, err := parser.class()
+	if class != nil || err != nil {
+		return class, err
+	}
+
 	return parser.compare()
+}
+
+func (parser *Parser) class() (*ClassNode, error) {
+	identoifierToken, err := parser.verifyNextToken(constants.TT_CLASS, constants.TT_IDENTIFIER)
+	if err != nil {
+		return nil, nil
+	}
+
+	_, err = parser.verifyNextToken(constants.TT_START_BODY)
+	if err != nil {
+		return nil, err
+	}
+
+	methodes, err := parser.statementsBase(constants.TT_END_BODY, parser.func_)
+	if err != nil {
+		return nil, err
+	}
+	return &ClassNode{
+		Methods: methodes,
+		Name:    identoifierToken.Value.(string),
+	}, nil
 }
 
 func (parser *Parser) variableAndConst() (interface{}, error) {
@@ -461,10 +497,10 @@ func (parser *Parser) if_() (interface{}, error) {
 	}, nil
 }
 
-func (parser *Parser) func_() (*FuncNode, error) {
+func (parser *Parser) func_() (interface{}, error) {
 	identoifierToken, err := parser.verifyNextToken(constants.TT_FUNC, constants.TT_IDENTIFIER)
 	if err != nil {
-		return nil, err
+		return nil, nil
 	}
 	params, err := parser.params()
 	if err != nil {
@@ -556,11 +592,15 @@ func (parser *Parser) params() (*[]lexerStructs.Token, error) {
 		return nil, err
 	}
 	for {
-		*params = append(*params, *parser.CurrentToken)
-		_, err = parser.verifyNextToken(constants.TT_IDENTIFIER)
+		identifier, err := parser.verifyNextToken(constants.TT_IDENTIFIER)
 		if err != nil {
+			_, err = parser.verifyNextToken(constants.TT_RPAREN)
+			if err == nil {
+				return &[]lexerStructs.Token{}, nil
+			}
 			return nil, err
 		}
+		*params = append(*params, *identifier)
 
 		_, err = parser.verifyNextToken(constants.TT_COMMA)
 		if err != nil {

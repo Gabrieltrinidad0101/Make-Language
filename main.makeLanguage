@@ -1,1 +1,9 @@
-print(hola Mundo)
+class Test {
+    func a(){
+        var z = 1
+    }
+
+    func b(){
+        var z = 1
+    }
+}

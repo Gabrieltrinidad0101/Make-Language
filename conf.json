@@ -41,6 +41,7 @@
         "if": "IF",
         "elif": "ELIF",
         "else": "ELSE",
+        "class": "CLASS",
         "{": "OPEN_CURLY_BRACE",
         "}": "CLOSING_CURLY_BRACE",
         "var": "VAR",

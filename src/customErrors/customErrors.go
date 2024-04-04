@@ -29,7 +29,7 @@ func show(token lexerStructs.IPositionBase, details string) {
 	positionEnd := token.GetPositionEnd()
 	linesCanShow := min(3, positionStart.Line-1)
 	startText := positionStart.Line - linesCanShow - 1
-	endText := min(3, len(lines)-(positionStart.Line-1))
+	endText := positionStart.Line + min(3, len(lines)-(positionStart.Line-1)) - 1
 	linesCut := lines[startText:endText]
 	fmt.Printf("Line: %d\n", positionStart.Line)
 	fmt.Printf("Col: %d\n", positionStart.Col)
