@@ -1,13 +1,15 @@
 package interprete
 
 import (
+	"makeLanguages/src/constants"
 	"makeLanguages/src/customErrors"
 	"makeLanguages/src/features/booleans"
+	"makeLanguages/src/features/class"
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/features/numbers"
 	interpreteStructs "makeLanguages/src/interprete/structs"
 	"makeLanguages/src/languageContext"
-	"makeLanguages/src/parser"
+	"makeLanguages/src/parser/parserStructs"
 	"reflect"
 )
 
@@ -36,6 +38,17 @@ func (interprete *Interprete) getMethodName(node interface{}) string {
 	}
 }
 
+func (interprete *Interprete) stopExecute(node interface{}) string {
+	if interprete.getMethodName(node) == "ContinueNode" ||
+		interprete.getMethodName(node) == "BREAK" ||
+		interprete.getMethodName(node) == "RETURN" {
+		return interprete.getMethodName(node)
+	}
+
+	return ""
+
+}
+
 func (interprete *Interprete) call(node interface{}, context *languageContext.Context) interface{} {
 	methodName := interprete.getMethodName(node)
 	return interprete.callMethod(interprete, methodName, node, context)
@@ -53,11 +66,25 @@ func (interprete *Interprete) callMethod(object interface{}, methodName string, 
 }
 
 func (interprete *Interprete) ClassNode(node interface{}, context *languageContext.Context) interface{} {
-	return nil
+	classNode := node.(*parserStructs.ClassNode)
+	newContext := languageContext.NewContext(context)
+
+	class_ := class.Class{
+		Methods: classNode.Methods,
+		Context: newContext,
+	}
+
+	context.Set(classNode.Name, interpreteStructs.VarType{
+		Value:      class_,
+		IsConstant: true,
+		Type:       constants.TT_CLASS,
+	})
+
+	return parserStructs.NullNode{}
 }
 
 func (interprete *Interprete) BinOP(node interface{}, context *languageContext.Context) interface{} {
-	binOP := node.(parser.BinOP)
+	binOP := node.(parserStructs.BinOP)
 	nodeLeft := interprete.call(binOP.LeftNode, context)
 	nodeRigth := interprete.call(binOP.RigthNode, context)
 	newNode := interprete.callMethod(nodeLeft, binOP.Operation.Type_, nodeRigth)
@@ -65,7 +92,7 @@ func (interprete *Interprete) BinOP(node interface{}, context *languageContext.C
 }
 
 func (interprete Interprete) VarAssignNode(node interface{}, context *languageContext.Context) interface{} {
-	varAssignNode := node.(parser.VarAssignNode)
+	varAssignNode := node.(parserStructs.VarAssignNode)
 	if _, ok := context.Get(varAssignNode.Identifier); ok && varAssignNode.IsConstant {
 		panic("Const " + varAssignNode.Identifier)
 	}
@@ -74,11 +101,11 @@ func (interprete Interprete) VarAssignNode(node interface{}, context *languageCo
 		Value:      result,
 		IsConstant: varAssignNode.IsConstant,
 	})
-	return parser.NullNode{}
+	return parserStructs.NullNode{}
 }
 
 func (interprete Interprete) UpdateVariableNode(node interface{}, context *languageContext.Context) interface{} {
-	updateVariableNode := node.(parser.UpdateVariableNode)
+	updateVariableNode := node.(parserStructs.UpdateVariableNode)
 	varType, ok := context.Get(updateVariableNode.Identifier)
 	if !ok {
 		panic("The variable no exist" + updateVariableNode.Identifier)
@@ -96,11 +123,11 @@ func (interprete Interprete) UpdateVariableNode(node interface{}, context *langu
 	if !ok {
 		panic("The variable no exist" + updateVariableNode.Identifier)
 	}
-	return parser.NullNode{}
+	return parserStructs.NullNode{}
 }
 
 func (interprete Interprete) VarAccessNode(node interface{}, context *languageContext.Context) interface{} {
-	varAccessNode := node.(*parser.VarAccessNode)
+	varAccessNode := node.(*parserStructs.VarAccessNode)
 	varType, ok := context.Get(varAccessNode.Identifier)
 	if !ok {
 		customErrors.RunTimeError(&varAccessNode.PositionBase, "Variable is undefined "+varAccessNode.Identifier)
@@ -110,12 +137,12 @@ func (interprete Interprete) VarAccessNode(node interface{}, context *languageCo
 }
 
 func (interprete *Interprete) FuncNode(node interface{}, context *languageContext.Context) interface{} {
-	funcNode := node.(*parser.FuncNode)
+	funcNode := node.(parserStructs.FuncNode)
 	newContext := languageContext.NewContext(context)
 
 	for _, param := range *funcNode.Params {
 		newContext.Set(param.Value.(string), interpreteStructs.VarType{
-			Value: parser.NullNode{},
+			Value: parserStructs.NullNode{},
 		})
 	}
 
@@ -129,11 +156,11 @@ func (interprete *Interprete) FuncNode(node interface{}, context *languageContex
 		Value:      func_,
 		IsConstant: true,
 	})
-	return parser.NullNode{}
+	return parserStructs.NullNode{}
 }
 
 func (interprete *Interprete) CallFuncNode(node interface{}, context *languageContext.Context) interface{} {
-	callFuncNode := node.(*parser.CallFuncNode)
+	callFuncNode := node.(*parserStructs.CallFuncNode)
 	func_, ok := context.Get(callFuncNode.Name)
 	if !ok {
 		panic(callFuncNode.Name)
@@ -153,11 +180,11 @@ func (interprete *Interprete) CallFuncNode(node interface{}, context *languageCo
 		return funcNodeBody
 	}
 	interprete.call(funcNode.GetBody(), funcNode.GetContext())
-	return parser.NullNode{}
+	return parserStructs.NullNode{}
 }
 
 func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext.Context) *numbers.Number {
-	unaryOP := node.(*parser.UnaryOP)
+	unaryOP := node.(*parserStructs.UnaryOP)
 	number := interprete.call(unaryOP.RigthNode, context).(*numbers.Number)
 
 	if unaryOP.Operation == "MINUS" {
@@ -173,7 +200,7 @@ func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext
 }
 
 func (interprete *Interprete) IfNode(node interface{}, context *languageContext.Context) interface{} {
-	ifNode := node.(parser.IfNode)
+	ifNode := node.(parserStructs.IfNode)
 
 	for _, if_ := range ifNode.Ifs {
 		conditionInterface := interprete.call(if_.Condition, context)
@@ -195,25 +222,28 @@ func (interprete *Interprete) IfNode(node interface{}, context *languageContext.
 		return node
 	}
 
-	return parser.NullNode{}
+	return parserStructs.NullNode{}
 }
 
 func (interprete *Interprete) WhileNode(node interface{}, context *languageContext.Context) interface{} {
-	whileNode := node.(parser.WhileNode)
+	whileNode := node.(parserStructs.WhileNode)
 
 	for {
 		boolean := interprete.call(whileNode.Condition, context).(*booleans.Boolean)
 		if !boolean.Value {
 			break
 		}
-		interprete.call(whileNode.Body, context)
+		node := interprete.call(whileNode.Body, context)
+		if interprete.getMethodName(node) == "CONTINUE" {
+			continue
+		}
 	}
 
-	return parser.NullNode{}
+	return parserStructs.NullNode{}
 }
 
 func (interprete *Interprete) ForNode(node interface{}, context *languageContext.Context) interface{} {
-	forNode := node.(parser.ForNode)
+	forNode := node.(parserStructs.ForNode)
 
 	for {
 		interprete.call(forNode.Expr1, context)
@@ -226,15 +256,22 @@ func (interprete *Interprete) ForNode(node interface{}, context *languageContext
 		interprete.call(forNode.Body, context)
 	}
 
-	return parser.NullNode{}
+	return parserStructs.NullNode{}
 }
 
 func (interprete *Interprete) ListNode(node interface{}, context *languageContext.Context) interface{} {
-	listNode := node.(parser.ListNode)
+	listNode := node.(parserStructs.ListNode)
 	for _, node := range listNode.Nodes {
-		interprete.call(node, context)
+		result := interprete.call(node, context)
+		if interprete.stopExecute(result) != "" {
+			return result
+		}
 	}
-	return 1
+	return parserStructs.NullNode{}
+}
+
+func (interprete *Interprete) ContinueNode(node interface{}, context *languageContext.Context) interface{} {
+	return node.(*parserStructs.ContinueNode)
 }
 
 func (interprete *Interprete) Number(node interface{}, context *languageContext.Context) *numbers.Number {

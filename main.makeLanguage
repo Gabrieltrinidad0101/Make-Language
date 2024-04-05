@@ -1,9 +1,9 @@
-class Test {
-    func a(){
-        var z = 1
+var a = 10
+while(a > 0){
+    if(a == 5){
+        a = 0
+        continue
     }
-
-    func b(){
-        var z = 1
-    }
+    --a
+    print(a)
 }

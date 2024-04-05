@@ -5,6 +5,7 @@ import (
 	"makeLanguages/src/constants"
 	"makeLanguages/src/features/numbers"
 	lexerStructs "makeLanguages/src/lexer/lexerStructs"
+	"makeLanguages/src/parser/parserStructs"
 	"slices"
 )
 
@@ -14,80 +15,6 @@ type Parser struct {
 	CurrentToken *lexerStructs.Token
 	len          int
 }
-
-type BinOP struct {
-	LeftNode  interface{}
-	Operation lexerStructs.Token
-	RigthNode interface{}
-	lexerStructs.PositionBase
-}
-
-type UnaryOP struct {
-	Operation string
-	RigthNode interface{}
-	lexerStructs.PositionBase
-}
-
-type IfNode struct {
-	Ifs   []*ConditionAndBody
-	Else_ interface{}
-}
-
-type ConditionAndBody struct {
-	Condition interface{}
-	Body      interface{}
-}
-
-type VarAssignNode struct {
-	Identifier string
-	Node       interface{}
-	IsConstant bool
-}
-
-type UpdateVariableNode struct {
-	Identifier string
-	Node       interface{}
-}
-
-type VarAccessNode struct {
-	lexerStructs.PositionBase
-	Identifier string
-}
-
-type ListNode struct {
-	Nodes []interface{}
-}
-
-type WhileNode struct {
-	Condition interface{}
-	Body      interface{}
-}
-
-type FuncNode struct {
-	Params *[]lexerStructs.Token
-	Body   interface{}
-	Name   string
-}
-
-type ClassNode struct {
-	Methods    interface{}
-	Properties string
-	Name       string
-}
-
-type ForNode struct {
-	Expr1     interface{}
-	Expr2     interface{}
-	Condition interface{}
-	Body      interface{}
-}
-
-type CallFuncNode struct {
-	Params *[]interface{}
-	Name   string
-}
-
-type NullNode struct{}
 
 func NewParser(tokens *[]lexerStructs.Token) *Parser {
 	return &Parser{
@@ -146,7 +73,7 @@ func (parser *Parser) binOP(callBack func() (interface{}, error), ops ...string)
 		if err != nil {
 			return nil, err
 		}
-		leftNode = BinOP{
+		leftNode = parserStructs.BinOP{
 			LeftNode:  leftNode,
 			Operation: operation,
 			RigthNode: rigthNode,
@@ -183,7 +110,7 @@ func (parser *Parser) statementsBase(tokenEnd string, callBack func() (interface
 	for parser.CurrentToken.Type_ == constants.TT_NEWLINE {
 		parser.advance()
 	}
-	listNodes := ListNode{}
+	listNodes := parserStructs.ListNode{}
 	ast, err := callBack()
 	if err != nil {
 		return nil, err
@@ -227,6 +154,11 @@ func (parser *Parser) statement() (interface{}, error) {
 		return updateVariable, err
 	}
 
+	continue_ := parser.continue_()
+	if continue_ != nil {
+		return continue_, nil
+	}
+
 	while, err := parser.while()
 	if while != nil || err != nil {
 		return while, err
@@ -245,7 +177,17 @@ func (parser *Parser) statement() (interface{}, error) {
 	return parser.compare()
 }
 
-func (parser *Parser) class() (*ClassNode, error) {
+func (parser *Parser) continue_() *parserStructs.ContinueNode {
+	continue_, err := parser.verifyNextToken(constants.TT_CONTINUE)
+	if err != nil {
+		return nil
+	}
+	return &parserStructs.ContinueNode{
+		PositionBase: continue_.PositionBase,
+	}
+}
+
+func (parser *Parser) class() (*parserStructs.ClassNode, error) {
 	identoifierToken, err := parser.verifyNextToken(constants.TT_CLASS, constants.TT_IDENTIFIER)
 	if err != nil {
 		return nil, nil
@@ -260,7 +202,7 @@ func (parser *Parser) class() (*ClassNode, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &ClassNode{
+	return &parserStructs.ClassNode{
 		Methods: methodes,
 		Name:    identoifierToken.Value.(string),
 	}, nil
@@ -283,7 +225,7 @@ func (parser *Parser) variableAndConst() (interface{}, error) {
 		return nil, err
 	}
 
-	return VarAssignNode{
+	return parserStructs.VarAssignNode{
 		Identifier: identifier.(string),
 		Node:       node,
 		IsConstant: constError == nil,
@@ -302,7 +244,7 @@ func (parser *Parser) updateVariable() (interface{}, error) {
 		return nil, err
 	}
 
-	return UpdateVariableNode{
+	return parserStructs.UpdateVariableNode{
 		Identifier: value.(string),
 		Node:       expr,
 	}, nil
@@ -318,7 +260,7 @@ func (parser *Parser) while() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return WhileNode{
+	return parserStructs.WhileNode{
 		Condition: conditionAndBodyBase.Condition,
 		Body:      conditionAndBodyBase.Body,
 	}, nil
@@ -370,7 +312,7 @@ func (parser *Parser) for_() (interface{}, error) {
 		return nil, nil
 	}
 
-	return ForNode{
+	return parserStructs.ForNode{
 		Expr1:     expr1,
 		Condition: condition,
 		Expr2:     expr2,
@@ -413,7 +355,7 @@ func (parser *Parser) term() (interface{}, error) {
 			return nil, err
 		}
 
-		unaryOP := UnaryOP{
+		unaryOP := parserStructs.UnaryOP{
 			Operation: nodeType,
 			RigthNode: rigthNode,
 		}
@@ -461,7 +403,7 @@ func (parser *Parser) term() (interface{}, error) {
 }
 
 func (parser *Parser) if_() (interface{}, error) {
-	ifs := []*ConditionAndBody{}
+	ifs := []*parserStructs.ConditionAndBody{}
 	var elseNode interface{}
 	if parser.CurrentToken.Type_ != constants.TT_IF {
 		return nil, nil
@@ -491,7 +433,7 @@ func (parser *Parser) if_() (interface{}, error) {
 		elseNode, err = parser.BodyBase()
 	}
 
-	return IfNode{
+	return parserStructs.IfNode{
 		Ifs:   ifs,
 		Else_: elseNode,
 	}, nil
@@ -510,14 +452,14 @@ func (parser *Parser) func_() (interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &FuncNode{
-		params,
-		body,
-		identoifierToken.Value.(string),
+	return parserStructs.FuncNode{
+		Params: params,
+		Body:   body,
+		Name:   identoifierToken.Value.(string),
 	}, nil
 }
 
-func (parser *Parser) callFunc() (*CallFuncNode, error) {
+func (parser *Parser) callFunc() (*parserStructs.CallFuncNode, error) {
 	funcName := parser.CurrentToken.Value
 	_, err := parser.verifyNextToken(constants.TT_IDENTIFIER, constants.TT_LPAREN)
 	if err != nil {
@@ -527,13 +469,13 @@ func (parser *Parser) callFunc() (*CallFuncNode, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &CallFuncNode{
+	return &parserStructs.CallFuncNode{
 		Params: params,
 		Name:   funcName.(string),
 	}, nil
 }
 
-func (parser *Parser) conditionAndBodyBase() (*ConditionAndBody, error) {
+func (parser *Parser) conditionAndBodyBase() (*parserStructs.ConditionAndBody, error) {
 	_, err := parser.verifyNextToken(constants.TT_LPAREN)
 	if err != nil {
 		return nil, err
@@ -555,7 +497,7 @@ func (parser *Parser) conditionAndBodyBase() (*ConditionAndBody, error) {
 		return nil, err
 	}
 
-	return &ConditionAndBody{
+	return &parserStructs.ConditionAndBody{
 		Condition: condition,
 		Body:      body,
 	}, err
@@ -569,12 +511,12 @@ func (parser *Parser) BodyBase() (interface{}, error) {
 	return parser.statement()
 }
 
-func (parser *Parser) varAccess() (*VarAccessNode, error) {
+func (parser *Parser) varAccess() (*parserStructs.VarAccessNode, error) {
 	if parser.CurrentToken.Type_ != constants.TT_IDENTIFIER {
 		return nil, nil
 	}
 
-	varAccessNode := &VarAccessNode{
+	varAccessNode := &parserStructs.VarAccessNode{
 		Identifier: parser.CurrentToken.Value.(string),
 		PositionBase: lexerStructs.PositionBase{
 			PositionStart: parser.CurrentToken.PositionStart,
