@@ -1,9 +1,11 @@
 var a = 10
 while(a > 0){
+    --a
     if(a == 5){
-        a = 0
         continue
     }
-    --a
+    if(a == 3){
+        break
+    }
     print(a)
 }

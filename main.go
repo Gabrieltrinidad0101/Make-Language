@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	input, ok := lexer.ReadFile("./main.makeLanguage")
+	input, ok := lexer.ReadFile("./main.mkL")
 	if !ok {
 		return
 	}

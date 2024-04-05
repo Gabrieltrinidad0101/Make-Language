@@ -83,3 +83,7 @@ type NullNode struct{}
 type ContinueNode struct {
 	lexerStructs.PositionBase
 }
+
+type BreakNode struct {
+	lexerStructs.PositionBase
+}

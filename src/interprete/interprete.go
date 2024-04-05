@@ -40,7 +40,7 @@ func (interprete *Interprete) getMethodName(node interface{}) string {
 
 func (interprete *Interprete) stopExecute(node interface{}) string {
 	if interprete.getMethodName(node) == "ContinueNode" ||
-		interprete.getMethodName(node) == "BREAK" ||
+		interprete.getMethodName(node) == "BreakNode" ||
 		interprete.getMethodName(node) == "RETURN" {
 		return interprete.getMethodName(node)
 	}
@@ -234,8 +234,14 @@ func (interprete *Interprete) WhileNode(node interface{}, context *languageConte
 			break
 		}
 		node := interprete.call(whileNode.Body, context)
-		if interprete.getMethodName(node) == "CONTINUE" {
+		stop := interprete.stopExecute(node)
+
+		if stop == "CONTINUE" {
 			continue
+		}
+
+		if stop == "BreakNode" {
+			break
 		}
 	}
 
@@ -272,6 +278,10 @@ func (interprete *Interprete) ListNode(node interface{}, context *languageContex
 
 func (interprete *Interprete) ContinueNode(node interface{}, context *languageContext.Context) interface{} {
 	return node.(*parserStructs.ContinueNode)
+}
+
+func (interprete *Interprete) BreakNode(node interface{}, context *languageContext.Context) interface{} {
+	return node.(*parserStructs.BreakNode)
 }
 
 func (interprete *Interprete) Number(node interface{}, context *languageContext.Context) *numbers.Number {

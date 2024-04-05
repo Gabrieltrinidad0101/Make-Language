@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"makeLanguages/src/languageContext"
 	lexerStructs "makeLanguages/src/lexer/lexerStructs"
+	"makeLanguages/src/parser/parserStructs"
 )
 
 type Print struct {
@@ -16,5 +17,5 @@ type Print struct {
 func (func_ Print) Execute(params *[]interface{}) (interface{}, bool) {
 	fmt.Println(*params...)
 	hasACustomExecute := true
-	return nil, hasACustomExecute
+	return parserStructs.NullNode{}, hasACustomExecute
 }

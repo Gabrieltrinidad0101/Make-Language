@@ -159,6 +159,11 @@ func (parser *Parser) statement() (interface{}, error) {
 		return continue_, nil
 	}
 
+	break_ := parser.break_()
+	if break_ != nil {
+		return break_, nil
+	}
+
 	while, err := parser.while()
 	if while != nil || err != nil {
 		return while, err
@@ -184,6 +189,16 @@ func (parser *Parser) continue_() *parserStructs.ContinueNode {
 	}
 	return &parserStructs.ContinueNode{
 		PositionBase: continue_.PositionBase,
+	}
+}
+
+func (parser *Parser) break_() *parserStructs.BreakNode {
+	break_, err := parser.verifyNextToken(constants.TT_BREAK)
+	if err != nil {
+		return nil
+	}
+	return &parserStructs.BreakNode{
+		PositionBase: break_.PositionBase,
 	}
 }
 

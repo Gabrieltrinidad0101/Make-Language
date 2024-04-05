@@ -1,0 +1,11 @@
+var a = 10
+while(a > 0){
+    --a
+    if(a == 5){
+        continue
+    }
+    if(a == 3){
+        break
+    }
+    print(a)
+}
