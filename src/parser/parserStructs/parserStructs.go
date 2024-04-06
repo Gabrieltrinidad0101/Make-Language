@@ -69,13 +69,10 @@ type ForNode struct {
 	Body      interface{}
 }
 
-type CallFuncNode struct {
+type CallObjectNode struct {
 	Params *[]interface{}
 	Name   string
-}
-
-type NewClassNode struct {
-	Name string
+	HasNew bool
 }
 
 type NullNode struct{}
@@ -86,4 +83,9 @@ type ContinueNode struct {
 
 type BreakNode struct {
 	lexerStructs.PositionBase
+}
+
+type ClassAccessNode struct {
+	Name   string
+	Method interface{}
 }

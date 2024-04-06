@@ -4,7 +4,7 @@ import (
 	interpreteStructs "makeLanguages/src/interprete/structs"
 )
 
-type Variables *map[string]interface{}
+type Variables *map[string]interpreteStructs.VarType
 
 type Context struct {
 	Parent    interface{}
@@ -15,12 +15,12 @@ type Context struct {
 func NewContext(parent *Context) Context {
 	context := &Context{
 		Parent:    parent,
-		variables: &map[string]interface{}{},
+		variables: &map[string]interpreteStructs.VarType{},
 	}
 	return *context
 }
 
-func (context *Context) Get(name string) (interface{}, bool) {
+func (context *Context) Get(name string) (interpreteStructs.VarType, bool) {
 	value, ok := (*context.variables)[name]
 	if !ok {
 		currentContext := context

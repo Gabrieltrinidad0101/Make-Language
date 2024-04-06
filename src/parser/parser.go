@@ -402,6 +402,10 @@ func (parser *Parser) term() (interface{}, error) {
 		return ifNode, err
 	}
 
+	if classAccess, err := parser.classAccess(); classAccess != nil || err != nil {
+		return classAccess, err
+	}
+
 	if callFuncNode, err := parser.callFunc(); callFuncNode != nil || err != nil {
 		return callFuncNode, err
 	}
@@ -474,7 +478,8 @@ func (parser *Parser) func_() (interface{}, error) {
 	}, nil
 }
 
-func (parser *Parser) callFunc() (*parserStructs.CallFuncNode, error) {
+func (parser *Parser) callFunc() (*parserStructs.CallObjectNode, error) {
+	newNode, _ := parser.verifyNextToken(constants.TT_NEW)
 	funcName := parser.CurrentToken.Value
 	_, err := parser.verifyNextToken(constants.TT_IDENTIFIER, constants.TT_LPAREN)
 	if err != nil {
@@ -484,9 +489,10 @@ func (parser *Parser) callFunc() (*parserStructs.CallFuncNode, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &parserStructs.CallFuncNode{
+	return &parserStructs.CallObjectNode{
 		Params: params,
 		Name:   funcName.(string),
+		HasNew: newNode != nil,
 	}, nil
 }
 
@@ -542,6 +548,22 @@ func (parser *Parser) varAccess() (*parserStructs.VarAccessNode, error) {
 	return varAccessNode, nil
 }
 
+func (parser *Parser) classAccess() (*parserStructs.ClassAccessNode, error) {
+	className := parser.CurrentToken.Value
+	_, err := parser.verifyNextToken(constants.TT_IDENTIFIER, constants.TT_SPOT)
+	if err != nil {
+		return nil, nil
+	}
+	callFunc, err := parser.callFunc()
+	if err != nil {
+		return nil, err
+	}
+	return &parserStructs.ClassAccessNode{
+		Name:   className.(string),
+		Method: callFunc,
+	}, nil
+}
+
 func (parser *Parser) params() (*[]lexerStructs.Token, error) {
 	_, err := parser.verifyNextToken(constants.TT_LPAREN)
 	params := &[]lexerStructs.Token{}
@@ -578,6 +600,10 @@ func (parser *Parser) args() (*[]interface{}, error) {
 	for {
 		param, err := parser.compare()
 		if err != nil {
+			_, err = parser.verifyNextToken(constants.TT_RPAREN)
+			if err == nil {
+				break
+			}
 			return nil, err
 		}
 		params = append(params, param)

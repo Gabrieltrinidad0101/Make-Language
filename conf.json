@@ -42,6 +42,7 @@
         "elif": "ELIF",
         "else": "ELSE",
         "class": "CLASS",
+        ".": "SPOT",
         "break": "BREAK",
         "continue": "CONTINUE",
         "new": "NEW",

@@ -1,11 +1,16 @@
-var a = 10
-while(a > 0){
-    --a
-    if(a == 5){
-        continue
+class Test {
+    func a(z){
+        print(z * 3)
     }
-    if(a == 3){
-        break
+
+    func b(k){
+        if(k == 5){
+            print(1)
+        }else {
+            print(2)
+        }
     }
-    print(a)
 }
+
+const test = new Test()
+test.b(3)

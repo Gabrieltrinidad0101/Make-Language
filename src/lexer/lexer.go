@@ -24,7 +24,7 @@ type Simbols struct {
 	TokenName string `json:"token_name"`
 }
 
-const LETTERS = "qwertyuiopasdfghjklñzxcvbnmQWERTYUIOPASDFGHJKLÑZXCVBNM_"
+const LETTERS = "qwertyuiopasdfghjklñzxcvbnmQWERTYUIOPASDFGHJKLÑZXCVBNM_ "
 
 type Lexer struct {
 	lexerStructs.Position
@@ -198,7 +198,8 @@ func (lexer *Lexer) getIdentifier() bool {
 	positionStart := lexer.PositionCopy()
 	positionEnd := positionStart
 	for {
-		if !strings.Contains(LETTERS, *lexer.current_char) {
+		lastToken := (*lexer.tokens)[len(*lexer.tokens)-1]
+		if !strings.Contains(LETTERS, *lexer.current_char) || (*lexer.current_char == "." && lastToken.Type_ == constants.TT_VAR) {
 			break
 		}
 		identifier += *lexer.current_char
@@ -215,7 +216,7 @@ func (lexer *Lexer) getIdentifier() bool {
 
 	token := lexerStructs.Token{
 		Type_: constants.TT_IDENTIFIER,
-		Value: identifier,
+		Value: strings.Trim(identifier, " "),
 		PositionBase: lexerStructs.PositionBase{
 			PositionStart: positionStart,
 			PositionEnd:   positionEnd,

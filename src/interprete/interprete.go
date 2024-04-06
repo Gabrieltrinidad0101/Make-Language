@@ -69,9 +69,16 @@ func (interprete *Interprete) ClassNode(node interface{}, context *languageConte
 	classNode := node.(*parserStructs.ClassNode)
 	newContext := languageContext.NewContext(context)
 
+	listNode := classNode.Methods.(parserStructs.ListNode)
+
+	for _, func_ := range listNode.Nodes {
+		funcNode := func_.(parserStructs.FuncNode)
+		interprete.FuncNode(funcNode, &newContext)
+	}
+
 	class_ := class.Class{
-		Methods: classNode.Methods,
 		Context: newContext,
+		Name:    classNode.Name,
 	}
 
 	context.Set(classNode.Name, interpreteStructs.VarType{
@@ -81,6 +88,16 @@ func (interprete *Interprete) ClassNode(node interface{}, context *languageConte
 	})
 
 	return parserStructs.NullNode{}
+}
+
+func (interprete *Interprete) ClassAccessNode(node interface{}, context *languageContext.Context) interface{} {
+	classAccessNode := node.(*parserStructs.ClassAccessNode)
+	varType, ok := context.Get(classAccessNode.Name)
+	if !ok {
+		panic("The variable no exist " + classAccessNode.Name)
+	}
+	class := varType.Value.(class.Class)
+	return interprete.CallObjectNode(classAccessNode.Method, &class.Context)
 }
 
 func (interprete *Interprete) BinOP(node interface{}, context *languageContext.Context) interface{} {
@@ -110,16 +127,15 @@ func (interprete Interprete) UpdateVariableNode(node interface{}, context *langu
 	if !ok {
 		panic("The variable no exist" + updateVariableNode.Identifier)
 	}
-	varTypeNode := varType.(interpreteStructs.VarType)
-	if varTypeNode.IsConstant {
+	if varType.IsConstant {
 		panic("Const")
 	}
 
 	result := interprete.call(updateVariableNode.Node, context)
 
-	varTypeNode.Value = result
+	varType.Value = result
 
-	ok = context.Update(updateVariableNode.Identifier, varTypeNode)
+	ok = context.Update(updateVariableNode.Identifier, varType)
 	if !ok {
 		panic("The variable no exist" + updateVariableNode.Identifier)
 	}
@@ -132,8 +148,7 @@ func (interprete Interprete) VarAccessNode(node interface{}, context *languageCo
 	if !ok {
 		customErrors.RunTimeError(&varAccessNode.PositionBase, "Variable is undefined "+varAccessNode.Identifier)
 	}
-	valueNode, ok := varType.(interpreteStructs.VarType)
-	return interprete.call(valueNode.Value, context)
+	return interprete.call(varType.Value, context)
 }
 
 func (interprete *Interprete) FuncNode(node interface{}, context *languageContext.Context) interface{} {
@@ -159,28 +174,31 @@ func (interprete *Interprete) FuncNode(node interface{}, context *languageContex
 	return parserStructs.NullNode{}
 }
 
-func (interprete *Interprete) CallFuncNode(node interface{}, context *languageContext.Context) interface{} {
-	callFuncNode := node.(*parserStructs.CallFuncNode)
-	func_, ok := context.Get(callFuncNode.Name)
-	if !ok {
+func (interprete *Interprete) CallObjectNode(node interface{}, context *languageContext.Context) interface{} {
+	callFuncNode := node.(*parserStructs.CallObjectNode)
+	varType, ok := context.Get(callFuncNode.Name)
+	if !ok || (callFuncNode.HasNew && interprete.getMethodName(varType.Value) != "Class") {
 		panic(callFuncNode.Name)
 	}
-	varType := func_.(interpreteStructs.VarType)
 
-	funcNode := varType.Value.(function.IFunction)
+	if interprete.getMethodName(varType.Value) != "Class" {
+		funcNode := varType.Value.(function.IFunction)
 
-	var params []interface{}
+		var params []interface{}
 
-	for _, param := range *callFuncNode.Params {
-		params = append(params, interprete.call(param, context))
+		for _, param := range *callFuncNode.Params {
+			params = append(params, interprete.call(param, context))
+		}
+
+		funcNodeBody, hasACustomExecute := funcNode.Execute(&params)
+		if hasACustomExecute {
+			return funcNodeBody
+		}
+		interprete.call(funcNode.GetBody(), funcNode.GetContext())
+		return parserStructs.NullNode{}
 	}
 
-	funcNodeBody, hasACustomExecute := funcNode.Execute(&params)
-	if hasACustomExecute {
-		return funcNodeBody
-	}
-	interprete.call(funcNode.GetBody(), funcNode.GetContext())
-	return parserStructs.NullNode{}
+	return varType.Value
 }
 
 func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext.Context) *numbers.Number {
@@ -286,4 +304,8 @@ func (interprete *Interprete) BreakNode(node interface{}, context *languageConte
 
 func (interprete *Interprete) Number(node interface{}, context *languageContext.Context) *numbers.Number {
 	return node.(*numbers.Number)
+}
+
+func (interprete *Interprete) Class(node interface{}, context *languageContext.Context) class.Class {
+	return node.(class.Class)
 }
