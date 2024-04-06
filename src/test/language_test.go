@@ -9,6 +9,7 @@ import (
 	"makeLanguages/src/languageContext"
 	"makeLanguages/src/lexer"
 	"makeLanguages/src/parser"
+	"makeLanguages/src/parser/parserStructs"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -93,7 +94,7 @@ func (print Print) Execute(params *[]interface{}) (interface{}, bool) {
 	}
 
 	call++
-	return nil, true
+	return parserStructs.NullNode{}, true
 }
 
 func TestVariablesAndIfs(t *testing.T) {

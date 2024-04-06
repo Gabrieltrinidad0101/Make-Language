@@ -1,6 +1,11 @@
+class A{
+    func b(){
+        return 2
+    }
+}
 class Test {
     func a(){
-        return 1
+        return new A()
     }
 
     func b(){
