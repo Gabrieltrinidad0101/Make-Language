@@ -1,6 +1,7 @@
 package interprete
 
 import (
+	"fmt"
 	"makeLanguages/src/constants"
 	"makeLanguages/src/customErrors"
 	"makeLanguages/src/features/booleans"
@@ -41,12 +42,11 @@ func (interprete *Interprete) getMethodName(node interface{}) string {
 func (interprete *Interprete) stopExecute(node interface{}) string {
 	if interprete.getMethodName(node) == "ContinueNode" ||
 		interprete.getMethodName(node) == "BreakNode" ||
-		interprete.getMethodName(node) == "RETURN" {
+		interprete.getMethodName(node) == "ReturnNode" {
 		return interprete.getMethodName(node)
 	}
 
 	return ""
-
 }
 
 func (interprete *Interprete) call(node interface{}, context *languageContext.Context) interface{} {
@@ -146,7 +146,7 @@ func (interprete Interprete) VarAccessNode(node interface{}, context *languageCo
 	varAccessNode := node.(*parserStructs.VarAccessNode)
 	varType, ok := context.Get(varAccessNode.Identifier)
 	if !ok {
-		customErrors.RunTimeError(&varAccessNode.PositionBase, "Variable is undefined "+varAccessNode.Identifier)
+		customErrors.RunTimeError(varAccessNode.IPositionBase, "Variable is undefined "+varAccessNode.Identifier)
 	}
 	return interprete.call(varType.Value, context)
 }
@@ -178,7 +178,7 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 	callFuncNode := node.(*parserStructs.CallObjectNode)
 	varType, ok := context.Get(callFuncNode.Name)
 	if !ok || (callFuncNode.HasNew && interprete.getMethodName(varType.Value) != "Class") {
-		panic(callFuncNode.Name)
+		customErrors.RunTimeError(callFuncNode.IPositionBase, fmt.Sprintf("The %s is undefined", callFuncNode.Name))
 	}
 
 	if interprete.getMethodName(varType.Value) != "Class" {
@@ -194,7 +194,15 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 		if hasACustomExecute {
 			return funcNodeBody
 		}
-		interprete.call(funcNode.GetBody(), funcNode.GetContext())
+		node := interprete.call(funcNode.GetBody(), funcNode.GetContext())
+
+		isReturn := interprete.stopExecute(node)
+
+		if isReturn == "ReturnNode" {
+			return_ := node.(*parserStructs.ReturnNode)
+			return interprete.call(return_.Value, context)
+		}
+
 		return parserStructs.NullNode{}
 	}
 
@@ -300,6 +308,10 @@ func (interprete *Interprete) ContinueNode(node interface{}, context *languageCo
 
 func (interprete *Interprete) BreakNode(node interface{}, context *languageContext.Context) interface{} {
 	return node.(*parserStructs.BreakNode)
+}
+
+func (interprete *Interprete) ReturnNode(node interface{}, context *languageContext.Context) interface{} {
+	return node.(*parserStructs.ReturnNode)
 }
 
 func (interprete *Interprete) Number(node interface{}, context *languageContext.Context) *numbers.Number {

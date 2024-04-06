@@ -140,7 +140,7 @@ func (lexer *Lexer) Tokens() (*[]lexerStructs.Token, bool) {
 		if !ok {
 			CustomErrors.IllegalCharacter(lexerStructs.Token{
 				Value: *lexer.current_char,
-				PositionBase: lexerStructs.PositionBase{
+				IPositionBase: lexerStructs.PositionBase{
 					PositionStart: lexer.Position,
 					PositionEnd:   lexer.Position,
 				},
@@ -182,7 +182,7 @@ func (lexer *Lexer) syntaxToken(syntax map[string]string) bool {
 	token := lexerStructs.Token{
 		Type_: *type_,
 		Value: simbolText,
-		PositionBase: lexerStructs.PositionBase{
+		IPositionBase: lexerStructs.PositionBase{
 			PositionStart: positionCopy,
 			PositionEnd:   lexer.PositionCopy(),
 		},
@@ -197,9 +197,36 @@ func (lexer *Lexer) getIdentifier() bool {
 	identifier := ""
 	positionStart := lexer.PositionCopy()
 	positionEnd := positionStart
+	hasString := false
 	for {
-		lastToken := (*lexer.tokens)[len(*lexer.tokens)-1]
-		if !strings.Contains(LETTERS, *lexer.current_char) || (*lexer.current_char == "." && lastToken.Type_ == constants.TT_VAR) {
+		lastToken := lexerStructs.Token{}
+		if len(*lexer.tokens) > 0 {
+			lastToken = (*lexer.tokens)[len(*lexer.tokens)-1]
+		}
+
+		if lastToken.Type_ == constants.TT_VAR && *lexer.current_char == "." {
+			position := lexerStructs.Position{
+				Line: lexer.Line,
+				Col:  lexer.idx + 1,
+			}
+			CustomErrors.Show(
+				lexerStructs.Token{
+					IPositionBase: lexerStructs.PositionBase{
+						PositionStart: position,
+						PositionEnd:   position,
+					},
+				},
+				"Variables Identifier cannot have spot",
+			)
+		}
+
+		canNotHasNumber := hasString && !strings.Contains("1234567890", *lexer.current_char)
+
+		if !hasString {
+			hasString = strings.Contains(LETTERS, *lexer.current_char)
+		}
+		isNotLegalCharacter := !strings.Contains(LETTERS, *lexer.current_char)
+		if isNotLegalCharacter && canNotHasNumber {
 			break
 		}
 		identifier += *lexer.current_char
@@ -217,7 +244,7 @@ func (lexer *Lexer) getIdentifier() bool {
 	token := lexerStructs.Token{
 		Type_: constants.TT_IDENTIFIER,
 		Value: strings.Trim(identifier, " "),
-		PositionBase: lexerStructs.PositionBase{
+		IPositionBase: lexerStructs.PositionBase{
 			PositionStart: positionStart,
 			PositionEnd:   positionEnd,
 		},
@@ -255,7 +282,7 @@ func (lexer *Lexer) makeNumber() bool {
 	*lexer.tokens = append(*lexer.tokens, lexerStructs.Token{
 		Type_: "number",
 		Value: number,
-		PositionBase: lexerStructs.PositionBase{
+		IPositionBase: lexerStructs.PositionBase{
 			PositionStart: positionStart,
 			PositionEnd:   lexer.PositionCopy(),
 		},

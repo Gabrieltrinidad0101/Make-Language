@@ -50,6 +50,7 @@
         "}": "CLOSING_CURLY_BRACE",
         "var": "VAR",
         "const": "CONST",
+        "return": "RETURN",
         "\"": "STRING",
         "\n": "NEWLINE",
         "\r": "NEWLINE",

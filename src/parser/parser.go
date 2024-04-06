@@ -52,7 +52,7 @@ func (parser *Parser) verifyNextToken(tokensType ...string) (*lexerStructs.Token
 	var lastToken *lexerStructs.Token = nil
 	for i, type_ := range tokensType {
 		token, ok := parser.getToken(parser.idx + i)
-		if ok && token.Type_ != type_ {
+		if !ok || token.Type_ != type_ {
 			return nil, fmt.Errorf("Expect: %s", type_)
 		}
 		lastToken = token
@@ -179,6 +179,11 @@ func (parser *Parser) statement() (interface{}, error) {
 		return class, err
 	}
 
+	return_, err := parser.return_()
+	if return_ != nil || err != nil {
+		return return_, err
+	}
+
 	return parser.compare()
 }
 
@@ -188,8 +193,26 @@ func (parser *Parser) continue_() *parserStructs.ContinueNode {
 		return nil
 	}
 	return &parserStructs.ContinueNode{
-		PositionBase: continue_.PositionBase,
+		IPositionBase: continue_.IPositionBase,
 	}
+}
+
+func (parser *Parser) return_() (*parserStructs.ReturnNode, error) {
+	continue_, err := parser.verifyNextToken(constants.TT_RETURN)
+	if err != nil {
+		return nil, nil
+	}
+
+	value, err := parser.compare()
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &parserStructs.ReturnNode{
+		IPositionBase: continue_.IPositionBase,
+		Value:         value,
+	}, nil
 }
 
 func (parser *Parser) break_() *parserStructs.BreakNode {
@@ -198,7 +221,7 @@ func (parser *Parser) break_() *parserStructs.BreakNode {
 		return nil
 	}
 	return &parserStructs.BreakNode{
-		PositionBase: break_.PositionBase,
+		IPositionBase: break_.IPositionBase,
 	}
 }
 
@@ -410,12 +433,12 @@ func (parser *Parser) term() (interface{}, error) {
 		return callFuncNode, err
 	}
 
-	if varAccess, err := parser.varAccess(); err != nil || varAccess != nil {
-		return varAccess, nil
-	}
-
 	if funcNode, err := parser.func_(); funcNode != nil || err != nil {
 		return funcNode, err
+	}
+
+	if varAccess, err := parser.varAccess(); err != nil || varAccess != nil {
+		return varAccess, nil
 	}
 
 	return nil, fmt.Errorf("")
@@ -459,11 +482,12 @@ func (parser *Parser) if_() (interface{}, error) {
 }
 
 func (parser *Parser) func_() (interface{}, error) {
+	func_ := parser.CurrentToken
 	identoifierToken, err := parser.verifyNextToken(constants.TT_FUNC, constants.TT_IDENTIFIER)
 	if err != nil {
 		return nil, nil
 	}
-	params, err := parser.params()
+	params, position, err := parser.params()
 	if err != nil {
 		return nil, err
 	}
@@ -475,24 +499,37 @@ func (parser *Parser) func_() (interface{}, error) {
 		Params: params,
 		Body:   body,
 		Name:   identoifierToken.Value.(string),
+		IPositionBase: lexerStructs.PositionBase{
+			PositionStart: func_.GetPositionStart(),
+			PositionEnd:   position.PositionCopy(),
+		},
 	}, nil
 }
 
 func (parser *Parser) callFunc() (*parserStructs.CallObjectNode, error) {
 	newNode, _ := parser.verifyNextToken(constants.TT_NEW)
-	funcName := parser.CurrentToken.Value
+	func_ := *parser.CurrentToken
 	_, err := parser.verifyNextToken(constants.TT_IDENTIFIER, constants.TT_LPAREN)
 	if err != nil {
 		return nil, nil
 	}
-	params, err := parser.args()
+	params, positionEnd, err := parser.args()
 	if err != nil {
 		return nil, err
 	}
+	fistToken := newNode
+	if fistToken == nil {
+		fistToken = &func_
+	}
+
 	return &parserStructs.CallObjectNode{
 		Params: params,
-		Name:   funcName.(string),
+		Name:   func_.Value.(string),
 		HasNew: newNode != nil,
+		IPositionBase: lexerStructs.PositionBase{
+			PositionStart: fistToken.GetPositionStart(),
+			PositionEnd:   positionEnd.PositionCopy(),
+		},
 	}, nil
 }
 
@@ -539,9 +576,9 @@ func (parser *Parser) varAccess() (*parserStructs.VarAccessNode, error) {
 
 	varAccessNode := &parserStructs.VarAccessNode{
 		Identifier: parser.CurrentToken.Value.(string),
-		PositionBase: lexerStructs.PositionBase{
-			PositionStart: parser.CurrentToken.PositionStart,
-			PositionEnd:   parser.CurrentToken.PositionEnd,
+		IPositionBase: lexerStructs.PositionBase{
+			PositionStart: parser.CurrentToken.GetPositionStart(),
+			PositionEnd:   parser.CurrentToken.GetPositionEnd(),
 		},
 	}
 	parser.advance()
@@ -564,58 +601,62 @@ func (parser *Parser) classAccess() (*parserStructs.ClassAccessNode, error) {
 	}, nil
 }
 
-func (parser *Parser) params() (*[]lexerStructs.Token, error) {
+func (parser *Parser) params() (*[]lexerStructs.Token, *lexerStructs.Position, error) {
 	_, err := parser.verifyNextToken(constants.TT_LPAREN)
 	params := &[]lexerStructs.Token{}
+	var lastToken *lexerStructs.Token
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	for {
 		identifier, err := parser.verifyNextToken(constants.TT_IDENTIFIER)
 		if err != nil {
-			_, err = parser.verifyNextToken(constants.TT_RPAREN)
+			lastToken, err = parser.verifyNextToken(constants.TT_RPAREN)
 			if err == nil {
-				return &[]lexerStructs.Token{}, nil
+				position := lastToken.GetPositionEnd()
+				return &[]lexerStructs.Token{}, &position, nil
 			}
-			return nil, err
+			return nil, nil, err
 		}
 		*params = append(*params, *identifier)
 
 		_, err = parser.verifyNextToken(constants.TT_COMMA)
 		if err != nil {
-			_, err = parser.verifyNextToken(constants.TT_RPAREN)
+			lastToken, err = parser.verifyNextToken(constants.TT_RPAREN)
 			if err == nil {
 				break
 			}
-			return nil, err
+			return nil, nil, err
 		}
 
 	}
-
-	return params, nil
+	position := lastToken.GetPositionEnd()
+	return params, &position, nil
 }
 
-func (parser *Parser) args() (*[]interface{}, error) {
+func (parser *Parser) args() (*[]interface{}, *lexerStructs.Position, error) {
 	params := []interface{}{}
+	var lastToken *lexerStructs.Token
 	for {
 		param, err := parser.compare()
 		if err != nil {
-			_, err = parser.verifyNextToken(constants.TT_RPAREN)
+			lastToken, err = parser.verifyNextToken(constants.TT_RPAREN)
 			if err == nil {
 				break
 			}
-			return nil, err
+			return nil, nil, err
 		}
 		params = append(params, param)
 		_, err = parser.verifyNextToken(constants.TT_COMMA)
 		if err != nil {
-			_, err = parser.verifyNextToken(constants.TT_RPAREN)
+			lastToken, err = parser.verifyNextToken(constants.TT_RPAREN)
 			if err == nil {
 				break
 			}
-			return nil, err
+			return nil, nil, err
 		}
 	}
 
-	return &params, nil
+	position := lastToken.GetPositionEnd()
+	return &params, &position, nil
 }

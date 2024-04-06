@@ -1,16 +1,17 @@
 class Test {
-    func a(z){
-        print(z * 3)
+    func a(){
+        return 1
     }
 
-    func b(k){
-        if(k == 5){
-            print(1)
-        }else {
-            print(2)
-        }
+    func b(){
+        print(213)
     }
 }
 
 const test = new Test()
-test.b(3)
+
+if(test.a() == 2){
+    print(1)
+} else {
+    print(2)
+}

@@ -1,7 +1,7 @@
 package lexerStructs
 
 type Token struct {
-	PositionBase
+	IPositionBase
 	Type_ string
 	Value interface{}
 }
@@ -16,11 +16,11 @@ type PositionBase struct {
 	PositionEnd   Position
 }
 
-func (NodeBase *PositionBase) GetPositionStart() Position {
+func (NodeBase PositionBase) GetPositionStart() Position {
 	return NodeBase.PositionStart
 }
 
-func (NodeBase *PositionBase) GetPositionEnd() Position {
+func (NodeBase PositionBase) GetPositionEnd() Position {
 	return NodeBase.PositionEnd
 }
 
