@@ -115,8 +115,8 @@ func TestVariablesAndIfs(t *testing.T) {
 	assert.True(ok)
 	d, ok := context.Get("d")
 	assert.True(ok)
-	assert.Equal(a.(interpreteStructs.VarType).Value.(*numbers.Number).Value, float64(1))
-	assert.Equal(b.(interpreteStructs.VarType).Value.(*numbers.Number).Value, float64(2))
-	assert.Equal(c.(interpreteStructs.VarType).Value.(*numbers.Number).Value, float64(2))
-	assert.Equal(d.(interpreteStructs.VarType).Value.(*numbers.Number).Value, float64(3))
+	assert.Equal(a.Value.(*numbers.Number).Value, float64(1))
+	assert.Equal(b.Value.(*numbers.Number).Value, float64(2))
+	assert.Equal(c.Value.(*numbers.Number).Value, float64(2))
+	assert.Equal(d.Value.(*numbers.Number).Value, float64(3))
 }
