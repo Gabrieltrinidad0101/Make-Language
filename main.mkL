@@ -1,22 +1,2 @@
-class A{
-    func b(){
-        return 2
-    }
-}
-class Test {
-    func a(){
-        return new A()
-    }
-
-    func b(){
-        print(213)
-    }
-}
-
-const test = new Test()
-
-if(test.a() == 2){
-    print(1)
-} else {
-    print(2)
-}
+var a = " "  "    "
+print(a)

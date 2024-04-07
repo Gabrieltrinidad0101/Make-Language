@@ -441,7 +441,22 @@ func (parser *Parser) term() (interface{}, error) {
 		return varAccess, nil
 	}
 
+	if string_, err := parser.string_(); err != nil || string_ != nil {
+		return string_, nil
+	}
+
 	return nil, fmt.Errorf("")
+}
+
+func (parser *Parser) string_() (interface{}, error) {
+	stringToken, err := parser.verifyNextToken(constants.TT_STRING)
+	if err != nil {
+		return nil, nil
+	}
+	return parserStructs.StringNode{
+		Value:         stringToken.Value.(string),
+		IPositionBase: stringToken.IPositionBase,
+	}, nil
 }
 
 func (parser *Parser) if_() (interface{}, error) {

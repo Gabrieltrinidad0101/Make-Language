@@ -120,6 +120,12 @@ func (lexer *Lexer) Tokens() (*[]lexerStructs.Token, bool) {
 			continue
 		}
 
+		isString := lexer.makeString()
+
+		if isString {
+			continue
+		}
+
 		isNumber := lexer.makeNumber()
 		if isNumber {
 			continue
@@ -287,5 +293,47 @@ func (lexer *Lexer) makeNumber() bool {
 			PositionEnd:   lexer.PositionCopy(),
 		},
 	})
+	return true
+}
+
+func (lexer *Lexer) makeString() bool {
+
+	if constants.TT_STRING != lexer.languageConfiguraction.LanguageSyntax[*lexer.current_char] {
+		return false
+	}
+
+	stringValue := ""
+	positionStart := lexer.PositionCopy()
+	lexer.advance()
+	positionEnd := lexer.PositionCopy()
+	for constants.TT_STRING != lexer.languageConfiguraction.LanguageSyntax[*lexer.current_char] {
+		stringValue += *lexer.current_char
+		ok := lexer.advance()
+		positionEnd = lexer.PositionCopy()
+		if !ok || *lexer.current_char == "\n" {
+			token := lexerStructs.Token{
+				Value: "\"",
+				IPositionBase: lexerStructs.PositionBase{
+					PositionStart: positionStart,
+					PositionEnd:   positionEnd,
+				},
+			}
+			CustomErrors.InvalidSyntax(token, "Is necesary to use \" to end a string ")
+		}
+	}
+
+	lexer.advance()
+
+	stringToken := lexerStructs.Token{
+		Value: stringValue,
+		Type_: constants.TT_STRING,
+		IPositionBase: lexerStructs.PositionBase{
+			PositionStart: positionStart,
+			PositionEnd:   positionEnd,
+		},
+	}
+
+	*lexer.tokens = append(*lexer.tokens, stringToken)
+
 	return true
 }

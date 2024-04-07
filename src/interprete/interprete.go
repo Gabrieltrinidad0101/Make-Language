@@ -212,6 +212,10 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 	return varType.Value
 }
 
+func (interprete *Interprete) StringNode(node interface{}, context *languageContext.Context) interface{} {
+	return node
+}
+
 func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext.Context) *numbers.Number {
 	unaryOP := node.(*parserStructs.UnaryOP)
 	number := interprete.call(unaryOP.RigthNode, context).(*numbers.Number)
