@@ -8,6 +8,7 @@ import (
 	"makeLanguages/src/features/class"
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/features/numbers"
+	"makeLanguages/src/features/str"
 	interpreteStructs "makeLanguages/src/interprete/structs"
 	"makeLanguages/src/languageContext"
 	"makeLanguages/src/parser/parserStructs"
@@ -76,7 +77,7 @@ func (interprete *Interprete) ClassNode(node interface{}, context *languageConte
 
 	for _, func_ := range listNode.Nodes {
 		funcNode := func_.(parserStructs.FuncNode)
-		interprete.FuncNode(funcNode, &newContext)
+		interprete.FuncNode(funcNode, newContext)
 	}
 
 	class_ := class.Class{
@@ -100,7 +101,7 @@ func (interprete *Interprete) ClassAccessNode(node interface{}, context *languag
 		panic("The variable no exist " + classAccessNode.Name)
 	}
 	class := varType.Value.(class.Class)
-	return interprete.CallObjectNode(classAccessNode.Method, &class.Context)
+	return interprete.CallObjectNode(classAccessNode.Method, class.Context)
 }
 
 func (interprete *Interprete) BinOP(node interface{}, context *languageContext.Context) interface{} {
@@ -166,7 +167,7 @@ func (interprete *Interprete) FuncNode(node interface{}, context *languageContex
 
 	func_ := function.Function{
 		Body:    funcNode.Body,
-		Context: &newContext,
+		Context: newContext,
 		Params:  funcNode.Params,
 	}
 
@@ -213,7 +214,8 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 }
 
 func (interprete *Interprete) StringNode(node interface{}, context *languageContext.Context) interface{} {
-	return node
+	stringNode := node.(parserStructs.StringNode)
+	return str.NewString(stringNode.Value)
 }
 
 func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext.Context) *numbers.Number {

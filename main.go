@@ -55,5 +55,5 @@ func main() {
 	}
 
 	interprete_ := interprete.NewInterprete(ast)
-	interprete_.Run(&languageContext_)
+	interprete_.Run(languageContext_)
 }

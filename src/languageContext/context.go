@@ -12,12 +12,12 @@ type Context struct {
 	variables Variables
 }
 
-func NewContext(parent *Context) Context {
+func NewContext(parent *Context) *Context {
 	context := &Context{
 		Parent:    parent,
 		variables: &map[string]interpreteStructs.VarType{},
 	}
-	return *context
+	return context
 }
 
 func (context *Context) Get(name string) (interpreteStructs.VarType, bool) {
