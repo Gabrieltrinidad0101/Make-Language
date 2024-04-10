@@ -100,8 +100,8 @@ func (interprete *Interprete) ClassAccessNode(node interface{}, context *languag
 	if !ok {
 		panic("The variable no exist " + classAccessNode.Name)
 	}
-	class := varType.Value.(class.Class)
-	return interprete.CallObjectNode(classAccessNode.Method, class.Context)
+	class := varType.Value.(class.ClassBase)
+	return interprete.CallObjectNode(classAccessNode.Method, class.GetClassContext())
 }
 
 func (interprete *Interprete) BinOP(node interface{}, context *languageContext.Context) interface{} {
@@ -216,6 +216,10 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 func (interprete *Interprete) StringNode(node interface{}, context *languageContext.Context) interface{} {
 	stringNode := node.(parserStructs.StringNode)
 	return str.NewString(stringNode.Value)
+}
+
+func (interprete *Interprete) String_(node interface{}, context *languageContext.Context) interface{} {
+	return node
 }
 
 func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext.Context) *numbers.Number {

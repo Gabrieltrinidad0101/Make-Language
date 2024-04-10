@@ -13,16 +13,34 @@ type IFunction interface {
 	GetContext() *languageContext.Context
 }
 
-type BaseFunction struct{}
+type BaseFunction struct {
+	Context  *languageContext.Context
+	callBack func(params *[]interface{}) interface{}
+	Name     string
+}
+
+func NewBaseFunction(Context *languageContext.Context, Name string, callBack func(params *[]interface{}) interface{}) *BaseFunction {
+	return &BaseFunction{
+		Context,
+		callBack,
+		Name,
+	}
+}
 
 func (func_ BaseFunction) GetParams() *[]lexerStructs.Token {
-	panic("internal error hasACustomExecute need to be false ")
+	panic("internal error hasACustomExecute need to be true ")
 }
 func (func_ BaseFunction) GetBody() interface{} {
-	panic("internal error hasACustomExecute need to be false ")
+	panic("internal error hasACustomExecute need to be true ")
 }
 func (func_ BaseFunction) GetContext() *languageContext.Context {
-	panic("internal error hasACustomExecute need to be false ")
+	panic("internal error hasACustomExecute need to be true ")
+}
+
+func (func_ BaseFunction) Execute(params *[]interface{}) (interface{}, bool) {
+	value := func_.callBack(params)
+	hasACustomExecute := true
+	return value, hasACustomExecute
 }
 
 type Function struct {
@@ -43,7 +61,6 @@ func (func_ Function) Execute(params *[]interface{}) (interface{}, bool) {
 	hasACustomExecute := false
 	return nil, hasACustomExecute
 }
-
 func (func_ Function) GetParams() *[]lexerStructs.Token {
 	return func_.Params
 }

@@ -1,24 +1,10 @@
 package str
 
 import (
-	"makeLanguages/src/features/function"
+	"makeLanguages/src/features/class"
 	"makeLanguages/src/languageContext"
-	"makeLanguages/src/parser/parserStructs"
 	"strings"
 )
-
-type BaseFunction struct {
-	function.BaseFunction
-	Context  *languageContext.Context
-	callBack func(params *[]interface{}) interface{}
-	Name     string
-}
-
-func (func_ BaseFunction) Execute(params *[]interface{}) (interface{}, bool) {
-	func_.callBack(params)
-	hasACustomExecute := true
-	return parserStructs.NullNode{}, hasACustomExecute
-}
 
 type String_ struct {
 	Context *languageContext.Context
@@ -27,18 +13,15 @@ type String_ struct {
 
 func NewString(value string) *String_ {
 	string_ := String_{
-		Value: value,
+		Value:   value,
+		Context: languageContext.NewContext(nil),
 	}
 	string_.Initial()
 	return &string_
 }
 
-func (string String_) baseFunction(name string, callBack func(params *[]interface{}) interface{}) function.IFunction {
-	return BaseFunction{
-		Context:  languageContext.NewContext(nil),
-		callBack: callBack,
-		Name:     name,
-	}
+func (class String_) GetClassContext() *languageContext.Context {
+	return class.Context
 }
 
 func (string String_) Replace(params *[]interface{}) interface{} {
@@ -46,10 +29,10 @@ func (string String_) Replace(params *[]interface{}) interface{} {
 		panic("Replace")
 	}
 
-	string1 := (*params)[0].(String_)
-	string2 := (*params)[1].(String_)
+	string1 := (*params)[0].(*String_)
+	string2 := (*params)[1].(*String_)
 
-	newString := strings.Replace(string.Value, string1.Value, string2.Value, 0)
+	newString := strings.ReplaceAll(string.Value, string1.Value, string2.Value)
 
 	return NewString(newString)
 }
@@ -66,6 +49,7 @@ func (string_ String_) Concat(params *[]interface{}) interface{} {
 }
 
 func (string_ String_) Initial() {
-	string_.baseFunction("replace", string_.Replace)
-	string_.baseFunction("concat", string_.Concat)
+	newClass := class.NewBuildClass(string_.Context)
+	newClass.AddMethod("replace", string_.Replace)
+	newClass.AddMethod("concat", string_.Concat)
 }
