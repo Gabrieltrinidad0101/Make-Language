@@ -438,11 +438,11 @@ func (parser *Parser) term() (interface{}, error) {
 	}
 
 	if arrayAccess, err := parser.arrayAccess(); err != nil || arrayAccess != nil {
-		return arrayAccess, nil
+		return arrayAccess, err
 	}
 
 	if varAccess, err := parser.varAccess(); err != nil || varAccess != nil {
-		return varAccess, nil
+		return varAccess, err
 	}
 
 	if string_, err := parser.string_(); err != nil || string_ != nil {
@@ -708,13 +708,14 @@ func (parser *Parser) params() (*[]lexerStructs.Token, *lexerStructs.Position, e
 func (parser *Parser) args() (*[]interface{}, *lexerStructs.Position, error) {
 	params := []interface{}{}
 	var lastToken *lexerStructs.Token
+	var err error
 	for {
+		lastToken, err = parser.verifyNextToken(constants.TT_RPAREN)
+		if err == nil {
+			break
+		}
 		param, err := parser.compare()
 		if err != nil {
-			lastToken, err = parser.verifyNextToken(constants.TT_RPAREN)
-			if err == nil {
-				break
-			}
 			return nil, nil, err
 		}
 		params = append(params, param)

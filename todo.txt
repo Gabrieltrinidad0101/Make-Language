@@ -1,7 +1,7 @@
 Add support for multiples. Examples: a().b().c().
 Add string example: "hola mundo". complete
 Add string concat,multiples methods
-Add array example: [1, 2, 3, 4].
+Add array example: [1, 2, 3, 4]. complete
 Add types example: var a: int = 123.
 Add support for changing scope for multiples (global scope, function scope, curly brace scope).
 Add HTTP library.
