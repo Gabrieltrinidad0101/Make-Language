@@ -112,3 +112,9 @@ type StringNode struct {
 	Value string
 	lexerStructs.IPositionBase
 }
+
+type ArrayAccess struct {
+	Identifier string
+	Node       interface{}
+	lexerStructs.IPositionBase
+}

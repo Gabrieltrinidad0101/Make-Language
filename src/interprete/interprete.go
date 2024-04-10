@@ -12,6 +12,7 @@ import (
 	"makeLanguages/src/features/str"
 	interpreteStructs "makeLanguages/src/interprete/structs"
 	"makeLanguages/src/languageContext"
+	"makeLanguages/src/lexer/lexerStructs"
 	"makeLanguages/src/parser/parserStructs"
 	"reflect"
 )
@@ -307,6 +308,21 @@ func (interprete *Interprete) ForNode(node interface{}, context *languageContext
 
 func (interprete *Interprete) Array(node interface{}, context *languageContext.Context) interface{} {
 	return node
+}
+
+func (interprete *Interprete) ArrayAccess(node interface{}, context *languageContext.Context) interface{} {
+	arrayAccess := node.(parserStructs.ArrayAccess)
+	varType, ok := context.Get(arrayAccess.Identifier)
+	if !ok {
+		customErrors.RunTimeError(arrayAccess.IPositionBase, "Variable is undefined "+arrayAccess.Identifier)
+	}
+	index := interprete.call(arrayAccess.Node, context)
+	if interprete.getMethodName(index) != "Number" {
+		customErrors.RunTimeError(arrayAccess.Node.(lexerStructs.IPositionBase), "The index is not a number ")
+	}
+	array_ := varType.Value.(*array.Array)
+	element := (*array_.Value)[int(index.(*numbers.Number).Value)]
+	return element
 }
 
 func (interprete *Interprete) ListNode(node interface{}, context *languageContext.Context) interface{} {

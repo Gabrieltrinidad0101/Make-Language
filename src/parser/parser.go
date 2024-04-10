@@ -437,6 +437,10 @@ func (parser *Parser) term() (interface{}, error) {
 		return funcNode, err
 	}
 
+	if arrayAccess, err := parser.arrayAccess(); err != nil || arrayAccess != nil {
+		return arrayAccess, nil
+	}
+
 	if varAccess, err := parser.varAccess(); err != nil || varAccess != nil {
 		return varAccess, nil
 	}
@@ -452,6 +456,28 @@ func (parser *Parser) term() (interface{}, error) {
 	return nil, fmt.Errorf("")
 }
 
+func (parser *Parser) arrayAccess() (interface{}, error) {
+	identifier := *parser.CurrentToken
+	if _, err := parser.verifyNextToken(constants.TT_IDENTIFIER, constants.TT_LSQUAREBRACKET); err != nil {
+		return nil, nil
+	}
+
+	node, err := parser.term()
+
+	if err != nil {
+		return nil, nil
+	}
+
+	if _, err := parser.verifyNextToken(constants.TT_RSQUAREBRACKET); err != nil {
+		return nil, err
+	}
+
+	return parserStructs.ArrayAccess{
+		Identifier: identifier.Value.(string),
+		Node:       node,
+	}, nil
+}
+
 func (parser *Parser) array() (interface{}, error) {
 	_, err := parser.verifyNextToken(constants.TT_LSQUAREBRACKET)
 	if err != nil {
@@ -459,7 +485,7 @@ func (parser *Parser) array() (interface{}, error) {
 	}
 	listNode := parserStructs.ListNode{}
 	for {
-		if _, err := parser.verifyNextToken(constants.TT_RSQUAREBRACKETS); err == nil {
+		if _, err := parser.verifyNextToken(constants.TT_RSQUAREBRACKET); err == nil {
 			break
 		}
 		node, err := parser.term()
@@ -467,7 +493,7 @@ func (parser *Parser) array() (interface{}, error) {
 			return nil, err
 		}
 		listNode.Nodes = append(listNode.Nodes, node)
-		if parser.CurrentToken.Type_ != constants.TT_RSQUAREBRACKETS {
+		if parser.CurrentToken.Type_ != constants.TT_RSQUAREBRACKET {
 			_, err := parser.verifyNextToken(constants.TT_COMMA)
 			if err != nil {
 				return nil, err
