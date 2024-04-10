@@ -20,6 +20,8 @@
         "--": "MINUS1"
     },
     "language_syntax": {
+        "[": "LSQUAREBRACKET",
+        "]": "RSQUAREBRACKET",
         "&&": "AND",
         "||": "OR",
         ">": "GT",

@@ -445,7 +445,37 @@ func (parser *Parser) term() (interface{}, error) {
 		return string_, nil
 	}
 
+	if array, err := parser.array(); err != nil || array != nil {
+		return array, nil
+	}
+
 	return nil, fmt.Errorf("")
+}
+
+func (parser *Parser) array() (interface{}, error) {
+	_, err := parser.verifyNextToken(constants.TT_LSQUAREBRACKET)
+	if err != nil {
+		return nil, nil
+	}
+	listNode := parserStructs.ListNode{}
+	for {
+		if _, err := parser.verifyNextToken(constants.TT_RSQUAREBRACKETS); err == nil {
+			break
+		}
+		node, err := parser.term()
+		if err != nil {
+			return nil, err
+		}
+		listNode.Nodes = append(listNode.Nodes, node)
+		if parser.CurrentToken.Type_ != constants.TT_RSQUAREBRACKETS {
+			_, err := parser.verifyNextToken(constants.TT_COMMA)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return listNode, nil
 }
 
 func (parser *Parser) string_() (interface{}, error) {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"makeLanguages/src/constants"
 	"makeLanguages/src/customErrors"
+	"makeLanguages/src/features/array"
 	"makeLanguages/src/features/booleans"
 	"makeLanguages/src/features/class"
 	"makeLanguages/src/features/function"
@@ -304,15 +305,21 @@ func (interprete *Interprete) ForNode(node interface{}, context *languageContext
 	return parserStructs.NullNode{}
 }
 
+func (interprete *Interprete) Array(node interface{}, context *languageContext.Context) interface{} {
+	return node
+}
+
 func (interprete *Interprete) ListNode(node interface{}, context *languageContext.Context) interface{} {
 	listNode := node.(parserStructs.ListNode)
+	values := []interface{}{}
 	for _, node := range listNode.Nodes {
 		result := interprete.call(node, context)
 		if interprete.stopExecute(result) != "" {
 			return result
 		}
+		values = append(values, result)
 	}
-	return parserStructs.NullNode{}
+	return array.NewArray(&values)
 }
 
 func (interprete *Interprete) ContinueNode(node interface{}, context *languageContext.Context) interface{} {
