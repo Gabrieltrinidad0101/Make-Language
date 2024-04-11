@@ -1,4 +1,4 @@
-Add support for multiples. Examples: a().b().c().
+Add support for multiples. Examples: a().b().c(). complete
 Add string example: "hola mundo". complete
 Add string concat,multiples methods
 Add array example: [1, 2, 3, 4]. complete

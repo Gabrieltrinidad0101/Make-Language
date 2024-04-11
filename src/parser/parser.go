@@ -375,7 +375,11 @@ func (parser *Parser) factor() (interface{}, error) {
 }
 
 func (parser *Parser) pow() (interface{}, error) {
-	return parser.binOP(parser.term, constants.TT_POW, constants.TT_SQUARE_ROOT)
+	return parser.binOP(parser.spot, constants.TT_POW, constants.TT_SQUARE_ROOT)
+}
+
+func (parser *Parser) spot() (interface{}, error) {
+	return parser.binOP(parser.term, constants.TT_SPOT)
 }
 
 func (parser *Parser) term() (interface{}, error) {
@@ -423,10 +427,6 @@ func (parser *Parser) term() (interface{}, error) {
 
 	if ifNode, err := parser.if_(); ifNode != nil || err != nil {
 		return ifNode, err
-	}
-
-	if classAccess, err := parser.classAccess(); classAccess != nil || err != nil {
-		return classAccess, err
 	}
 
 	if callFuncNode, err := parser.callFunc(); callFuncNode != nil || err != nil {
@@ -654,22 +654,6 @@ func (parser *Parser) varAccess() (*parserStructs.VarAccessNode, error) {
 	}
 	parser.advance()
 	return varAccessNode, nil
-}
-
-func (parser *Parser) classAccess() (*parserStructs.ClassAccessNode, error) {
-	className := parser.CurrentToken.Value
-	_, err := parser.verifyNextToken(constants.TT_IDENTIFIER, constants.TT_SPOT)
-	if err != nil {
-		return nil, nil
-	}
-	callFunc, err := parser.callFunc()
-	if err != nil {
-		return nil, err
-	}
-	return &parserStructs.ClassAccessNode{
-		Name:   className.(string),
-		Method: callFunc,
-	}, nil
 }
 
 func (parser *Parser) params() (*[]lexerStructs.Token, *lexerStructs.Position, error) {

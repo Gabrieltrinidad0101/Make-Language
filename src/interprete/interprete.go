@@ -96,28 +96,35 @@ func (interprete *Interprete) ClassNode(node interface{}, context *languageConte
 	return parserStructs.NullNode{}
 }
 
-func (interprete *Interprete) ClassAccessNode(node interface{}, context *languageContext.Context) interface{} {
-	classAccessNode := node.(*parserStructs.ClassAccessNode)
-	varType, ok := context.Get(classAccessNode.Name)
-	if !ok {
-		panic("The variable no exist " + classAccessNode.Name)
-	}
-	class := varType.Value.(class.ClassBase)
-	return interprete.CallObjectNode(classAccessNode.Method, class.GetClassContext())
-}
-
 func (interprete *Interprete) BinOP(node interface{}, context *languageContext.Context) interface{} {
 	binOP := node.(parserStructs.BinOP)
+	if binOP.Operation.Type_ == constants.TT_SPOT {
+		return interprete.methodAccess(binOP, context)
+	}
 	nodeLeft := interprete.call(binOP.LeftNode, context)
 	nodeRigth := interprete.call(binOP.RigthNode, context)
 	newNode := interprete.callMethod(nodeLeft, binOP.Operation.Type_, nodeRigth)
 	return newNode
 }
 
+func (interprete *Interprete) methodAccess(node parserStructs.BinOP, context *languageContext.Context) interface{} {
+	for node.Operation.Type_ == constants.TT_SPOT {
+		classNode := interprete.call(node.LeftNode, context).(class.ClassBase)
+		if interprete.getMethodName(node.RigthNode) == "BinOP" {
+			subNode := node.RigthNode.(parserStructs.BinOP)
+			interprete.CallObjectNode(subNode.LeftNode, classNode.GetClassContext())
+			node = subNode
+			continue
+		}
+		return interprete.CallObjectNode(node.RigthNode, classNode.GetClassContext())
+	}
+	return parserStructs.NullNode{}
+}
+
 func (interprete Interprete) VarAssignNode(node interface{}, context *languageContext.Context) interface{} {
 	varAssignNode := node.(parserStructs.VarAssignNode)
 	if _, ok := context.Get(varAssignNode.Identifier); ok && varAssignNode.IsConstant {
-		panic("Const " + varAssignNode.Identifier)
+		customErrors.RunTimeError(varAssignNode.IPositionBase, "The "+varAssignNode.Identifier+" is a const variable")
 	}
 	result := interprete.call(varAssignNode.Node, context)
 	context.Set(varAssignNode.Identifier, interpreteStructs.VarType{
@@ -134,7 +141,7 @@ func (interprete Interprete) UpdateVariableNode(node interface{}, context *langu
 		panic("The variable no exist" + updateVariableNode.Identifier)
 	}
 	if varType.IsConstant {
-		panic("Const")
+		customErrors.RunTimeError(updateVariableNode.IPositionBase, "The "+updateVariableNode.Identifier+" is a const variable")
 	}
 
 	result := interprete.call(updateVariableNode.Node, context)

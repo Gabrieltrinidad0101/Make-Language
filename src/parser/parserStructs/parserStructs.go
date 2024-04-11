@@ -102,12 +102,6 @@ type BreakNode struct {
 	lexerStructs.IPositionBase
 }
 
-type ClassAccessNode struct {
-	Name   string
-	Method interface{}
-	lexerStructs.IPositionBase
-}
-
 type StringNode struct {
 	Value string
 	lexerStructs.IPositionBase
