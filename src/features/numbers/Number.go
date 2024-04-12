@@ -15,6 +15,10 @@ func NewNumbers(value float64) *Number {
 	}
 }
 
+func (number *Number) GetValue() interface{} {
+	return number.Value
+}
+
 func (number *Number) PLUS(number_ *Number) *Number {
 	value := number.Value + number_.Value
 	return NewNumbers(value)

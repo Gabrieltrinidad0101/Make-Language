@@ -1,6 +1,8 @@
 package str
 
 import (
+	"fmt"
+	"makeLanguages/src/features"
 	"makeLanguages/src/features/class"
 	"makeLanguages/src/languageContext"
 	"strings"
@@ -46,6 +48,10 @@ func (string_ String_) Concat(params *[]interface{}) interface{} {
 
 	newString := string1.Value + string_.Value
 	return NewString(newString)
+}
+
+func (string_ String_) PLUS(node features.Type) *String_ {
+	return NewString(string_.Value + fmt.Sprint(node.GetValue()))
 }
 
 func (string_ String_) Initial() {
