@@ -15,5 +15,6 @@ Use different tokens for assignment (=) and variable declaration (var =).
 Make var optional for creating variables.
 Enable and disable const.
 In conf.json, add option to start with (main function, main class, or script).
+fix error with number and floats
 Add option in conf.json for event loop or thread.
 Enable CLI execution.

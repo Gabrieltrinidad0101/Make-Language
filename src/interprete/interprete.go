@@ -9,7 +9,6 @@ import (
 	"makeLanguages/src/features/class"
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/features/numbers"
-	"makeLanguages/src/features/str"
 	interpreteStructs "makeLanguages/src/interprete/structs"
 	"makeLanguages/src/languageContext"
 	"makeLanguages/src/lexer/lexerStructs"
@@ -65,6 +64,9 @@ func (interprete *Interprete) callMethod(object interface{}, methodName string, 
 	var params []reflect.Value
 	for _, value := range values {
 		params = append(params, reflect.ValueOf(value))
+	}
+	if !method.IsValid() {
+		customErrors.RunTimeError(object.(lexerStructs.IPositionBase), fmt.Sprintf("Error tring to access the method %s", methodName))
 	}
 
 	returnValue := method.Call(params)
@@ -220,11 +222,6 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 	}
 
 	return varType.Value
-}
-
-func (interprete *Interprete) StringNode(node interface{}, context *languageContext.Context) interface{} {
-	stringNode := node.(parserStructs.StringNode)
-	return str.NewString(stringNode.Value)
 }
 
 func (interprete *Interprete) String_(node interface{}, context *languageContext.Context) interface{} {

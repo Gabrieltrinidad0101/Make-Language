@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"makeLanguages/src/constants"
 	"makeLanguages/src/features/numbers"
+	"makeLanguages/src/features/str"
 	lexerStructs "makeLanguages/src/lexer/lexerStructs"
 	"makeLanguages/src/parser/parserStructs"
 	"slices"
@@ -509,10 +510,7 @@ func (parser *Parser) string_() (interface{}, error) {
 	if err != nil {
 		return nil, nil
 	}
-	return parserStructs.StringNode{
-		Value:         stringToken.Value.(string),
-		IPositionBase: stringToken.IPositionBase,
-	}, nil
+	return str.NewString(stringToken.Value.(string), stringToken.IPositionBase), nil
 }
 
 func (parser *Parser) if_() (interface{}, error) {

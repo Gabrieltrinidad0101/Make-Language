@@ -1,13 +1,2 @@
-class Test1 {
-    func a() {
-        return "Hola mundo"
-    }
-}
-class Test2 {
-    func a(){
-        return new Test1()
-    }
-}
-
-const test2 = new Test2()
-print(test2.a().a().replace("o","a"))
+const a = "sasdas"
+print(a / 333)
