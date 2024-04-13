@@ -73,6 +73,20 @@ func (interprete *Interprete) callMethod(object interface{}, methodName string, 
 	return returnValue[0].Interface()
 }
 
+func (interprete *Interprete) callMethodByOp(object interface{}, op lexerStructs.Token, values ...interface{}) interface{} {
+	method := reflect.ValueOf(object).MethodByName(op.Type_)
+	var params []reflect.Value
+	for _, value := range values {
+		params = append(params, reflect.ValueOf(value))
+	}
+	if !method.IsValid() {
+		customErrors.RunTimeError(op, fmt.Sprintf("Error tring to access the method %s", op.Type_))
+	}
+
+	returnValue := method.Call(params)
+	return returnValue[0].Interface()
+}
+
 func (interprete *Interprete) ClassNode(node interface{}, context *languageContext.Context) interface{} {
 	classNode := node.(*parserStructs.ClassNode)
 	newContext := languageContext.NewContext(context)
@@ -105,7 +119,7 @@ func (interprete *Interprete) BinOP(node interface{}, context *languageContext.C
 	}
 	nodeLeft := interprete.call(binOP.LeftNode, context)
 	nodeRigth := interprete.call(binOP.RigthNode, context)
-	newNode := interprete.callMethod(nodeLeft, binOP.Operation.Type_, nodeRigth)
+	newNode := interprete.callMethodByOp(nodeLeft, binOP.Operation, nodeRigth)
 	return newNode
 }
 
