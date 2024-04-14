@@ -90,7 +90,7 @@ func (interprete *Interprete) callMethodByOp(object interface{}, op lexerStructs
 func (interprete *Interprete) ClassNode(node interface{}, context *languageContext.Context) interface{} {
 	classNode := node.(*parserStructs.ClassNode)
 	newContext := languageContext.NewContext(context)
-
+	newContext.IsClass = true
 	listNode := classNode.Methods.(parserStructs.ListNode)
 
 	for _, func_ := range listNode.Nodes {
@@ -322,6 +322,18 @@ func (interprete *Interprete) ForNode(node interface{}, context *languageContext
 	}
 
 	return parserStructs.NullNode{}
+}
+
+func (interprete *Interprete) ThisNode(node interface{}, context *languageContext.Context) interface{} {
+	thisNode := node.(parserStructs.ThisNode)
+	classContext, ok := context.GetClassContext()
+	if !ok {
+		customErrors.RunTimeError(thisNode, "This need to be inside of class")
+	}
+
+	return class.Class{
+		Context: classContext,
+	}
 }
 
 func (interprete *Interprete) Array(node interface{}, context *languageContext.Context) interface{} {

@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"makeLanguages/src/constants"
+	"makeLanguages/src/customErrors"
 	"makeLanguages/src/features/numbers"
 	"makeLanguages/src/features/str"
 	lexerStructs "makeLanguages/src/lexer/lexerStructs"
@@ -15,7 +16,7 @@ type Parser struct {
 	idx          int
 	CurrentToken *lexerStructs.Token
 	len          int
-	scoopClass   string
+	scoopClass   bool
 }
 
 func NewParser(tokens *[]lexerStructs.Token) *Parser {
@@ -232,6 +233,7 @@ func (parser *Parser) class() (*parserStructs.ClassNode, error) {
 	if err != nil {
 		return nil, nil
 	}
+	parser.scoopClass = true
 
 	_, err = parser.verifyNextToken(constants.TT_START_BODY)
 	if err != nil {
@@ -239,6 +241,7 @@ func (parser *Parser) class() (*parserStructs.ClassNode, error) {
 	}
 
 	methodes, err := parser.statementsBase(constants.TT_END_BODY, parser.func_)
+	parser.scoopClass = false
 	if err != nil {
 		return nil, err
 	}
@@ -454,12 +457,27 @@ func (parser *Parser) term() (interface{}, error) {
 	if array, err := parser.array(); err != nil || array != nil {
 		return array, nil
 	}
+	if this, err := parser.this(); err != nil || this != nil {
+		return this, nil
+	}
 
 	return nil, fmt.Errorf("")
 }
 
 func (parser *Parser) this() (interface{}, error) {
+	token, err := parser.verifyNextToken(constants.TT_THIS)
+	if err != nil {
+		return nil, nil
+	}
 
+	if !parser.scoopClass {
+		customErrors.InvalidSyntax(*token, "This can only be inside of class")
+		return nil, nil
+	}
+
+	return parserStructs.ThisNode{
+		IPositionBase: token.IPositionBase,
+	}, nil
 }
 
 func (parser *Parser) arrayAccess() (interface{}, error) {

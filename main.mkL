@@ -1,7 +1,12 @@
 class Test {
     func a(){
-        this.z = 1
+        this.b()
+    }
+
+    func b(){
+        print("HOLA MUNDO")        
     }
 }
 
 const a = new Test()
+a.a()

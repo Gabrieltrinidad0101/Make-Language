@@ -65,15 +65,14 @@ func (context *Context) SetClass(name string, varType interpreteStructs.VarType)
 	context.SetClass(name, varType)
 }
 
-func (context *Context) GetClass(name string) (interpreteStructs.VarType, bool) {
+func (context *Context) GetClassContext() (*Context, bool) {
 	if !context.IsClass {
 		currentContext := context
 		if currentContext.Parent.(*Context) == nil {
-			return interpreteStructs.VarType{}, false
+			return nil, false
 		}
 		currentContext = currentContext.Parent.(*Context)
-		currentContext.GetClass(name)
-		return interpreteStructs.VarType{}, false
+		return currentContext.GetClassContext()
 	}
-	return context.Get(name)
+	return context, true
 }

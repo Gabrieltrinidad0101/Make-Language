@@ -112,3 +112,7 @@ type ArrayAccess struct {
 	Node       interface{}
 	lexerStructs.IPositionBase
 }
+
+type ThisNode struct {
+	lexerStructs.IPositionBase
+}
