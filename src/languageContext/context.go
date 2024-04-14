@@ -10,6 +10,7 @@ type Context struct {
 	Parent    interface{}
 	ScopeType string // open calibrase,function or global
 	variables Variables
+	IsClass   bool
 }
 
 func NewContext(parent *Context) *Context {
@@ -49,4 +50,30 @@ func (context *Context) Update(name string, varType interpreteStructs.VarType) b
 
 func (context *Context) Set(name string, varType interpreteStructs.VarType) {
 	(*context.variables)[name] = varType
+}
+
+func (context *Context) SetClass(name string, varType interpreteStructs.VarType) {
+	if !context.IsClass {
+		currentContext := context
+		if currentContext.Parent.(*Context) == nil {
+			return
+		}
+		currentContext = currentContext.Parent.(*Context)
+		currentContext.SetClass(name, varType)
+		return
+	}
+	context.SetClass(name, varType)
+}
+
+func (context *Context) GetClass(name string) (interpreteStructs.VarType, bool) {
+	if !context.IsClass {
+		currentContext := context
+		if currentContext.Parent.(*Context) == nil {
+			return interpreteStructs.VarType{}, false
+		}
+		currentContext = currentContext.Parent.(*Context)
+		currentContext.GetClass(name)
+		return interpreteStructs.VarType{}, false
+	}
+	return context.Get(name)
 }

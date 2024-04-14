@@ -15,6 +15,7 @@ type Parser struct {
 	idx          int
 	CurrentToken *lexerStructs.Token
 	len          int
+	scoopClass   string
 }
 
 func NewParser(tokens *[]lexerStructs.Token) *Parser {
@@ -455,6 +456,10 @@ func (parser *Parser) term() (interface{}, error) {
 	}
 
 	return nil, fmt.Errorf("")
+}
+
+func (parser *Parser) this() (interface{}, error) {
+
 }
 
 func (parser *Parser) arrayAccess() (interface{}, error) {

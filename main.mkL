@@ -1,2 +1,7 @@
-const a = "sasdas"
-print(a / 333)
+class Test {
+    func a(){
+        this.z = 1
+    }
+}
+
+const a = new Test()
