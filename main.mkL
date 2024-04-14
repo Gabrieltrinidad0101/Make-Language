@@ -1,12 +1,12 @@
 class Test {
     func a(){
-        this.b()
+        this.b("Hello ")
     }
 
-    func b(){
-        print("HOLA MUNDO")        
+    func b(hello){
+        print(hello + "World")
     }
 }
 
-const a = new Test()
-a.a()
+const test = new Test()
+test.a()

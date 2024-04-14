@@ -6,10 +6,6 @@
 
 Make Language is a power full tool and framework that allow you create your own programming language and has a great api that you can add more functionality.
 
-
-
-
-
 ## Features
 
 - var
@@ -64,4 +60,17 @@ Any of these functionality can be modify using a simple conf.json file
   print(100 ~ 2) // 10
 ```
 
+#### Class
+
+```
+  class Test {
+    func a(){
+      this.b("Hello ")
+    }
+
+    func b(hello){
+      print(hello + "World")
+    }
+  }
+```
 
