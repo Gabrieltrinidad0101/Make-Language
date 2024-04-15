@@ -69,7 +69,7 @@ func getLanguageContext(confPath string) *languageContext.Context {
 	for key, value := range functions {
 		languageContext_.Set(key, value)
 	}
-	return &languageContext_
+	return languageContext_
 }
 
 var call = 0

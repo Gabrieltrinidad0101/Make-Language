@@ -187,7 +187,44 @@ func (parser *Parser) statement() (interface{}, error) {
 		return return_, err
 	}
 
+	thisTop, err := parser.thisTop()
+	if thisTop != nil || err != nil {
+		return thisTop, err
+	}
+
 	return parser.compare()
+}
+
+func (parser *Parser) thisTop() (interface{}, error) {
+	this, err := parser.this()
+	if this == nil && err == nil {
+		return nil, nil
+	}
+
+	spot, err := parser.verifyNextToken(constants.TT_SPOT)
+
+	if err != nil {
+		return this, nil
+	}
+
+	node, err := parser.binOP(parser.thisTopNext, constants.TT_POW)
+
+	if err != nil {
+		return nil, err
+	}
+	return parserStructs.BinOP{
+		LeftNode:  this,
+		Operation: *spot,
+		RigthNode: node,
+	}, nil
+}
+
+func (parser *Parser) thisTopNext() (interface{}, error) {
+	updateVariable, err := parser.updateVariable()
+	if updateVariable != nil && err == nil {
+		return updateVariable, err
+	}
+	return parser.term()
 }
 
 func (parser *Parser) continue_() *parserStructs.ContinueNode {
@@ -408,7 +445,6 @@ func (parser *Parser) term() (interface{}, error) {
 		}
 		return &unaryOP, nil
 	}
-
 	if nodeType == "number" {
 		value := parser.CurrentToken.Value.(float64)
 		number := numbers.NewNumbers(value)
@@ -416,7 +452,6 @@ func (parser *Parser) term() (interface{}, error) {
 
 		return number, nil
 	}
-
 	if parser.CurrentToken.Type_ == constants.TT_LPAREN {
 		parser.advance()
 		node, err := parser.statement()
@@ -429,31 +464,24 @@ func (parser *Parser) term() (interface{}, error) {
 		parser.advance()
 		return node, nil
 	}
-
 	if ifNode, err := parser.if_(); ifNode != nil || err != nil {
 		return ifNode, err
 	}
-
 	if callFuncNode, err := parser.callFunc(); callFuncNode != nil || err != nil {
 		return callFuncNode, err
 	}
-
 	if funcNode, err := parser.func_(); funcNode != nil || err != nil {
 		return funcNode, err
 	}
-
 	if arrayAccess, err := parser.arrayAccess(); err != nil || arrayAccess != nil {
 		return arrayAccess, err
 	}
-
 	if varAccess, err := parser.varAccess(); err != nil || varAccess != nil {
 		return varAccess, err
 	}
-
 	if string_, err := parser.string_(); err != nil || string_ != nil {
 		return string_, nil
 	}
-
 	if array, err := parser.array(); err != nil || array != nil {
 		return array, nil
 	}

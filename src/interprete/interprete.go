@@ -128,11 +128,11 @@ func (interprete *Interprete) methodAccess(node parserStructs.BinOP, context *la
 		classNode := interprete.call(node.LeftNode, context).(class.ClassBase)
 		if interprete.getMethodName(node.RigthNode) == "BinOP" {
 			subNode := node.RigthNode.(parserStructs.BinOP)
-			interprete.CallObjectNode(subNode.LeftNode, classNode.GetClassContext())
+			interprete.call(subNode.LeftNode, classNode.GetClassContext())
 			node = subNode
 			continue
 		}
-		return interprete.CallObjectNode(node.RigthNode, classNode.GetClassContext())
+		return interprete.call(node.RigthNode, classNode.GetClassContext())
 	}
 	return parserStructs.NullNode{}
 }
@@ -153,7 +153,7 @@ func (interprete Interprete) VarAssignNode(node interface{}, context *languageCo
 func (interprete Interprete) UpdateVariableNode(node interface{}, context *languageContext.Context) interface{} {
 	updateVariableNode := node.(parserStructs.UpdateVariableNode)
 	varType, ok := context.Get(updateVariableNode.Identifier)
-	if !ok {
+	if !ok && !context.IsClass {
 		panic("The variable no exist" + updateVariableNode.Identifier)
 	}
 	if varType.IsConstant {

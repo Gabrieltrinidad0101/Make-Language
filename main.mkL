@@ -1,10 +1,11 @@
 class Test {
     func a(){
-        this.b("Hello ")
+        this.c = 10
+        print(this.c)
     }
 
     func b(hello){
-        print(hello + "World")
+        print(hello + (a = 1))
     }
 }
 
