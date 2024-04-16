@@ -60,6 +60,22 @@ Any of these functionality can be modify using a simple conf.json file
   print(100 ~ 2) // 10
 ```
 
+#### if
+```
+  if(10 == 10){
+    print("Ten is equal ten")
+  }
+```
+
+#### else
+```
+  if(10 != 10){
+    print("Ten is not equal ten")
+  }else{
+    print("Ten is equal ten")
+  }
+```
+
 #### Class
 
 ```
@@ -70,6 +86,11 @@ Any of these functionality can be modify using a simple conf.json file
 
     func b(hello){
       print(hello + "World")
+    }
+
+    func c(){
+      this.z = "Hello world"
+      print(this.z)
     }
   }
 ```
