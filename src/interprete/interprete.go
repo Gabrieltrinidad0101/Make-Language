@@ -242,6 +242,10 @@ func (interprete *Interprete) String_(node interface{}, context *languageContext
 	return node
 }
 
+func (interprete *Interprete) Boolean(node interface{}, context *languageContext.Context) interface{} {
+	return node
+}
+
 func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext.Context) *numbers.Number {
 	unaryOP := node.(*parserStructs.UnaryOP)
 	number := interprete.call(unaryOP.RigthNode, context).(*numbers.Number)
@@ -317,8 +321,8 @@ func (interprete *Interprete) ForNode(node interface{}, context *languageContext
 		if !coditionNode.Value {
 			break
 		}
-		interprete.call(forNode.Expr2, context)
 		interprete.call(forNode.Body, context)
+		interprete.call(forNode.Expr2, context)
 	}
 
 	return parserStructs.NullNode{}

@@ -1,13 +1,14 @@
-class Test {
-    func a(){
-        this.c = 10
-        print(this.c)
+class Saludar{
+    func Hola(){
+        print("Hola")
     }
 
-    func b(hello){
-        print(hello + (a = 1))
+    func Adios(){
+        print("Adios")
     }
 }
 
-const test = new Test()
-test.a()
+const saludar = new Saludar()
+for(var i = 0; i < 10; ++i){
+    print(i)
+}

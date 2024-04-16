@@ -2,6 +2,7 @@ package main
 
 import (
 	"makeLanguages/src/customErrors"
+	"makeLanguages/src/features/booleans"
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/interprete"
 	"makeLanguages/src/interprete/structs"
@@ -40,11 +41,11 @@ func main() {
 
 	var languageContext_ = languageContext.NewContext(nil)
 	languageContext_.Set("TRUE", structs.VarType{
-		Value:      true,
+		Value:      booleans.NewBoolean(true),
 		IsConstant: true,
 	})
 	languageContext_.Set("FALSE", structs.VarType{
-		Value:      false,
+		Value:      booleans.NewBoolean(false),
 		IsConstant: true,
 	})
 
