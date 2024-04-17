@@ -67,11 +67,10 @@ func (context *Context) SetClass(name string, varType interpreteStructs.VarType)
 
 func (context *Context) GetClassContext() (*Context, bool) {
 	if !context.IsClass {
-		currentContext := context
-		if currentContext.Parent.(*Context) == nil {
+		if context.Parent.(*Context) == nil {
 			return nil, false
 		}
-		currentContext = currentContext.Parent.(*Context)
+		currentContext := context.Parent.(*Context)
 		return currentContext.GetClassContext()
 	}
 	return context, true

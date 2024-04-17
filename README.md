@@ -36,7 +36,7 @@ Any of these functionality can be modify using a simple conf.json file
 
 ```
   const a = 1
-  a = 2
+  a = 2 // error
 ```
 
 #### String
@@ -61,13 +61,25 @@ Any of these functionality can be modify using a simple conf.json file
 ```
 
 #### if
+
 ```
   if(10 == 10){
     print("Ten is equal ten")
   }
 ```
 
+#### elif
+
+```
+  if(10 != 10){
+    print("Ten is not equal ten")
+  }elif(10 == 10){
+    print("Ten is equal ten")
+  }
+```
+
 #### else
+
 ```
   if(10 != 10){
     print("Ten is not equal ten")

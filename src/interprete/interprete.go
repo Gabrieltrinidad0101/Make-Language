@@ -269,7 +269,7 @@ func (interprete *Interprete) IfNode(node interface{}, context *languageContext.
 		conditionInterface := interprete.call(if_.Condition, context)
 
 		if interprete.getMethodName(conditionInterface) != "Boolean" {
-			panic("Error if expression need to a condition")
+			customErrors.RunTimeError(if_.Condition.(lexerStructs.IPositionBase), "Error if expression need to a condition")
 		}
 
 		condition := conditionInterface.(*booleans.Boolean)

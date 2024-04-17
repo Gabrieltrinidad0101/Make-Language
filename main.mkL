@@ -1,14 +1,15 @@
-class Saludar{
-    func Hola(){
-        print("Hola")
-    }
+func b(){
+    return "hola mundo"
+}
 
-    func Adios(){
-        print("Adios")
+func a(){
+    if(10 == 15) {
+        return "hola"
+    }else{
+        return b()
     }
 }
 
-const saludar = new Saludar()
-for(var i = 0; i < 10; ++i){
-    print(i)
+if(a()){
+    print("good bye")
 }

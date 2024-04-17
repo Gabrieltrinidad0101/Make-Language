@@ -37,8 +37,8 @@ func Show(token lexerStructs.IPositionBase, details string) {
 	for i, line := range linesCut {
 		lineNumber := i + positionStart.Line - linesCanShow
 		if i == linesCanShow {
-			characterLength := max(1, positionEnd.Col-positionStart.Col+1)
-			padding := strings.Repeat(" ", positionStart.Col+len(string(rune(lineNumber)))+1)
+			characterLength := max(1, positionEnd.Col-positionStart.Col)
+			padding := strings.Repeat(" ", positionStart.Col+len(string(rune(lineNumber)))+2)
 			errorSignal := strings.Repeat("^", characterLength)
 			errorText += fmt.Sprintf("%d: %s\n%s\n", lineNumber, line, padding+errorSignal)
 			continue

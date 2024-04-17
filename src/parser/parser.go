@@ -581,7 +581,11 @@ func (parser *Parser) if_() (interface{}, error) {
 
 	ifs = append(ifs, node)
 
-	for (*parser.CurrentToken).Type_ == constants.TT_ELIF {
+	for {
+		_, err := parser.verifyNextToken(constants.TT_ELIF)
+		if err != nil {
+			break
+		}
 		node, err := parser.conditionAndBodyBase()
 
 		if err != nil {
