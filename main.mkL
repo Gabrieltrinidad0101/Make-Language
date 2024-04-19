@@ -1,15 +1,6 @@
-func b(){
+func a(){
     return "hola mundo"
 }
-
-func a(){
-    if(10 == 15) {
-        return "hola"
-    }else{
-        return b()
-    }
-}
-
 if(a()){
-    print("good bye")
+    print("ok")
 }

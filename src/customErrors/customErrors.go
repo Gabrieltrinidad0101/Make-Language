@@ -23,7 +23,7 @@ func New(text string) *customError {
 	return CustomError
 }
 
-func Show(token lexerStructs.IPositionBase, details string) {
+func Show(token lexerStructs.IPositionBase, details string, type_ int) {
 	lines := strings.Split(CustomError.text, "\n")
 	positionStart := token.GetPositionStart()
 	positionEnd := token.GetPositionEnd()
@@ -48,19 +48,21 @@ func Show(token lexerStructs.IPositionBase, details string) {
 
 	fmt.Printf("%s\n\n", details)
 	fmt.Printf("%s\n\n", errorText)
-	os.Exit(0)
+	if type_ == 0 {
+		os.Exit(0)
+	}
 }
 
-func IllegalCharacter(token lexerStructs.Token) {
-	Show(token.IPositionBase, fmt.Sprintf("Illegal Character: %s", token.Value))
+func IllegalCharacter(token lexerStructs.Token, type_ int) {
+	Show(token.IPositionBase, fmt.Sprintf("Illegal Character: %s", token.Value), type_)
 }
 
-func InvalidSyntax(token lexerStructs.Token, details string) {
+func InvalidSyntax(token lexerStructs.Token, details string, type_ int) {
 	fmt.Printf("Invalid Syntax: %s\n", token.Value)
-	Show(token.IPositionBase, details)
+	Show(token.IPositionBase, details, type_)
 }
 
-func RunTimeError(token lexerStructs.IPositionBase, details string) {
+func RunTimeError(token lexerStructs.IPositionBase, details string, type_ int) {
 	fmt.Println("Run Time Error")
-	Show(token, details)
+	Show(token, details, type_)
 }

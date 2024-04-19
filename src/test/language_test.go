@@ -1,6 +1,7 @@
 package test
 
 import (
+	"makeLanguages/src/constants"
 	"makeLanguages/src/customErrors"
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/features/numbers"
@@ -39,7 +40,7 @@ func BaseInterprete(languageContext_ *languageContext.Context, filePath, confPat
 	ast, err := parser_.Parse()
 
 	if err != nil {
-		customErrors.InvalidSyntax(*parser_.CurrentToken, err.Error())
+		customErrors.InvalidSyntax(*parser_.CurrentToken, err.Error(), constants.STOP_EXECUTION)
 		return nil
 	}
 

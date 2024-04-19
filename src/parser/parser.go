@@ -499,7 +499,7 @@ func (parser *Parser) this() (interface{}, error) {
 	}
 
 	if !parser.scoopClass {
-		customErrors.InvalidSyntax(*token, "This can only be inside of class")
+		customErrors.InvalidSyntax(*token, "This can only be inside of class", constants.STOP_EXECUTION)
 		return nil, nil
 	}
 

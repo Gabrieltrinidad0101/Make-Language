@@ -150,7 +150,7 @@ func (lexer *Lexer) Tokens() (*[]lexerStructs.Token, bool) {
 					PositionStart: lexer.Position,
 					PositionEnd:   lexer.Position,
 				},
-			})
+			}, constants.STOP_EXECUTION)
 			return nil, true
 		}
 	}
@@ -223,6 +223,7 @@ func (lexer *Lexer) getIdentifier() bool {
 					},
 				},
 				"Variables Identifier cannot have spot",
+				constants.STOP_EXECUTION,
 			)
 		}
 
@@ -318,7 +319,7 @@ func (lexer *Lexer) makeString() bool {
 					PositionEnd:   positionEnd,
 				},
 			}
-			CustomErrors.InvalidSyntax(token, "Is necesary to use \" to end a string ")
+			CustomErrors.InvalidSyntax(token, "Is necesary to use \" to end a string ", constants.STOP_EXECUTION)
 		}
 	}
 

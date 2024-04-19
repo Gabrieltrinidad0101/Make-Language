@@ -66,7 +66,7 @@ func (interprete *Interprete) callMethod(object interface{}, methodName string, 
 		params = append(params, reflect.ValueOf(value))
 	}
 	if !method.IsValid() {
-		customErrors.RunTimeError(object.(lexerStructs.IPositionBase), fmt.Sprintf("Error tring to access the method %s", methodName))
+		customErrors.RunTimeError(object.(lexerStructs.IPositionBase), fmt.Sprintf("Error tring to access the method %s", methodName), constants.STOP_EXECUTION)
 	}
 
 	returnValue := method.Call(params)
@@ -80,7 +80,7 @@ func (interprete *Interprete) callMethodByOp(object interface{}, op lexerStructs
 		params = append(params, reflect.ValueOf(value))
 	}
 	if !method.IsValid() {
-		customErrors.RunTimeError(op, fmt.Sprintf("Error tring to access the method %s", op.Type_))
+		customErrors.RunTimeError(op, fmt.Sprintf("Error tring to access the method %s", op.Type_), constants.STOP_EXECUTION)
 	}
 
 	returnValue := method.Call(params)
@@ -140,7 +140,7 @@ func (interprete *Interprete) methodAccess(node parserStructs.BinOP, context *la
 func (interprete Interprete) VarAssignNode(node interface{}, context *languageContext.Context) interface{} {
 	varAssignNode := node.(parserStructs.VarAssignNode)
 	if _, ok := context.Get(varAssignNode.Identifier); ok && varAssignNode.IsConstant {
-		customErrors.RunTimeError(varAssignNode.IPositionBase, "The "+varAssignNode.Identifier+" is a const variable")
+		customErrors.RunTimeError(varAssignNode.IPositionBase, "The "+varAssignNode.Identifier+" is a const variable", constants.STOP_EXECUTION)
 	}
 	result := interprete.call(varAssignNode.Node, context)
 	context.Set(varAssignNode.Identifier, interpreteStructs.VarType{
@@ -157,7 +157,7 @@ func (interprete Interprete) UpdateVariableNode(node interface{}, context *langu
 		panic("The variable no exist" + updateVariableNode.Identifier)
 	}
 	if varType.IsConstant {
-		customErrors.RunTimeError(updateVariableNode.IPositionBase, "The "+updateVariableNode.Identifier+" is a const variable")
+		customErrors.RunTimeError(updateVariableNode.IPositionBase, "The "+updateVariableNode.Identifier+" is a const variable", constants.STOP_EXECUTION)
 	}
 
 	result := interprete.call(updateVariableNode.Node, context)
@@ -175,7 +175,7 @@ func (interprete Interprete) VarAccessNode(node interface{}, context *languageCo
 	varAccessNode := node.(*parserStructs.VarAccessNode)
 	varType, ok := context.Get(varAccessNode.Identifier)
 	if !ok {
-		customErrors.RunTimeError(varAccessNode.IPositionBase, "Variable is undefined "+varAccessNode.Identifier)
+		customErrors.RunTimeError(varAccessNode.IPositionBase, "Variable is undefined "+varAccessNode.Identifier, constants.STOP_EXECUTION)
 	}
 	return interprete.call(varType.Value, context)
 }
@@ -207,7 +207,7 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 	callFuncNode := node.(*parserStructs.CallObjectNode)
 	varType, ok := context.Get(callFuncNode.Name)
 	if !ok || (callFuncNode.HasNew && interprete.getMethodName(varType.Value) != "Class") {
-		customErrors.RunTimeError(callFuncNode.IPositionBase, fmt.Sprintf("The %s is undefined", callFuncNode.Name))
+		customErrors.RunTimeError(callFuncNode.IPositionBase, fmt.Sprintf("The %s is undefined", callFuncNode.Name), constants.STOP_EXECUTION)
 	}
 
 	if interprete.getMethodName(varType.Value) != "Class" {
@@ -269,7 +269,11 @@ func (interprete *Interprete) IfNode(node interface{}, context *languageContext.
 		conditionInterface := interprete.call(if_.Condition, context)
 
 		if interprete.getMethodName(conditionInterface) != "Boolean" {
-			customErrors.RunTimeError(if_.Condition.(lexerStructs.IPositionBase), "Error if expression need to a condition")
+			customErrors.RunTimeError(
+				conditionInterface.(lexerStructs.IPositionBase),
+				fmt.Sprintf("The return value is %s", interprete.getMethodName(conditionInterface)),
+				constants.SHOW_ERROR)
+			customErrors.RunTimeError(if_.Condition.(lexerStructs.IPositionBase), "Error if expression need to a condition", constants.STOP_EXECUTION)
 		}
 
 		condition := conditionInterface.(*booleans.Boolean)
@@ -332,7 +336,7 @@ func (interprete *Interprete) ThisNode(node interface{}, context *languageContex
 	thisNode := node.(parserStructs.ThisNode)
 	classContext, ok := context.GetClassContext()
 	if !ok {
-		customErrors.RunTimeError(thisNode, "This need to be inside of class")
+		customErrors.RunTimeError(thisNode, "This need to be inside of class", constants.STOP_EXECUTION)
 	}
 
 	return class.Class{
@@ -348,11 +352,11 @@ func (interprete *Interprete) ArrayAccess(node interface{}, context *languageCon
 	arrayAccess := node.(parserStructs.ArrayAccess)
 	varType, ok := context.Get(arrayAccess.Identifier)
 	if !ok {
-		customErrors.RunTimeError(arrayAccess.IPositionBase, "Variable is undefined "+arrayAccess.Identifier)
+		customErrors.RunTimeError(arrayAccess.IPositionBase, "Variable is undefined "+arrayAccess.Identifier, constants.STOP_EXECUTION)
 	}
 	index := interprete.call(arrayAccess.Node, context)
 	if interprete.getMethodName(index) != "Number" {
-		customErrors.RunTimeError(arrayAccess.Node.(lexerStructs.IPositionBase), "The index is not a number ")
+		customErrors.RunTimeError(arrayAccess.Node.(lexerStructs.IPositionBase), "The index is not a number ", constants.STOP_EXECUTION)
 	}
 	array_ := varType.Value.(*array.Array)
 	element := (*array_.Value)[int(index.(*numbers.Number).Value)]
