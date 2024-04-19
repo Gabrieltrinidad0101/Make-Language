@@ -1,5 +1,10 @@
-func a(){
-    return "hola mundo"
+func a(z){
+    if(z == 1){
+        return "hola mundo"
+    }
+    if(z == 2){
+        return TRUE
+    }
 }
 if(a()){
     print("ok")

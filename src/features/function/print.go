@@ -14,8 +14,8 @@ type Print struct {
 	Body    interface{}
 }
 
-func (func_ Print) Execute(params *[]interface{}) (interface{}, bool) {
+func (func_ Print) Execute(params *[]interface{}) (interface{}, bool, error) {
 	fmt.Println(*params...)
 	hasACustomExecute := true
-	return parserStructs.NullNode{}, hasACustomExecute
+	return parserStructs.NullNode{}, hasACustomExecute, nil
 }

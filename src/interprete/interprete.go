@@ -219,7 +219,10 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 			params = append(params, interprete.call(param, context))
 		}
 
-		funcNodeBody, hasACustomExecute := funcNode.Execute(&params)
+		funcNodeBody, hasACustomExecute, err := funcNode.Execute(&params)
+		if err != nil {
+			customErrors.RunTimeError(callFuncNode.IPositionBase, err.Error(), constants.STOP_EXECUTION)
+		}
 		if hasACustomExecute {
 			return funcNodeBody
 		}

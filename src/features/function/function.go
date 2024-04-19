@@ -1,13 +1,14 @@
 package function
 
 import (
+	"fmt"
 	interpreteStructs "makeLanguages/src/interprete/structs"
 	"makeLanguages/src/languageContext"
 	lexerStructs "makeLanguages/src/lexer/lexerStructs"
 )
 
 type IFunction interface {
-	Execute(params *[]interface{}) (interface{}, bool)
+	Execute(params *[]interface{}) (interface{}, bool, error)
 	GetParams() *[]lexerStructs.Token
 	GetBody() interface{}
 	GetContext() *languageContext.Context
@@ -49,8 +50,11 @@ type Function struct {
 	Body    interface{}
 }
 
-func (func_ Function) Execute(params *[]interface{}) (interface{}, bool) {
+func (func_ Function) Execute(params *[]interface{}) (interface{}, bool, error) {
 	i := 0
+	if len(*func_.Params) != len(*params) {
+		return nil, false, fmt.Errorf("Invalid params expect %d, got %d", len(*func_.Params), len(*params))
+	}
 	for _, token := range *func_.Params {
 		func_.Context.Set(token.Value.(string),
 			interpreteStructs.VarType{
@@ -59,7 +63,7 @@ func (func_ Function) Execute(params *[]interface{}) (interface{}, bool) {
 		i++
 	}
 	hasACustomExecute := false
-	return nil, hasACustomExecute
+	return nil, hasACustomExecute, nil
 }
 func (func_ Function) GetParams() *[]lexerStructs.Token {
 	return func_.Params
