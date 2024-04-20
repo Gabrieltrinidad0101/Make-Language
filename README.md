@@ -4,7 +4,7 @@
 
 # Make Language
 
-Make Language is a power full tool and framework that allow you create your own programming language and has a great api that you can add more functionality.
+Make Language is a powerful tool and framework that allows you to create your own programming language and has an excellent API which allows you to add more features.
 
 ## Features
 
