@@ -6,7 +6,7 @@ import (
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/features/numbers"
 	"makeLanguages/src/interprete"
-	interpreteStructs "makeLanguages/src/interprete/structs"
+	"makeLanguages/src/interprete/interpreteStructs"
 	"makeLanguages/src/languageContext"
 	"makeLanguages/src/lexer"
 	"makeLanguages/src/parser"

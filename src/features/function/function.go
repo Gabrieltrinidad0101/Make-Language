@@ -2,7 +2,7 @@ package function
 
 import (
 	"fmt"
-	interpreteStructs "makeLanguages/src/interprete/structs"
+	"makeLanguages/src/interprete/interpreteStructs"
 	"makeLanguages/src/languageContext"
 	lexerStructs "makeLanguages/src/lexer/lexerStructs"
 )

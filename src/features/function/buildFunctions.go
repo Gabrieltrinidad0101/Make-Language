@@ -1,8 +1,6 @@
 package function
 
-import (
-	interpreteStructs "makeLanguages/src/interprete/structs"
-)
+import "makeLanguages/src/interprete/interpreteStructs"
 
 func BuildFunctions(functionsName map[string]string) map[string]interpreteStructs.VarType {
 	funcs := map[string]interpreteStructs.VarType{}

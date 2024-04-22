@@ -1,8 +1,6 @@
 package languageContext
 
-import (
-	interpreteStructs "makeLanguages/src/interprete/structs"
-)
+import "makeLanguages/src/interprete/interpreteStructs"
 
 type Variables *map[string]interpreteStructs.VarType
 

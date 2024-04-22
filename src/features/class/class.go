@@ -2,7 +2,7 @@ package class
 
 import (
 	"makeLanguages/src/features/function"
-	interpreteStructs "makeLanguages/src/interprete/structs"
+	"makeLanguages/src/interprete/interpreteStructs"
 	"makeLanguages/src/languageContext"
 )
 

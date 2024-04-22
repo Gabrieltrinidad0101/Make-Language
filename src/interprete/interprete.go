@@ -9,7 +9,7 @@ import (
 	"makeLanguages/src/features/class"
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/features/numbers"
-	interpreteStructs "makeLanguages/src/interprete/structs"
+	"makeLanguages/src/interprete/interpreteStructs"
 	"makeLanguages/src/languageContext"
 	"makeLanguages/src/lexer/lexerStructs"
 	"makeLanguages/src/parser/parserStructs"

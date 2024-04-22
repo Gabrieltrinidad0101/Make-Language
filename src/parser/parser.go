@@ -447,7 +447,7 @@ func (parser *Parser) term() (interface{}, error) {
 	}
 	if nodeType == "number" {
 		value := parser.CurrentToken.Value.(float64)
-		number := numbers.NewNumbers(value)
+		number := numbers.NewNumbers(value, parser.CurrentToken.IPositionBase)
 		parser.advance()
 
 		return number, nil
