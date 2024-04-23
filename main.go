@@ -6,7 +6,7 @@ import (
 	"makeLanguages/src/features/booleans"
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/interprete"
-	"makeLanguages/src/interprete/structs"
+	"makeLanguages/src/interprete/interpreteStructs"
 	"makeLanguages/src/languageContext"
 	"makeLanguages/src/lexer"
 	"makeLanguages/src/parser"
@@ -41,11 +41,11 @@ func main() {
 	}
 
 	var languageContext_ = languageContext.NewContext(nil)
-	languageContext_.Set("TRUE", structs.VarType{
+	languageContext_.Set("TRUE", interpreteStructs.VarType{
 		Value:      booleans.NewBoolean(true),
 		IsConstant: true,
 	})
-	languageContext_.Set("FALSE", structs.VarType{
+	languageContext_.Set("FALSE", interpreteStructs.VarType{
 		Value:      booleans.NewBoolean(false),
 		IsConstant: true,
 	})

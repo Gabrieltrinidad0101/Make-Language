@@ -6,6 +6,6 @@ func a(z){
         return TRUE
     }
 }
-if(a()){
+if(a(2)){
     print("ok")
 }

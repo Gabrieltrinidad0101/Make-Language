@@ -6,6 +6,7 @@ import (
 	"makeLanguages/src/customErrors"
 	"makeLanguages/src/features/numbers"
 	"makeLanguages/src/features/str"
+	"makeLanguages/src/interprete/interpreteStructs"
 	lexerStructs "makeLanguages/src/lexer/lexerStructs"
 	"makeLanguages/src/parser/parserStructs"
 	"slices"
@@ -64,7 +65,7 @@ func (parser *Parser) verifyNextToken(tokensType ...string) (*lexerStructs.Token
 	return lastToken, nil
 }
 
-func (parser *Parser) binOP(callBack func() (interface{}, error), ops ...string) (interface{}, error) {
+func (parser *Parser) binOP(callBack func() (interpreteStructs.IBaseElement, error), ops ...string) (interpreteStructs.IBaseElement, error) {
 	leftNode, err := callBack()
 	if err != nil {
 		return nil, err
@@ -109,7 +110,7 @@ func (parser *Parser) statements(tokenEnd string) (interface{}, error) {
 	return parser.statementsBase(tokenEnd, parser.statement)
 }
 
-func (parser *Parser) statementsBase(tokenEnd string, callBack func() (interface{}, error)) (interface{}, error) {
+func (parser *Parser) statementsBase(tokenEnd string, callBack func() (interpreteStructs.IBaseElement, error)) (interpreteStructs.IBaseElement, error) {
 	for parser.CurrentToken.Type_ == constants.TT_NEWLINE {
 		parser.advance()
 	}
@@ -145,7 +146,7 @@ func (parser *Parser) statementsBase(tokenEnd string, callBack func() (interface
 	return listNodes, nil
 }
 
-func (parser *Parser) statement() (interface{}, error) {
+func (parser *Parser) statement() (interpreteStructs.IBaseElement, error) {
 
 	variableAndConst, err := parser.variableAndConst()
 	if variableAndConst != nil || err != nil {
@@ -195,7 +196,7 @@ func (parser *Parser) statement() (interface{}, error) {
 	return parser.compare()
 }
 
-func (parser *Parser) thisTop() (interface{}, error) {
+func (parser *Parser) thisTop() (interpreteStructs.IBaseElement, error) {
 	this, err := parser.this()
 	if this == nil && err == nil {
 		return nil, nil
@@ -219,7 +220,7 @@ func (parser *Parser) thisTop() (interface{}, error) {
 	}, nil
 }
 
-func (parser *Parser) thisTopNext() (interface{}, error) {
+func (parser *Parser) thisTopNext() (interpreteStructs.IBaseElement, error) {
 	updateVariable, err := parser.updateVariable()
 	if updateVariable != nil && err == nil {
 		return updateVariable, err
@@ -288,7 +289,7 @@ func (parser *Parser) class() (*parserStructs.ClassNode, error) {
 	}, nil
 }
 
-func (parser *Parser) variableAndConst() (interface{}, error) {
+func (parser *Parser) variableAndConst() (interpreteStructs.IBaseElement, error) {
 	_, constError := parser.verifyNextToken(constants.TT_CONST)
 	_, varError := parser.verifyNextToken(constants.TT_VAR)
 	if constError != nil && varError != nil {
@@ -312,7 +313,7 @@ func (parser *Parser) variableAndConst() (interface{}, error) {
 	}, nil
 }
 
-func (parser *Parser) updateVariable() (interface{}, error) {
+func (parser *Parser) updateVariable() (interpreteStructs.IBaseElement, error) {
 	value := parser.CurrentToken.Value
 	_, err := parser.verifyNextToken(constants.TT_IDENTIFIER, constants.TT_EQ)
 	if err != nil {
@@ -330,7 +331,7 @@ func (parser *Parser) updateVariable() (interface{}, error) {
 	}, nil
 }
 
-func (parser *Parser) while() (interface{}, error) {
+func (parser *Parser) while() (interpreteStructs.IBaseElement, error) {
 	_, err := parser.verifyNextToken(constants.TT_WHILE)
 	if err != nil {
 		return nil, nil
@@ -346,7 +347,7 @@ func (parser *Parser) while() (interface{}, error) {
 	}, nil
 }
 
-func (parser *Parser) for_() (interface{}, error) {
+func (parser *Parser) for_() (interpreteStructs.IBaseElement, error) {
 	_, err := parser.verifyNextToken(constants.TT_FOR)
 	if err != nil {
 		return nil, nil
@@ -400,31 +401,31 @@ func (parser *Parser) for_() (interface{}, error) {
 	}, nil
 }
 
-func (parser *Parser) AndOr() (interface{}, error) {
+func (parser *Parser) AndOr() (interpreteStructs.IBaseElement, error) {
 	return parser.binOP(parser.compare, constants.TT_AND, constants.TT_AND)
 }
 
-func (parser *Parser) compare() (interface{}, error) {
+func (parser *Parser) compare() (interpreteStructs.IBaseElement, error) {
 	return parser.binOP(parser.plus, constants.TT_GT, constants.TT_GTE, constants.TT_GT, constants.TT_LT, constants.TT_LTE, constants.TT_EQE)
 }
 
-func (parser *Parser) plus() (interface{}, error) {
+func (parser *Parser) plus() (interpreteStructs.IBaseElement, error) {
 	return parser.binOP(parser.factor, constants.TT_PLUS, constants.TT_MINUS)
 }
 
-func (parser *Parser) factor() (interface{}, error) {
+func (parser *Parser) factor() (interpreteStructs.IBaseElement, error) {
 	return parser.binOP(parser.pow, constants.TT_MUL, constants.TT_DIV)
 }
 
-func (parser *Parser) pow() (interface{}, error) {
+func (parser *Parser) pow() (interpreteStructs.IBaseElement, error) {
 	return parser.binOP(parser.spot, constants.TT_POW, constants.TT_SQUARE_ROOT)
 }
 
-func (parser *Parser) spot() (interface{}, error) {
+func (parser *Parser) spot() (interpreteStructs.IBaseElement, error) {
 	return parser.binOP(parser.term, constants.TT_SPOT)
 }
 
-func (parser *Parser) term() (interface{}, error) {
+func (parser *Parser) term() (interpreteStructs.IBaseElement, error) {
 	currentNode := *parser.CurrentToken
 	nodeType := currentNode.Type_
 	if nodeType == constants.TT_PLUS || nodeType == constants.TT_MINUS || nodeType == constants.TT_PLUS1 || nodeType == constants.TT_MINUS1 {
@@ -492,7 +493,7 @@ func (parser *Parser) term() (interface{}, error) {
 	return nil, fmt.Errorf("")
 }
 
-func (parser *Parser) this() (interface{}, error) {
+func (parser *Parser) this() (interpreteStructs.IBaseElement, error) {
 	token, err := parser.verifyNextToken(constants.TT_THIS)
 	if err != nil {
 		return nil, nil
@@ -508,7 +509,7 @@ func (parser *Parser) this() (interface{}, error) {
 	}, nil
 }
 
-func (parser *Parser) arrayAccess() (interface{}, error) {
+func (parser *Parser) arrayAccess() (interpreteStructs.IBaseElement, error) {
 	identifier := *parser.CurrentToken
 	if _, err := parser.verifyNextToken(constants.TT_IDENTIFIER, constants.TT_LSQUAREBRACKET); err != nil {
 		return nil, nil
@@ -530,7 +531,7 @@ func (parser *Parser) arrayAccess() (interface{}, error) {
 	}, nil
 }
 
-func (parser *Parser) array() (interface{}, error) {
+func (parser *Parser) array() (interpreteStructs.IBaseElement, error) {
 	_, err := parser.verifyNextToken(constants.TT_LSQUAREBRACKET)
 	if err != nil {
 		return nil, nil
@@ -556,7 +557,7 @@ func (parser *Parser) array() (interface{}, error) {
 	return listNode, nil
 }
 
-func (parser *Parser) string_() (interface{}, error) {
+func (parser *Parser) string_() (interpreteStructs.IBaseElement, error) {
 	stringToken, err := parser.verifyNextToken(constants.TT_STRING)
 	if err != nil {
 		return nil, nil
@@ -564,7 +565,7 @@ func (parser *Parser) string_() (interface{}, error) {
 	return str.NewString(stringToken.Value.(string), stringToken.IPositionBase), nil
 }
 
-func (parser *Parser) if_() (interface{}, error) {
+func (parser *Parser) if_() (interpreteStructs.IBaseElement, error) {
 	ifs := []*parserStructs.ConditionAndBody{}
 	var elseNode interface{}
 	if parser.CurrentToken.Type_ != constants.TT_IF {
@@ -605,7 +606,7 @@ func (parser *Parser) if_() (interface{}, error) {
 	}, nil
 }
 
-func (parser *Parser) func_() (interface{}, error) {
+func (parser *Parser) func_() (interpreteStructs.IBaseElement, error) {
 	func_ := parser.CurrentToken
 	identoifierToken, err := parser.verifyNextToken(constants.TT_FUNC, constants.TT_IDENTIFIER)
 	if err != nil {
