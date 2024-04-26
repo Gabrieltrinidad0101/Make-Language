@@ -65,3 +65,7 @@ class Test2{
 
 const test2 = new Test2()
 test2.a().b().b().c().a()
+var string = "hello world"
+print(string)
+print(string.replace("o","0"))
+print(string.upper())

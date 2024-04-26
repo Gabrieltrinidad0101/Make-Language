@@ -46,6 +46,8 @@ Any of these functionality can be modify using a simple conf.json file
   print(a.replace("e","u"))
   print(a +  " 123")
   print(a * 2)
+  print(a.replace("o","0"))
+  print(a.upper())
 ```
 
 #### Number
@@ -88,6 +90,45 @@ Any of these functionality can be modify using a simple conf.json file
   }
 ```
 
+#### While
+ 
+```
+var i = 0
+while(i <= 10){
+  if(i == 5){
+    continue
+  } elif(i == 8){
+    break
+  }
+  
+  print(i)
+}
+```
+
+#### For
+ 
+```
+for(var i = 0; i < 10; ++i>){
+  if(i == 5){
+    continue
+  } elif(i == 8){
+    break
+  }
+  print(i)
+}
+```
+#### Functions
+
+```
+func a(a1,a2){
+  return a1 + a2
+}
+
+print(a(1,2))
+```
+
+
+
 #### Class
 
 ```
@@ -103,6 +144,10 @@ Any of these functionality can be modify using a simple conf.json file
     func c(){
       this.z = "Hello world"
       print(this.z)
+    }
+
+    func d(){
+      return 100
     }
   }
 ```

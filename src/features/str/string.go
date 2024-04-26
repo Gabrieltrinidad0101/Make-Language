@@ -47,14 +47,12 @@ func (string String_) Replace(params *[]interface{}) interface{} {
 	return NewString(newString, nil)
 }
 
-func (string_ String_) Concat(params *[]interface{}) interface{} {
-	if len(*params) > 1 {
-		panic("Concat")
+func (string_ String_) Upper(params *[]interface{}) interface{} {
+	if len(*params) > 0 {
+		panic("Upper")
 	}
 
-	string1 := (*params)[0].(String_)
-
-	newString := string1.Value + string_.Value
+	newString := strings.ToUpper(string_.Value)
 	return NewString(newString, nil)
 }
 
@@ -74,5 +72,5 @@ func (string_ String_) MUL(node features.Type) *String_ {
 func (string_ String_) Initial() {
 	newClass := class.NewBuildClass(string_.Context)
 	newClass.AddMethod("replace", string_.Replace)
-	newClass.AddMethod("concat", string_.Concat)
+	newClass.AddMethod("upper", string_.Upper)
 }

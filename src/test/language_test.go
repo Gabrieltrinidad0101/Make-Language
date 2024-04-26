@@ -81,21 +81,27 @@ type Print struct {
 }
 
 func (print Print) Execute(params *[]interface{}) (interface{}, bool, error) {
-	number := (*params)[0].(*numbers.Number)
+	number := (*params)[0].(interpreteStructs.IBaseElement)
 	if call == 0 {
-		print.assert.Equal(float64(2), number.Value)
+		print.assert.Equal(float64(2), number.GetValue())
 	} else if call == 1 {
-		print.assert.Equal(float64(3), number.Value)
+		print.assert.Equal(float64(3), number.GetValue())
 	} else if call == 2 {
-		print.assert.Equal(float64(10), number.Value)
+		print.assert.Equal(float64(10), number.GetValue())
 	} else if call == 3 {
-		print.assert.Equal(float64(0), number.Value)
+		print.assert.Equal(float64(0), number.GetValue())
 	} else if call == 4 {
-		print.assert.Equal(float64(20), number.Value)
+		print.assert.Equal(float64(20), number.GetValue())
 	} else if call == 5 {
-		print.assert.Equal(float64(1), number.Value)
-	} else if call == 5 {
-		print.assert.Equal(float64(1), number.Value)
+		print.assert.Equal(float64(1), number.GetValue())
+	} else if call == 6 {
+		print.assert.Equal(float64(1), number.GetValue())
+	} else if call == 7 {
+		print.assert.Equal("hello world", number.GetValue())
+	} else if call == 8 {
+		print.assert.Equal("hell0 w0rld", number.GetValue())
+	} else if call == 9 {
+		print.assert.Equal("HELLO WORLD", number.GetValue())
 	}
 
 	call++
