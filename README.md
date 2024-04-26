@@ -108,7 +108,7 @@ while(i <= 10){
 #### For
  
 ```
-for(var i = 0; i < 10; ++i>){
+for(var i = 0; i < 10; ++i){
   if(i == 5){
     continue
   } elif(i == 8){
@@ -149,6 +149,15 @@ print(a(1,2))
     func d(){
       return 100
     }
+
+    func e(){
+      return this
+    }
   }
+
+  const test = new Test()
+  test.a()
+  print(test.b() == 100)
+  print(test.e().b() == 100)
 ```
 
