@@ -45,6 +45,7 @@ func main() {
 		Value:      booleans.NewBoolean(true),
 		IsConstant: true,
 	})
+
 	languageContext_.Set("FALSE", interpreteStructs.VarType{
 		Value:      booleans.NewBoolean(false),
 		IsConstant: true,

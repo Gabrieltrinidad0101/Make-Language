@@ -20,6 +20,8 @@
         "--": "MINUS1"
     },
     "language_syntax": {
+        "[": "LSQUAREBRACKET",
+        "]": "RSQUAREBRACKET",
         "&&": "AND",
         "||": "OR",
         ">": "GT",
@@ -49,6 +51,7 @@
         "{": "OPEN_CURLY_BRACE",
         "}": "CLOSING_CURLY_BRACE",
         "var": "VAR",
+        "this": "THIS",
         "const": "CONST",
         "return": "RETURN",
         "\"": "STRING",

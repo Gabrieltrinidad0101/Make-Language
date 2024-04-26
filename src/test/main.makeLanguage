@@ -5,12 +5,24 @@ var d = if(a > b) 2 else 3
 print(c)
 print(d)
 var e = 0
-while(e <= 10){
+while(e <= 15){
     ++e
+    if(e == 10){
+        break
+    }
+    if(e == 5){
+        continue
+    }
 }
 print(e)
-for(var i = 0; i <= 10; ++i){
+for(var i = 0; i <= 15; ++i){
     --e
+    if(e == 0) {
+        break
+    }
+    if(i == 8){
+        continue
+    }
 }
 print(e)
 func changeE(value){
@@ -18,3 +30,38 @@ func changeE(value){
 }
 changeE(20)
 print(e)
+
+class Test1{
+    func a(){
+        this.b()
+    }
+
+    func b(){
+        print(this.c())
+    }
+
+    func c(){
+        return 1
+    }
+}
+
+const test1 = new Test1()
+test1.a()
+
+
+class Test2{
+    func a(){
+        return this
+    }
+
+    func b(){
+        return this
+    }
+
+    func c(){
+        return new Test1()
+    }
+}
+
+const test2 = new Test2()
+test2.a().b().b().c().a()

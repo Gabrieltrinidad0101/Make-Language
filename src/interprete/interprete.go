@@ -328,7 +328,14 @@ func (interprete *Interprete) ForNode(node interface{}, context *languageContext
 		if !coditionNode.Value {
 			break
 		}
-		interprete.call(forNode.Body, context)
+		bodyNode := interprete.call(forNode.Body, context)
+		stop := interprete.stopExecute(bodyNode)
+		if stop == "CONTINUE" {
+			continue
+		}
+		if stop == "BreakNode" {
+			break
+		}
 		interprete.call(forNode.Expr2, context)
 	}
 

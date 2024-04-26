@@ -1,11 +1,6 @@
-func a(z){
-    if(z == 1){
-        return "hola mundo"
+for(var i = 0; i <= 15; ++i){
+    if(i <= 6){
+        continue
     }
-    if(z == 2){
-        return TRUE
-    }
-}
-if(a(2)){
-    print("ok")
+    print(i)
 }

@@ -55,8 +55,6 @@ func getLanguageContext(confPath string) *languageContext.Context {
 		return nil
 	}
 
-	functions := function.BuildFunctions(conf.Functions)
-
 	languageContext_ := languageContext.NewContext(nil)
 	languageContext_.Set("TRUE", interpreteStructs.VarType{
 		Value:      true,
@@ -66,6 +64,8 @@ func getLanguageContext(confPath string) *languageContext.Context {
 		Value:      true,
 		IsConstant: true,
 	})
+
+	functions := function.BuildFunctions(conf.Functions)
 
 	for key, value := range functions {
 		languageContext_.Set(key, value)
@@ -80,22 +80,26 @@ type Print struct {
 	assert *assert.Assertions
 }
 
-func (print Print) Execute(params *[]interface{}) (interface{}, bool) {
+func (print Print) Execute(params *[]interface{}) (interface{}, bool, error) {
 	number := (*params)[0].(*numbers.Number)
 	if call == 0 {
-		print.assert.Equal(number.Value, float64(2))
+		print.assert.Equal(float64(2), number.Value)
 	} else if call == 1 {
-		print.assert.Equal(number.Value, float64(3))
+		print.assert.Equal(float64(3), number.Value)
 	} else if call == 2 {
-		print.assert.Equal(number.Value, float64(11))
+		print.assert.Equal(float64(10), number.Value)
 	} else if call == 3 {
-		print.assert.Equal(number.Value, float64(0))
+		print.assert.Equal(float64(0), number.Value)
 	} else if call == 4 {
-		print.assert.Equal(number.Value, float64(20))
+		print.assert.Equal(float64(20), number.Value)
+	} else if call == 5 {
+		print.assert.Equal(float64(1), number.Value)
+	} else if call == 5 {
+		print.assert.Equal(float64(1), number.Value)
 	}
 
 	call++
-	return parserStructs.NullNode{}, true
+	return parserStructs.NullNode{}, true, nil
 }
 
 func TestVariablesAndIfs(t *testing.T) {

@@ -38,10 +38,10 @@ func (func_ BaseFunction) GetContext() *languageContext.Context {
 	panic("internal error hasACustomExecute need to be true ")
 }
 
-func (func_ BaseFunction) Execute(params *[]interface{}) (interface{}, bool) {
+func (func_ BaseFunction) Execute(params *[]interface{}) (interface{}, bool, error) {
 	value := func_.callBack(params)
 	hasACustomExecute := true
-	return value, hasACustomExecute
+	return value, hasACustomExecute, nil
 }
 
 type Function struct {
