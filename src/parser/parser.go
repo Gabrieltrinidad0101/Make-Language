@@ -87,7 +87,7 @@ func (parser *Parser) binOP(callBack func() (interpreteStructs.IBaseElement, err
 	return leftNode, nil
 }
 
-func (parser *Parser) Parse() (interface{}, error) {
+func (parser *Parser) Parse() (interpreteStructs.IBaseElement, error) {
 	parser.advance()
 	ast, err := parser.expr()
 
@@ -102,11 +102,11 @@ func (parser *Parser) Parse() (interface{}, error) {
 	return ast, nil
 }
 
-func (parser *Parser) expr() (interface{}, error) {
+func (parser *Parser) expr() (interpreteStructs.IBaseElement, error) {
 	return parser.statements(constants.EOF)
 }
 
-func (parser *Parser) statements(tokenEnd string) (interface{}, error) {
+func (parser *Parser) statements(tokenEnd string) (interpreteStructs.IBaseElement, error) {
 	return parser.statementsBase(tokenEnd, parser.statement)
 }
 

@@ -30,6 +30,13 @@ Any of these functionality can be modify using a simple conf.json file
 
 ```
   var a = 1
+  var b = TRUE
+  var c = FALSE
+  var d = 1 >= 1
+  var e = 1 == 1
+  var f = 1 != 1
+  var g = 1 <= 1
+  print(a,b,c,d,e,f,g)
 ```
 
 #### Const
@@ -46,7 +53,6 @@ Any of these functionality can be modify using a simple conf.json file
   print(a.replace("e","u"))
   print(a +  " 123")
   print(a * 2)
-  print(a.replace("o","0"))
   print(a.upper())
 ```
 
@@ -62,7 +68,7 @@ Any of these functionality can be modify using a simple conf.json file
   print(100 ~ 2) // 10
 ```
 
-#### if
+#### If
 
 ```
   if(10 == 10){
@@ -70,7 +76,7 @@ Any of these functionality can be modify using a simple conf.json file
   }
 ```
 
-#### elif
+#### Elif
 
 ```
   if(10 != 10){
@@ -80,7 +86,7 @@ Any of these functionality can be modify using a simple conf.json file
   }
 ```
 
-#### else
+#### Else
 
 ```
   if(10 != 10){
