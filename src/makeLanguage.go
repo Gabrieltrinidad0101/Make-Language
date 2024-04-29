@@ -57,6 +57,6 @@ func MakeLanguage(syntax string, filePath string) {
 		languageContext_.Set(key, value)
 	}
 
-	interprete_ := interprete.NewInterprete(ast)
+	interprete_ := interprete.NewInterprete(ast, conf.Scope)
 	interprete_.Run(languageContext_)
 }

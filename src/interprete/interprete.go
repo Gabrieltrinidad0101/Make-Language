@@ -19,11 +19,13 @@ import (
 type Interprete struct {
 	ast         interface{}
 	currentNode interface{}
+	scope       string
 }
 
-func NewInterprete(ast interface{}) *Interprete {
+func NewInterprete(ast interface{}, scope string) *Interprete {
 	return &Interprete{
-		ast: ast,
+		ast:   ast,
+		scope: scope,
 	}
 }
 
@@ -182,7 +184,10 @@ func (interprete Interprete) VarAccessNode(node interface{}, context *languageCo
 
 func (interprete *Interprete) FuncNode(node interface{}, context *languageContext.Context) interface{} {
 	funcNode := node.(parserStructs.FuncNode)
-	newContext := languageContext.NewContext(context)
+	newContext := context
+	if interprete.scope != "global" {
+		newContext = languageContext.NewContext(context)
+	}
 
 	for _, param := range *funcNode.Params {
 		newContext.Set(param.Value.(string), interpreteStructs.VarType{
@@ -268,8 +273,13 @@ func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext
 func (interprete *Interprete) IfNode(node interface{}, context *languageContext.Context) interface{} {
 	ifNode := node.(parserStructs.IfNode)
 
+	newContext := context
+	if interprete.scope == "CURLY_BRACE" {
+		newContext = languageContext.NewContext(context)
+	}
+
 	for _, if_ := range ifNode.Ifs {
-		conditionInterface := interprete.call(if_.Condition, context)
+		conditionInterface := interprete.call(if_.Condition, newContext)
 
 		if interprete.getMethodName(conditionInterface) != "Boolean" {
 			customErrors.RunTimeError(
@@ -282,13 +292,13 @@ func (interprete *Interprete) IfNode(node interface{}, context *languageContext.
 		condition := conditionInterface.(*booleans.Boolean)
 
 		if condition.Value {
-			node := interprete.call(if_.Body, context)
+			node := interprete.call(if_.Body, newContext)
 			return node
 		}
 	}
 
 	if ifNode.Else_ != nil {
-		node := interprete.call(ifNode.Else_, context)
+		node := interprete.call(ifNode.Else_, newContext)
 		return node
 	}
 
