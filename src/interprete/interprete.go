@@ -270,16 +270,21 @@ func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext
 	return number
 }
 
-func (interprete *Interprete) IfNode(node interface{}, context *languageContext.Context) interface{} {
-	ifNode := node.(parserStructs.IfNode)
-
+func (interprete *Interprete) createNewContext(context *languageContext.Context) *languageContext.Context {
 	newContext := context
 	if interprete.scope == "CURLY_BRACE" {
 		newContext = languageContext.NewContext(context)
 	}
+	return newContext
+}
+
+func (interprete *Interprete) IfNode(node interface{}, context *languageContext.Context) interface{} {
+	ifNode := node.(parserStructs.IfNode)
+
+	context = interprete.createNewContext(context)
 
 	for _, if_ := range ifNode.Ifs {
-		conditionInterface := interprete.call(if_.Condition, newContext)
+		conditionInterface := interprete.call(if_.Condition, context)
 
 		if interprete.getMethodName(conditionInterface) != "Boolean" {
 			customErrors.RunTimeError(
@@ -292,13 +297,13 @@ func (interprete *Interprete) IfNode(node interface{}, context *languageContext.
 		condition := conditionInterface.(*booleans.Boolean)
 
 		if condition.Value {
-			node := interprete.call(if_.Body, newContext)
+			node := interprete.call(if_.Body, context)
 			return node
 		}
 	}
 
 	if ifNode.Else_ != nil {
-		node := interprete.call(ifNode.Else_, newContext)
+		node := interprete.call(ifNode.Else_, context)
 		return node
 	}
 
@@ -307,7 +312,7 @@ func (interprete *Interprete) IfNode(node interface{}, context *languageContext.
 
 func (interprete *Interprete) WhileNode(node interface{}, context *languageContext.Context) interface{} {
 	whileNode := node.(parserStructs.WhileNode)
-
+	context = interprete.createNewContext(context)
 	for {
 		boolean := interprete.call(whileNode.Condition, context).(*booleans.Boolean)
 		if !boolean.Value {
@@ -330,6 +335,7 @@ func (interprete *Interprete) WhileNode(node interface{}, context *languageConte
 
 func (interprete *Interprete) ForNode(node interface{}, context *languageContext.Context) interface{} {
 	forNode := node.(parserStructs.ForNode)
+	context = interprete.createNewContext(context)
 
 	for {
 		interprete.call(forNode.Expr1, context)

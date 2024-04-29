@@ -44,7 +44,7 @@ func BaseInterprete(languageContext_ *languageContext.Context, filePath, confPat
 		return nil
 	}
 
-	interprete_ := interprete.NewInterprete(ast)
+	interprete_ := interprete.NewInterprete(ast, conf.Scope)
 	interprete_.Run(languageContext_)
 
 	return languageContext_

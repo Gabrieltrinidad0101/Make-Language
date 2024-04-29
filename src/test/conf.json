@@ -61,5 +61,6 @@
     },
     "functions": {
         "print": "print"
-    }
+    },
+    "scope": "global"
 }
