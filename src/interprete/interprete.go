@@ -75,13 +75,14 @@ func (interprete *Interprete) callMethod(object interface{}, methodName string, 
 	}
 
 	returnValue := method.Call(params)
-	return returnValue[0].Interface().(interpreteStructs.IBaseElement)
+	interface_ := returnValue[0].Interface()
+	return interface_.(interpreteStructs.IBaseElement)
 }
 
 func (interprete *Interprete) callMethodByOp(object interpreteStructs.IBaseElement, op lexerStructs.Token, value interpreteStructs.IBaseElement) interface{} {
 	method := reflect.ValueOf(object).MethodByName(op.Type_)
 	result, ok := interprete.api.Call(op.Type_, object, value)
-	if !ok {
+	if ok {
 		return result
 	}
 	params := []reflect.Value{reflect.ValueOf(value)}

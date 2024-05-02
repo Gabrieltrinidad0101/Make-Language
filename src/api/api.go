@@ -30,7 +30,7 @@ func (api *Api) Call(tokenName string, value1 interpreteStructs.IBaseElement, va
 		return nil, ok
 	}
 	result := callBack(value1, value2)
-	return result, false
+	return result, true
 }
 
 func CustomFunctions() {
