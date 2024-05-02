@@ -567,7 +567,7 @@ func (parser *Parser) string_() (interpreteStructs.IBaseElement, error) {
 
 func (parser *Parser) if_() (interpreteStructs.IBaseElement, error) {
 	ifs := []*parserStructs.ConditionAndBody{}
-	var elseNode interface{}
+	var elseNode interpreteStructs.IBaseElement
 	if parser.CurrentToken.Type_ != constants.TT_IF {
 		return nil, nil
 	}
@@ -686,7 +686,7 @@ func (parser *Parser) conditionAndBodyBase() (*parserStructs.ConditionAndBody, e
 	}, err
 }
 
-func (parser *Parser) BodyBase() (interface{}, error) {
+func (parser *Parser) BodyBase() (interpreteStructs.IBaseElement, error) {
 	if _, err := parser.verifyNextToken(constants.TT_START_BODY); err == nil {
 		parser.verifyNextToken(constants.TT_NEWLINE)
 		return parser.statements(constants.TT_END_BODY)
@@ -743,8 +743,8 @@ func (parser *Parser) params() (*[]lexerStructs.Token, *lexerStructs.Position, e
 	return params, &position, nil
 }
 
-func (parser *Parser) args() (*[]interface{}, *lexerStructs.Position, error) {
-	params := []interface{}{}
+func (parser *Parser) args() (*[]interpreteStructs.IBaseElement, *lexerStructs.Position, error) {
+	params := []interpreteStructs.IBaseElement{}
 	var lastToken *lexerStructs.Token
 	var err error
 	for {

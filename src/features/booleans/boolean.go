@@ -1,7 +1,14 @@
 package booleans
 
+import (
+	"makeLanguages/src/lexer/lexerStructs"
+	"makeLanguages/src/parser/parserStructs"
+)
+
 type Boolean struct {
 	Value bool
+	lexerStructs.IPositionBase
+	parserStructs.BaseGetValue
 }
 
 func NewBoolean(value_ bool) *Boolean {

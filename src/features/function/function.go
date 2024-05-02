@@ -5,40 +5,43 @@ import (
 	"makeLanguages/src/interprete/interpreteStructs"
 	"makeLanguages/src/languageContext"
 	lexerStructs "makeLanguages/src/lexer/lexerStructs"
+	"makeLanguages/src/parser/parserStructs"
 )
 
 type IFunction interface {
-	Execute(params *[]interface{}) (interface{}, bool, error)
+	Execute(params *[]interpreteStructs.IBaseElement) (interface{}, bool, error)
 	GetParams() *[]lexerStructs.Token
-	GetBody() interface{}
+	GetBody() interpreteStructs.IBaseElement
 	GetContext() *languageContext.Context
 }
 
 type BaseFunction struct {
 	Context  *languageContext.Context
-	callBack func(params *[]interface{}) interface{}
+	callBack func(params *[]interpreteStructs.IBaseElement) interface{}
 	Name     string
+	lexerStructs.IPositionBase
+	parserStructs.BaseGetValue
 }
 
-func NewBaseFunction(Context *languageContext.Context, Name string, callBack func(params *[]interface{}) interface{}) *BaseFunction {
+func NewBaseFunction(Context *languageContext.Context, Name string, callBack func(params *[]interpreteStructs.IBaseElement) interface{}) *BaseFunction {
 	return &BaseFunction{
-		Context,
-		callBack,
-		Name,
+		Context:  Context,
+		callBack: callBack,
+		Name:     Name,
 	}
 }
 
 func (func_ BaseFunction) GetParams() *[]lexerStructs.Token {
 	panic("internal error hasACustomExecute need to be true ")
 }
-func (func_ BaseFunction) GetBody() interface{} {
+func (func_ BaseFunction) GetBody() interpreteStructs.IBaseElement {
 	panic("internal error hasACustomExecute need to be true ")
 }
 func (func_ BaseFunction) GetContext() *languageContext.Context {
 	panic("internal error hasACustomExecute need to be true ")
 }
 
-func (func_ BaseFunction) Execute(params *[]interface{}) (interface{}, bool, error) {
+func (func_ BaseFunction) Execute(params *[]interpreteStructs.IBaseElement) (interface{}, bool, error) {
 	value := func_.callBack(params)
 	hasACustomExecute := true
 	return value, hasACustomExecute, nil
@@ -48,9 +51,11 @@ type Function struct {
 	Context *languageContext.Context
 	Params  *[]lexerStructs.Token
 	Body    interface{}
+	parserStructs.BaseGetValue
+	lexerStructs.IPositionBase
 }
 
-func (func_ Function) Execute(params *[]interface{}) (interface{}, bool, error) {
+func (func_ Function) Execute(params *[]interpreteStructs.IBaseElement) (interface{}, bool, error) {
 	i := 0
 	if len(*func_.Params) != len(*params) {
 		return nil, false, fmt.Errorf("Invalid params expect %d, got %d", len(*func_.Params), len(*params))

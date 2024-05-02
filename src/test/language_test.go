@@ -1,8 +1,10 @@
 package test
 
 import (
+	"makeLanguages/src/api"
 	"makeLanguages/src/constants"
 	"makeLanguages/src/customErrors"
+	"makeLanguages/src/features/booleans"
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/features/numbers"
 	"makeLanguages/src/interprete"
@@ -44,7 +46,8 @@ func BaseInterprete(languageContext_ *languageContext.Context, filePath, confPat
 		return nil
 	}
 
-	interprete_ := interprete.NewInterprete(ast, conf.Scope)
+	api_ := api.NewApi()
+	interprete_ := interprete.NewInterprete(ast, conf.Scope, api_)
 	interprete_.Run(languageContext_)
 
 	return languageContext_
@@ -57,11 +60,11 @@ func getLanguageContext(confPath string) *languageContext.Context {
 
 	languageContext_ := languageContext.NewContext(nil)
 	languageContext_.Set("TRUE", interpreteStructs.VarType{
-		Value:      true,
+		Value:      booleans.NewBoolean(true),
 		IsConstant: true,
 	})
 	languageContext_.Set("FALSE", interpreteStructs.VarType{
-		Value:      true,
+		Value:      booleans.NewBoolean(false),
 		IsConstant: true,
 	})
 

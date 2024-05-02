@@ -4,12 +4,14 @@ import (
 	"makeLanguages/src/features/class"
 	"makeLanguages/src/interprete/interpreteStructs"
 	"makeLanguages/src/languageContext"
+	"makeLanguages/src/lexer/lexerStructs"
 	"slices"
 )
 
 type Array struct {
 	context *languageContext.Context
 	Value   *[]interface{}
+	lexerStructs.IPositionBase
 }
 
 func NewArray(value *[]interface{}) *Array {
@@ -20,12 +22,16 @@ func NewArray(value *[]interface{}) *Array {
 	}
 }
 
+func (array *Array) GetValue() interface{} {
+	return array.Value
+}
+
 func (array *Array) PLUS(element interface{}) *Array {
 	*array.Value = append(*array.Value, element)
 	return array
 }
 
-func (array *Array) Concat(params *[]interface{}) interface{} {
+func (array *Array) Concat(params *[]interpreteStructs.IBaseElement) interface{} {
 	if len(*params) > 1 {
 		panic("Concat")
 	}

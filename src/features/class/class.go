@@ -4,10 +4,13 @@ import (
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/interprete/interpreteStructs"
 	"makeLanguages/src/languageContext"
+	"makeLanguages/src/lexer/lexerStructs"
+	"makeLanguages/src/parser/parserStructs"
 )
 
 type ClassBase interface {
 	GetClassContext() *languageContext.Context
+	lexerStructs.IPositionBase
 }
 
 type BuildClass struct {
@@ -20,7 +23,7 @@ func NewBuildClass(Context *languageContext.Context) *BuildClass {
 	}
 }
 
-func (buildClass *BuildClass) AddMethod(name string, callBack func(params *[]interface{}) interface{}) {
+func (buildClass *BuildClass) AddMethod(name string, callBack func(params *[]interpreteStructs.IBaseElement) interface{}) {
 	newMethod := function.NewBaseFunction(buildClass.Context, name, callBack)
 	buildClass.Context.Set(name, interpreteStructs.VarType{
 		Value:      newMethod,
@@ -31,6 +34,8 @@ func (buildClass *BuildClass) AddMethod(name string, callBack func(params *[]int
 type Class struct {
 	Context *languageContext.Context
 	Name    string
+	lexerStructs.IPositionBase
+	parserStructs.BaseGetValue
 }
 
 func (class Class) GetClassContext() *languageContext.Context {

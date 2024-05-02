@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"makeLanguages/src/features"
 	"makeLanguages/src/features/class"
+	"makeLanguages/src/interprete/interpreteStructs"
 	"makeLanguages/src/languageContext"
 	"makeLanguages/src/lexer/lexerStructs"
 	"makeLanguages/src/utils"
@@ -34,7 +35,7 @@ func (string_ String_) GetClassContext() *languageContext.Context {
 	return string_.Context
 }
 
-func (string String_) Replace(params *[]interface{}) interface{} {
+func (string String_) Replace(params *[]interpreteStructs.IBaseElement) interface{} {
 	if len(*params) > 2 {
 		panic("Replace")
 	}
@@ -47,7 +48,7 @@ func (string String_) Replace(params *[]interface{}) interface{} {
 	return NewString(newString, nil)
 }
 
-func (string_ String_) Upper(params *[]interface{}) interface{} {
+func (string_ String_) Upper(params *[]interpreteStructs.IBaseElement) interface{} {
 	if len(*params) > 0 {
 		panic("Upper")
 	}

@@ -11,6 +11,15 @@ type Api struct {
 	Class      map[string]interface{}
 }
 
+func NewApi() *Api {
+	return &Api{
+		UnOperetor: make(map[string]interface{}),
+		Operetor:   make(map[string]operatorFunc),
+		Functions:  make(map[string]interface{}),
+		Class:      make(map[string]interface{}),
+	}
+}
+
 func (api *Api) AddOperetor(tokenName string, callBack operatorFunc) {
 	api.Operetor[tokenName] = callBack
 }

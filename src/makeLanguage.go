@@ -1,6 +1,7 @@
 package src
 
 import (
+	"makeLanguages/src/api"
 	"makeLanguages/src/constants"
 	"makeLanguages/src/customErrors"
 	"makeLanguages/src/features/booleans"
@@ -12,7 +13,7 @@ import (
 	"makeLanguages/src/parser"
 )
 
-func MakeLanguage(syntax string, filePath string) {
+func MakeLanguage(syntax string, filePath string, api_ *api.Api) {
 	conf, ok := lexer.ReadLanguageConfiguraction(syntax)
 	if !ok {
 		return
@@ -57,6 +58,6 @@ func MakeLanguage(syntax string, filePath string) {
 		languageContext_.Set(key, value)
 	}
 
-	interprete_ := interprete.NewInterprete(ast, conf.Scope)
+	interprete_ := interprete.NewInterprete(ast, conf.Scope, api_)
 	interprete_.Run(languageContext_)
 }

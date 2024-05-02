@@ -3,7 +3,7 @@ package interpreteStructs
 import "makeLanguages/src/lexer/lexerStructs"
 
 type VarType struct {
-	Value      interface{}
+	Value      IBaseElement
 	IsConstant bool
 	Type       string
 }

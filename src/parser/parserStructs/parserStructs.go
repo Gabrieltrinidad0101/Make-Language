@@ -1,84 +1,85 @@
 package parserStructs
 
 import (
+	"makeLanguages/src/interprete/interpreteStructs"
 	"makeLanguages/src/lexer/lexerStructs"
 )
 
-type baseGetValue struct{}
+type BaseGetValue struct{}
 
-func (unaryOp baseGetValue) GetValue() interface{} {
+func (unaryOp BaseGetValue) GetValue() interface{} {
 	panic("Get Value No implement")
 }
 
 type BinOP struct {
-	LeftNode  interface{}
+	LeftNode  interpreteStructs.IBaseElement
 	Operation lexerStructs.Token
-	RigthNode interface{}
+	RigthNode interpreteStructs.IBaseElement
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
 type UnaryOP struct {
 	Operation string
-	RigthNode interface{}
+	RigthNode interpreteStructs.IBaseElement
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
 type IfNode struct {
 	Ifs   []*ConditionAndBody
-	Else_ interface{}
+	Else_ interpreteStructs.IBaseElement
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
 type ConditionAndBody struct {
-	Condition interface{}
-	Body      interface{}
+	Condition interpreteStructs.IBaseElement
+	Body      interpreteStructs.IBaseElement
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
 type VarAssignNode struct {
 	Identifier string
-	Node       interface{}
+	Node       interpreteStructs.IBaseElement
 	IsConstant bool
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
 type UpdateVariableNode struct {
 	Identifier string
-	Node       interface{}
+	Node       interpreteStructs.IBaseElement
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
 type VarAccessNode struct {
 	lexerStructs.IPositionBase
 	Identifier string
-	baseGetValue
+	BaseGetValue
 }
 
 type ListNode struct {
-	Nodes []interface{}
+	Nodes []interpreteStructs.IBaseElement
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
 type WhileNode struct {
-	Condition interface{}
-	Body      interface{}
+	Condition interpreteStructs.IBaseElement
+	Body      interpreteStructs.IBaseElement
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
 type FuncNode struct {
 	Params *[]lexerStructs.Token
-	Body   interface{}
+	Body   interpreteStructs.IBaseElement
 	Name   string
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
 type ClassNode struct {
@@ -86,58 +87,61 @@ type ClassNode struct {
 	Properties string
 	Name       string
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
 type ForNode struct {
-	Expr1     interface{}
-	Expr2     interface{}
-	Condition interface{}
-	Body      interface{}
+	Expr1     interpreteStructs.IBaseElement
+	Expr2     interpreteStructs.IBaseElement
+	Condition interpreteStructs.IBaseElement
+	Body      interpreteStructs.IBaseElement
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
 type CallObjectNode struct {
-	Params *[]interface{}
+	Params *[]interpreteStructs.IBaseElement
 	Name   string
 	HasNew bool
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
-type NullNode struct{}
+type NullNode struct {
+	lexerStructs.IPositionBase
+	BaseGetValue
+}
 
 type ContinueNode struct {
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
 type ReturnNode struct {
 	lexerStructs.IPositionBase
-	Value interface{}
-	baseGetValue
+	Value interpreteStructs.IBaseElement
+	BaseGetValue
 }
 
 type BreakNode struct {
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
 type StringNode struct {
 	Value string
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
 type ArrayAccess struct {
 	Identifier string
-	Node       interface{}
+	Node       interpreteStructs.IBaseElement
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }
 
 type ThisNode struct {
 	lexerStructs.IPositionBase
-	baseGetValue
+	BaseGetValue
 }

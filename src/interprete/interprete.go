@@ -2,6 +2,7 @@ package interprete
 
 import (
 	"fmt"
+	"makeLanguages/src/api"
 	"makeLanguages/src/constants"
 	"makeLanguages/src/customErrors"
 	"makeLanguages/src/features/array"
@@ -17,15 +18,17 @@ import (
 )
 
 type Interprete struct {
-	ast         interface{}
+	ast         interpreteStructs.IBaseElement
 	currentNode interface{}
 	scope       string
+	api         *api.Api
 }
 
-func NewInterprete(ast interface{}, scope string) *Interprete {
+func NewInterprete(ast interpreteStructs.IBaseElement, scope string, api *api.Api) *Interprete {
 	return &Interprete{
 		ast:   ast,
 		scope: scope,
+		api:   api,
 	}
 }
 
@@ -56,12 +59,12 @@ func (interprete *Interprete) stopExecute(node interface{}) string {
 	return ""
 }
 
-func (interprete *Interprete) call(node interface{}, context *languageContext.Context) interface{} {
+func (interprete *Interprete) call(node interpreteStructs.IBaseElement, context *languageContext.Context) interpreteStructs.IBaseElement {
 	methodName := interprete.getMethodName(node)
 	return interprete.callMethod(interprete, methodName, node, context)
 }
 
-func (interprete *Interprete) callMethod(object interface{}, methodName string, values ...interface{}) interface{} {
+func (interprete *Interprete) callMethod(object interface{}, methodName string, values ...interface{}) interpreteStructs.IBaseElement {
 	method := reflect.ValueOf(object).MethodByName(methodName)
 	var params []reflect.Value
 	for _, value := range values {
@@ -72,15 +75,16 @@ func (interprete *Interprete) callMethod(object interface{}, methodName string, 
 	}
 
 	returnValue := method.Call(params)
-	return returnValue[0].Interface()
+	return returnValue[0].Interface().(interpreteStructs.IBaseElement)
 }
 
-func (interprete *Interprete) callMethodByOp(object interface{}, op lexerStructs.Token, values ...interface{}) interface{} {
+func (interprete *Interprete) callMethodByOp(object interpreteStructs.IBaseElement, op lexerStructs.Token, value interpreteStructs.IBaseElement) interface{} {
 	method := reflect.ValueOf(object).MethodByName(op.Type_)
-	var params []reflect.Value
-	for _, value := range values {
-		params = append(params, reflect.ValueOf(value))
+	result, ok := interprete.api.Call(op.Type_, object, value)
+	if !ok {
+		return result
 	}
+	params := []reflect.Value{reflect.ValueOf(value)}
 	if !method.IsValid() {
 		customErrors.RunTimeError(op, fmt.Sprintf("Error tring to access the method %s", op.Type_), constants.STOP_EXECUTION)
 	}
@@ -218,7 +222,7 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 	if interprete.getMethodName(varType.Value) != "Class" {
 		funcNode := varType.Value.(function.IFunction)
 
-		var params []interface{}
+		var params []interpreteStructs.IBaseElement
 
 		for _, param := range *callFuncNode.Params {
 			params = append(params, interprete.call(param, context))
@@ -294,7 +298,7 @@ func (interprete *Interprete) IfNode(node interface{}, context *languageContext.
 			customErrors.RunTimeError(if_.Condition.(lexerStructs.IPositionBase), "Error if expression need to a condition", constants.STOP_EXECUTION)
 		}
 
-		condition := conditionInterface.(*booleans.Boolean)
+		condition := conditionInterface.GetValue().(*booleans.Boolean)
 
 		if condition.Value {
 			node := interprete.call(if_.Body, context)
@@ -314,7 +318,7 @@ func (interprete *Interprete) WhileNode(node interface{}, context *languageConte
 	whileNode := node.(parserStructs.WhileNode)
 	context = interprete.createNewContext(context)
 	for {
-		boolean := interprete.call(whileNode.Condition, context).(*booleans.Boolean)
+		boolean := interprete.call(whileNode.Condition, context).GetValue().(*booleans.Boolean)
 		if !boolean.Value {
 			break
 		}
@@ -340,7 +344,7 @@ func (interprete *Interprete) ForNode(node interface{}, context *languageContext
 	for {
 		interprete.call(forNode.Expr1, context)
 		condition := interprete.call(forNode.Condition, context)
-		coditionNode := condition.(*booleans.Boolean)
+		coditionNode := condition.GetValue().(*booleans.Boolean)
 		if !coditionNode.Value {
 			break
 		}
@@ -384,7 +388,7 @@ func (interprete *Interprete) ArrayAccess(node interface{}, context *languageCon
 	if interprete.getMethodName(index) != "Number" {
 		customErrors.RunTimeError(arrayAccess.Node.(lexerStructs.IPositionBase), "The index is not a number ", constants.STOP_EXECUTION)
 	}
-	array_ := varType.Value.(*array.Array)
+	array_ := varType.Value.GetValue().(*array.Array)
 	element := (*array_.Value)[int(index.(*numbers.Number).Value)]
 	return element
 }
