@@ -425,6 +425,10 @@ func (parser *Parser) spot() (interpreteStructs.IBaseElement, error) {
 	return parser.binOP(parser.term, constants.TT_SPOT)
 }
 
+// func (parser *Parser) customOperator() (interpreteStructs.IBaseElement, error) {
+
+// }
+
 func (parser *Parser) term() (interpreteStructs.IBaseElement, error) {
 	currentNode := *parser.CurrentToken
 	nodeType := currentNode.Type_

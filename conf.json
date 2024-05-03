@@ -11,6 +11,9 @@
         "9": "9",
         "0": "0"
     },
+    "operator_custom": {
+        "<1>": "LESS_OR_GREATER_ONE"
+    },
     "compares": {
         "==": "EQE",
         ">=": "GTE",
