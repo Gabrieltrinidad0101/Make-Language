@@ -16,7 +16,7 @@ type LanguageConfiguraction struct {
 	Compares          map[string]string   `json:"compares"`
 	ComparesContinues map[string][]string `json:"compares_continues"`
 	LanguageSyntax    map[string]string   `json:"language_syntax"`
-	OperatorCustom    map[string]string   `json:"operator_custom"`
+	CustomOperators   map[string]string   `json:"custom_operators"`
 	Functions         map[string]string   `json:"functions"`
 	Scope             string              `json:"scope"`
 }
@@ -133,7 +133,7 @@ func (lexer *Lexer) Tokens() (*[]lexerStructs.Token, bool) {
 			continue
 		}
 
-		operatorCustom := lexer.syntaxToken(lexer.languageConfiguraction.OperatorCustom)
+		operatorCustom := lexer.syntaxToken(lexer.languageConfiguraction.CustomOperators)
 
 		if operatorCustom {
 			continue

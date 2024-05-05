@@ -33,7 +33,7 @@ func MakeLanguage(syntax string, filePath string, api_ *api.Api) {
 		return
 	}
 
-	parser_ := parser.NewParser(tokens)
+	parser_ := parser.NewParser(tokens, conf.CustomOperators)
 	ast, err := parser_.Parse()
 
 	if err != nil {

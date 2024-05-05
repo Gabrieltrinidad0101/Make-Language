@@ -13,19 +13,29 @@ import (
 )
 
 type Parser struct {
-	tokens       *[]lexerStructs.Token
-	idx          int
-	CurrentToken *lexerStructs.Token
-	len          int
-	scoopClass   bool
+	tokens          *[]lexerStructs.Token
+	idx             int
+	CurrentToken    *lexerStructs.Token
+	len             int
+	scoopClass      bool
+	customOperators []string
 }
 
-func NewParser(tokens *[]lexerStructs.Token) *Parser {
+func mapValues(txMap map[string]string) []string {
+	txs := make([]string, 0, len(txMap))
+	for _, tx := range txMap {
+		txs = append(txs, tx)
+	}
+	return txs
+}
+
+func NewParser(tokens *[]lexerStructs.Token, customOperators map[string]string) *Parser {
 	return &Parser{
-		idx:          -1,
-		tokens:       tokens,
-		CurrentToken: &lexerStructs.Token{},
-		len:          len(*tokens),
+		idx:             -1,
+		tokens:          tokens,
+		CurrentToken:    &lexerStructs.Token{},
+		len:             len(*tokens),
+		customOperators: mapValues(customOperators),
 	}
 }
 
@@ -422,12 +432,12 @@ func (parser *Parser) pow() (interpreteStructs.IBaseElement, error) {
 }
 
 func (parser *Parser) spot() (interpreteStructs.IBaseElement, error) {
-	return parser.binOP(parser.term, constants.TT_SPOT)
+	return parser.binOP(parser.customOperator, constants.TT_SPOT)
 }
 
-// func (parser *Parser) customOperator() (interpreteStructs.IBaseElement, error) {
-
-// }
+func (parser *Parser) customOperator() (interpreteStructs.IBaseElement, error) {
+	return parser.binOP(parser.term, parser.customOperators...)
+}
 
 func (parser *Parser) term() (interpreteStructs.IBaseElement, error) {
 	currentNode := *parser.CurrentToken
