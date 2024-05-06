@@ -1,10 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"makeLanguages/src"
-	"makeLanguages/src/api"
 	"makeLanguages/src/features/booleans"
 	"makeLanguages/src/interprete/interpreteStructs"
+	"makeLanguages/src/parser/parserStructs"
 )
 
 func lessOrGreaterOne(value1 interpreteStructs.IBaseElement, value2 interpreteStructs.IBaseElement) interface{} {
@@ -14,8 +15,16 @@ func lessOrGreaterOne(value1 interpreteStructs.IBaseElement, value2 interpreteSt
 	return booleans.NewBoolean(boolean)
 }
 
+func printLn2(params *[]interpreteStructs.IBaseElement) interface{} {
+	fmt.Println((*params)[0].GetValue())
+	fmt.Println()
+	return parserStructs.NullNode{}
+}
+
 func main() {
-	api_ := api.NewApi()
-	api_.AddOperetor("LESS_OR_GREATER_ONE", lessOrGreaterOne)
-	src.MakeLanguage("./conf.json", "./main.mkL", api_)
+	makeLanguage := src.NewMakeLanguage("./conf.json", "./main.mkL")
+	makeLanguage.AddOperetor("<1>", lessOrGreaterOne)
+	makeLanguage.AddFunction("printLn2", printLn2)
+	makeLanguage.Run()
+
 }

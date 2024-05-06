@@ -3,18 +3,11 @@ package function
 import (
 	"fmt"
 	"makeLanguages/src/interprete/interpreteStructs"
-	"makeLanguages/src/languageContext"
-	lexerStructs "makeLanguages/src/lexer/lexerStructs"
 	"makeLanguages/src/parser/parserStructs"
 )
 
 type Print struct {
 	BaseFunction
-	Context *languageContext.Context
-	Params  *[]lexerStructs.Token
-	Body    interface{}
-	lexerStructs.IPositionBase
-	parserStructs.BaseGetValue
 }
 
 func (func_ Print) Execute(params *[]interpreteStructs.IBaseElement) (interface{}, bool, error) {

@@ -13,13 +13,28 @@ import (
 	"makeLanguages/src/parser"
 )
 
-func MakeLanguage(syntax string, filePath string, api_ *api.Api) {
-	conf, ok := lexer.ReadLanguageConfiguraction(syntax)
+type MakeLanguage struct {
+	*api.Api
+	syntax   string
+	filePath string
+}
+
+func NewMakeLanguage(syntax, filePath string) *MakeLanguage {
+	return &MakeLanguage{
+		syntax:   syntax,
+		filePath: filePath,
+		Api:      api.NewApi(),
+	}
+}
+
+func (m MakeLanguage) Run() {
+	conf, ok := lexer.ReadLanguageConfiguraction(m.syntax)
+	conf.CustomOperators = m.CustomOperetor
 	if !ok {
 		return
 	}
 
-	input, ok := lexer.ReadFile(filePath)
+	input, ok := lexer.ReadFile(m.filePath)
 	if !ok {
 		return
 	}
@@ -33,7 +48,7 @@ func MakeLanguage(syntax string, filePath string, api_ *api.Api) {
 		return
 	}
 
-	parser_ := parser.NewParser(tokens, conf.CustomOperators)
+	parser_ := parser.NewParser(tokens, m.CustomOperetor)
 	ast, err := parser_.Parse()
 
 	if err != nil {
@@ -58,6 +73,13 @@ func MakeLanguage(syntax string, filePath string, api_ *api.Api) {
 		languageContext_.Set(key, value)
 	}
 
-	interprete_ := interprete.NewInterprete(ast, conf.Scope, api_)
+	for key, value := range m.Api.Functions {
+		languageContext_.Set(key, interpreteStructs.VarType{
+			Value:      value,
+			IsConstant: true,
+		})
+	}
+
+	interprete_ := interprete.NewInterprete(ast, conf.Scope, m.Api)
 	interprete_.Run(languageContext_)
 }
