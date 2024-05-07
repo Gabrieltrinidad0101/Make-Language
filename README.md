@@ -24,7 +24,7 @@ Make Language is a powerful tool and framework that allows you to create your ow
 
 Any of these functionality can be modify using a simple conf.json file
 
-## API Reference
+## Language Reference
 
 #### Var
 
@@ -166,4 +166,136 @@ print(a(1,2))
   print(test.b() == 100)
   print(test.e().b() == 100)
 ```
+## API
 
+### create a json file
+
+### inside of language_syntax you can only modify the key 
+### if you change any key in the json file you are going to modify the language sytanx
+
+```
+  {
+    "numbers": {
+        "1": "1",
+        "2": "2",
+        "3": "3",
+        "4": "4",
+        "5": "5",
+        "6": "6",
+        "7": "7",
+        "8": "8",
+        "9": "9",
+        "0": "0"
+    },
+    "compares": {
+        "==": "EQE",
+        ">=": "GTE",
+        "<=": "LTE",
+        "!=": "NEQE",
+        "++": "PLUS1",
+        "--": "MINUS1"
+    },
+    "language_syntax": {
+        "[": "LSQUAREBRACKET",
+        "]": "RSQUAREBRACKET",
+        "&&": "AND",
+        "||": "OR",
+        ">": "GT",
+        "<": "LT",
+        "!": "NEQ",
+        ",": "COMMA",
+        "=": "EQ",
+        "+": "PLUS",
+        "-": "MINUS",
+        "*": "MUL",
+        "/": "DIV",
+        "(": "LPAREN",
+        ")": "RPAREN",
+        "^":  "POW",
+        "~": "SQUARE_ROOT",
+        "func": "FUNC",
+        "while": "WHILE",
+        "for": "FOR",
+        "if": "IF",
+        "elif": "ELIF",
+        "else": "ELSE",
+        "class": "CLASS",
+        ".": "SPOT",
+        "break": "BREAK",
+        "continue": "CONTINUE",
+        "new": "NEW",
+        "{": "OPEN_CURLY_BRACE",
+        "}": "CLOSING_CURLY_BRACE",
+        "var": "VAR",
+        "this": "THIS",
+        "const": "CONST",
+        "return": "RETURN",
+        "\"": "STRING",
+        "\n": "NEWLINE",
+        "\r": "NEWLINE",
+        ";": "SEMICOLON"
+    },
+    "functions": {
+        "print": "print"
+    },
+    "scope": "global"
+  }
+```
+
+## In main.go file
+
+```
+  package main
+
+  import (
+    "fmt"
+    "makeLanguages/src"
+    "makeLanguages/src/features/booleans"
+    "makeLanguages/src/interprete/interpreteStructs"
+    "makeLanguages/src/parser/parserStructs"
+    "makeLanguages/src/utils"
+    "os"
+  )
+
+  func lessOrGreaterOne(value1 interpreteStructs.IBaseElement, value2 interpreteStructs.IBaseElement) interface{} {
+    params := &[]interpreteStructs.IBaseElement{
+      value1,
+      value2,
+    }
+    utils.ValidateTypes(params, "Number", "Number")
+    number1 := value1.GetValue().(float64)
+    number2 := value2.GetValue().(float64)
+    boolean := number1+1 == number2 || number1-1 == number2
+    return booleans.NewBoolean(boolean)
+  }
+
+  func printLn2(params *[]interpreteStructs.IBaseElement) interface{} {
+    fmt.Println((*params)[0].GetValue())
+    fmt.Println()
+    return parserStructs.NullNode{}
+  }
+
+  type File struct{}
+
+  func makeFile(params *[]interpreteStructs.IBaseElement) interface{} {
+    utils.ValidateTypes(params, "String_")
+    _, err := os.Create((*params)[0].GetValue().(string))
+    if err != nil {
+      fmt.Println(err)
+    }
+
+    return parserStructs.NullNode{}
+  }
+
+  func main() {
+    makeLanguage := src.NewMakeLanguage("./conf.json", "./main.mkL")
+    makeLanguage.AddOperetor("<1>", lessOrGreaterOne)
+    makeLanguage.AddFunction("printLn2", printLn2)
+
+    methods := map[string]func(params *[]interpreteStructs.IBaseElement) interface{}{}
+    methods["create"] = makeFile
+    makeLanguage.AddClass("File", methods)
+    makeLanguage.Run()
+  }
+
+```
