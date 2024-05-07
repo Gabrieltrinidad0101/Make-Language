@@ -80,6 +80,13 @@ func (m MakeLanguage) Run() {
 		})
 	}
 
+	for key, value := range m.Api.Class {
+		languageContext_.Set(key, interpreteStructs.VarType{
+			Value:      value,
+			IsConstant: true,
+		})
+	}
+
 	interprete_ := interprete.NewInterprete(ast, conf.Scope, m.Api)
 	interprete_.Run(languageContext_)
 }

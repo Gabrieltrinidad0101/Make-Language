@@ -7,6 +7,7 @@ import (
 	"makeLanguages/src/interprete/interpreteStructs"
 	"makeLanguages/src/parser/parserStructs"
 	"makeLanguages/src/utils"
+	"os"
 )
 
 func lessOrGreaterOne(value1 interpreteStructs.IBaseElement, value2 interpreteStructs.IBaseElement) interface{} {
@@ -27,10 +28,25 @@ func printLn2(params *[]interpreteStructs.IBaseElement) interface{} {
 	return parserStructs.NullNode{}
 }
 
+type File struct{}
+
+func makeFile(params *[]interpreteStructs.IBaseElement) interface{} {
+	utils.ValidateTypes(params, "String_")
+	_, err := os.Create((*params)[0].GetValue().(string))
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return parserStructs.NullNode{}
+}
+
 func main() {
 	makeLanguage := src.NewMakeLanguage("./conf.json", "./main.mkL")
 	makeLanguage.AddOperetor("<1>", lessOrGreaterOne)
 	makeLanguage.AddFunction("printLn2", printLn2)
-	makeLanguage.Run()
 
+	methods := map[string]func(params *[]interpreteStructs.IBaseElement) interface{}{}
+	methods["create"] = makeFile
+	makeLanguage.AddClass("File", methods)
+	makeLanguage.Run()
 }

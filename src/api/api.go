@@ -1,8 +1,10 @@
 package api
 
 import (
+	"makeLanguages/src/features/class"
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/interprete/interpreteStructs"
+	"makeLanguages/src/languageContext"
 )
 
 type operatorFunc func(interpreteStructs.IBaseElement, interpreteStructs.IBaseElement) interface{}
@@ -12,7 +14,7 @@ type Api struct {
 	operetor       map[string]operatorFunc
 	CustomOperetor map[string]string
 	Functions      map[string]*function.BaseFunction
-	class          map[string]interface{}
+	Class          map[string]class.Class
 }
 
 func NewApi() *Api {
@@ -21,7 +23,7 @@ func NewApi() *Api {
 		operetor:       make(map[string]operatorFunc),
 		CustomOperetor: map[string]string{},
 		Functions:      make(map[string]*function.BaseFunction),
-		class:          make(map[string]interface{}),
+		Class:          map[string]class.Class{},
 	}
 }
 
@@ -44,6 +46,13 @@ func (api *Api) AddFunction(name string, function_ func(params *[]interpreteStru
 	api.Functions[name] = baseFunction
 }
 
-func CustomClass() {
-
+func (api *Api) AddClass(name string, methods map[string]func(params *[]interpreteStructs.IBaseElement) interface{}) {
+	customClass := class.NewBuildClass(languageContext.NewContext(nil))
+	for key, value := range methods {
+		customClass.AddMethod(key, value)
+	}
+	api.Class[name] = class.Class{
+		Context: customClass.Context,
+		Name:    name,
+	}
 }

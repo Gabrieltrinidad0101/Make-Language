@@ -1,1 +1,2 @@
-printLn2(4 <1> 5)
+const file = new File()
+file.create("./hola.txt")
