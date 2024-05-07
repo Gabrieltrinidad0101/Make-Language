@@ -7,18 +7,20 @@ import (
 	"makeLanguages/src/features/numbers"
 	"makeLanguages/src/features/str"
 	"makeLanguages/src/interprete/interpreteStructs"
+	"makeLanguages/src/lexer"
 	lexerStructs "makeLanguages/src/lexer/lexerStructs"
 	"makeLanguages/src/parser/parserStructs"
 	"slices"
 )
 
 type Parser struct {
-	tokens          *[]lexerStructs.Token
-	idx             int
-	CurrentToken    *lexerStructs.Token
-	len             int
-	scoopClass      bool
-	customOperators []string
+	tokens                 *[]lexerStructs.Token
+	idx                    int
+	CurrentToken           *lexerStructs.Token
+	len                    int
+	scoopClass             bool
+	languageConfiguraction lexer.LanguageConfiguraction
+	customOperators        []string
 }
 
 func mapValues(txMap map[string]string) []string {
@@ -29,13 +31,14 @@ func mapValues(txMap map[string]string) []string {
 	return txs
 }
 
-func NewParser(tokens *[]lexerStructs.Token, customOperators map[string]string) *Parser {
+func NewParser(tokens *[]lexerStructs.Token, languageConfiguraction lexer.LanguageConfiguraction) *Parser {
 	return &Parser{
-		idx:             -1,
-		tokens:          tokens,
-		CurrentToken:    &lexerStructs.Token{},
-		len:             len(*tokens),
-		customOperators: mapValues(customOperators),
+		idx:                    -1,
+		tokens:                 tokens,
+		CurrentToken:           &lexerStructs.Token{},
+		len:                    len(*tokens),
+		languageConfiguraction: languageConfiguraction,
+		customOperators:        mapValues(languageConfiguraction.CustomOperators),
 	}
 }
 

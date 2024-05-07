@@ -48,7 +48,7 @@ func (m MakeLanguage) Run() {
 		return
 	}
 
-	parser_ := parser.NewParser(tokens, m.CustomOperetor)
+	parser_ := parser.NewParser(tokens, conf)
 	ast, err := parser_.Parse()
 
 	if err != nil {

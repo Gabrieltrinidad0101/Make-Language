@@ -38,7 +38,7 @@ func BaseInterprete(languageContext_ *languageContext.Context, filePath, confPat
 		return nil
 	}
 
-	parser_ := parser.NewParser(tokens, conf.CustomOperators)
+	parser_ := parser.NewParser(tokens, conf)
 	ast, err := parser_.Parse()
 
 	if err != nil {
