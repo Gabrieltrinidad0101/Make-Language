@@ -1,2 +1,3 @@
-const file = new File()
-file.create("./hola.txt")
+if(10 == 10){
+    
+}

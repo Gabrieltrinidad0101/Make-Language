@@ -127,6 +127,10 @@ func (parser *Parser) statementsBase(tokenEnd string, callBack func() (interpret
 	for parser.CurrentToken.Type_ == constants.TT_NEWLINE {
 		parser.advance()
 	}
+	if parser.CurrentToken.Type_ == constants.TT_END_BODY {
+		parser.advance()
+		return parserStructs.NullNode{}, nil
+	}
 	listNodes := parserStructs.ListNode{}
 	ast, err := callBack()
 	if err != nil {

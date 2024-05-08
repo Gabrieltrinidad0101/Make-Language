@@ -130,6 +130,10 @@ func (interprete *Interprete) BinOP(node interface{}, context *languageContext.C
 	return newNode
 }
 
+func (interprete Interprete) NullNode(node interface{}, context *languageContext.Context) interface{} {
+	return node.(parserStructs.NullNode)
+}
+
 func (interprete *Interprete) methodAccess(node parserStructs.BinOP, context *languageContext.Context) interface{} {
 	for node.Operation.Type_ == constants.TT_SPOT {
 		classNode := interprete.call(node.LeftNode, context).(class.ClassBase)
@@ -299,9 +303,9 @@ func (interprete *Interprete) IfNode(node interface{}, context *languageContext.
 			customErrors.RunTimeError(if_.Condition.(lexerStructs.IPositionBase), "Error if expression need to a condition", constants.STOP_EXECUTION)
 		}
 
-		condition := conditionInterface.GetValue().(*booleans.Boolean)
+		condition := conditionInterface.GetValue().(bool)
 
-		if condition.Value {
+		if condition {
 			node := interprete.call(if_.Body, context)
 			return node
 		}
