@@ -28,8 +28,6 @@ func printLn2(params *[]interpreteStructs.IBaseElement) interface{} {
 	return parserStructs.NullNode{}
 }
 
-type File struct{}
-
 func makeFile(params *[]interpreteStructs.IBaseElement) interface{} {
 	utils.ValidateTypes(params, "String_")
 	_, err := os.Create((*params)[0].GetValue().(string))

@@ -50,7 +50,7 @@ func (func_ BaseFunction) Execute(params *[]interpreteStructs.IBaseElement) (int
 type Function struct {
 	Context *languageContext.Context
 	Params  *[]lexerStructs.Token
-	Body    interface{}
+	Body    interpreteStructs.IBaseElement
 	parserStructs.BaseGetValue
 	lexerStructs.IPositionBase
 }
@@ -73,7 +73,7 @@ func (func_ Function) Execute(params *[]interpreteStructs.IBaseElement) (interfa
 func (func_ Function) GetParams() *[]lexerStructs.Token {
 	return func_.Params
 }
-func (func_ Function) GetBody() interface{} {
+func (func_ Function) GetBody() interpreteStructs.IBaseElement {
 	return func_.Body
 }
 func (func_ Function) GetContext() *languageContext.Context {
