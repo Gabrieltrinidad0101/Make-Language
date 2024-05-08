@@ -167,9 +167,7 @@ print(a(1,2))
   print(test.e().b() == 100)
 ```
 ## API
-
 ### create a json file
-
 ### inside of language_syntax you can only modify the key 
 ### if you change any key in the json file you are going to modify the language sytanx
 
@@ -242,19 +240,15 @@ print(a(1,2))
   }
 ```
 
-## In main.go file
-
+## Custom operator
 ```
   package main
 
   import (
-    "fmt"
     "makeLanguages/src"
     "makeLanguages/src/features/booleans"
     "makeLanguages/src/interprete/interpreteStructs"
-    "makeLanguages/src/parser/parserStructs"
     "makeLanguages/src/utils"
-    "os"
   )
 
   func lessOrGreaterOne(value1 interpreteStructs.IBaseElement, value2 interpreteStructs.IBaseElement) interface{} {
@@ -269,11 +263,60 @@ print(a(1,2))
     return booleans.NewBoolean(boolean)
   }
 
+  func main() {
+    makeLanguage := src.NewMakeLanguage("./conf.json", "./main.mkL")
+    makeLanguage.AddOperetor("<1>", lessOrGreaterOne)
+    makeLanguage.Run()
+  }
+```
+
+```
+  print(1 <1> 2) // true
+  print(10 <1> 2) // false
+```
+
+## Custom functions
+
+```
+  package main
+
+  import (
+    "fmt"
+    "makeLanguages/src"
+    "makeLanguages/src/interprete/interpreteStructs"
+    "makeLanguages/src/parser/parserStructs"
+  )
+
   func printLn2(params *[]interpreteStructs.IBaseElement) interface{} {
     fmt.Println((*params)[0].GetValue())
     fmt.Println()
     return parserStructs.NullNode{}
   }
+
+  func main() {
+    makeLanguage := src.NewMakeLanguage("./conf.json", "./main.mkL")
+    makeLanguage.AddFunction("printLn2", printLn2)
+    makeLanguage.Run()
+  }
+```
+
+```
+  printLn2("hello world")
+```
+
+## Custom class
+
+```
+  package main
+
+  import (
+    "fmt"
+    "makeLanguages/src"
+    "makeLanguages/src/interprete/interpreteStructs"
+    "makeLanguages/src/parser/parserStructs"
+    "makeLanguages/src/utils"
+    "os"
+  )
 
   type File struct{}
 
@@ -289,13 +332,11 @@ print(a(1,2))
 
   func main() {
     makeLanguage := src.NewMakeLanguage("./conf.json", "./main.mkL")
-    makeLanguage.AddOperetor("<1>", lessOrGreaterOne)
-    makeLanguage.AddFunction("printLn2", printLn2)
-
     methods := map[string]func(params *[]interpreteStructs.IBaseElement) interface{}{}
     methods["create"] = makeFile
     makeLanguage.AddClass("File", methods)
     makeLanguage.Run()
   }
-
 ```
+
+
