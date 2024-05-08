@@ -1,5 +1,5 @@
 
-![Logo](https://github.com/Gabrieltrinidad0101/Make-Language/blob/master/logo.png?raw=true)
+![Logo](https://github.com/Gabrieltrinidad0101/Make-Language/blob/master/logo.png)
 
 
 # Make Language
@@ -167,9 +167,8 @@ print(a(1,2))
   print(test.e().b() == 100)
 ```
 ## API
-### create a json file
-### inside of language_syntax you can only modify the key 
-### if you change any key in the json file you are going to modify the language sytanx
+create a json file inside of language syntax you can only modify the key if you change any key in the json file 
+you are going to modify the language syntax
 
 ```
   {
