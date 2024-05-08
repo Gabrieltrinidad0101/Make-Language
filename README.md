@@ -317,8 +317,6 @@ you are going to modify the language syntax
     "os"
   )
 
-  type File struct{}
-
   func makeFile(params *[]interpreteStructs.IBaseElement) interface{} {
     utils.ValidateTypes(params, "String_")
     _, err := os.Create((*params)[0].GetValue().(string))
@@ -336,6 +334,11 @@ you are going to modify the language syntax
     makeLanguage.AddClass("File", methods)
     makeLanguage.Run()
   }
+```
+
+```
+  const file = new File()
+  file.create("./hello.txt")
 ```
 
 
