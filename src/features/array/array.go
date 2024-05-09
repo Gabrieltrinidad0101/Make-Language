@@ -2,6 +2,7 @@ package array
 
 import (
 	"makeLanguages/src/features/class"
+	"makeLanguages/src/features/numbers"
 	"makeLanguages/src/interprete/interpreteStructs"
 	"makeLanguages/src/languageContext"
 	"makeLanguages/src/lexer/lexerStructs"
@@ -9,17 +10,23 @@ import (
 )
 
 type Array struct {
-	context *languageContext.Context
-	Value   *[]interface{}
+	Value *[]interface{}
 	lexerStructs.IPositionBase
+	class *class.BuildClass
 }
 
 func NewArray(value *[]interface{}) *Array {
 	context := languageContext.NewContext(nil)
+	newClass := class.NewBuildClass(context)
+	newClass.AddProperty("length", numbers.NewNumbers(float64(len(*value)), nil))
 	return &Array{
-		context: context,
-		Value:   value,
+		class: newClass,
+		Value: value,
 	}
+}
+
+func (array *Array) GetClassContext() *languageContext.Context {
+	return array.class.Context
 }
 
 func (array *Array) GetValue() interface{} {
@@ -28,6 +35,7 @@ func (array *Array) GetValue() interface{} {
 
 func (array *Array) PLUS(element interface{}) *Array {
 	*array.Value = append(*array.Value, element)
+	array.class.AddProperty("length", numbers.NewNumbers(float64(len(*array.Value)), nil))
 	return array
 }
 
@@ -42,6 +50,5 @@ func (array *Array) Concat(params *[]interpreteStructs.IBaseElement) interface{}
 }
 
 func (array Array) Initial() {
-	newClass := class.NewBuildClass(array.context)
-	newClass.AddMethod("concat", array.Concat)
+	array.class.AddMethod("concat", array.Concat)
 }
