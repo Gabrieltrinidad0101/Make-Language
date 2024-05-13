@@ -235,7 +235,7 @@ you are going to modify the language syntax
     "functions": {
         "print": "print"
     },
-    "scope": "global"
+    "scope": "GLOBAL"
   }
 ```
 
@@ -340,5 +340,36 @@ you are going to modify the language syntax
   const file = new File()
   file.create("./hello.txt")
 ```
+
+
+## Scope GLOBAl
+
+```
+func test(){
+  var a = 1
+}
+test()
+print(a) // 1
+```
+
+## Scope FUNCTION
+
+```
+func test(){
+  var a = 1
+}
+test()
+print(a) // error
+```
+
+## Scope CURLY_BRACE
+
+```
+if(1 == 1){
+  var a = 1
+}
+print(a) // error
+```
+
 
 

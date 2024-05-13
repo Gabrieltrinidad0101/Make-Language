@@ -194,7 +194,7 @@ func (interprete Interprete) VarAccessNode(node interface{}, context *languageCo
 func (interprete *Interprete) FuncNode(node interface{}, context *languageContext.Context) interface{} {
 	funcNode := node.(parserStructs.FuncNode)
 	newContext := context
-	if interprete.scope != "global" {
+	if interprete.scope != "GLOBAL" {
 		newContext = languageContext.NewContext(context)
 	}
 
