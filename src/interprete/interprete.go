@@ -12,6 +12,7 @@ import (
 	"makeLanguages/src/features/numbers"
 	"makeLanguages/src/interprete/interpreteStructs"
 	"makeLanguages/src/languageContext"
+	"makeLanguages/src/lexer"
 	"makeLanguages/src/lexer/lexerStructs"
 	"makeLanguages/src/parser/parserStructs"
 	"reflect"
@@ -20,15 +21,15 @@ import (
 type Interprete struct {
 	ast         interpreteStructs.IBaseElement
 	currentNode interface{}
-	scope       string
 	api         *api.Api
+	conf        lexer.LanguageConfiguraction
 }
 
-func NewInterprete(ast interpreteStructs.IBaseElement, scope string, api *api.Api) *Interprete {
+func NewInterprete(ast interpreteStructs.IBaseElement, scope string, api *api.Api, conf lexer.LanguageConfiguraction) *Interprete {
 	return &Interprete{
-		ast:   ast,
-		scope: scope,
-		api:   api,
+		ast:  ast,
+		api:  api,
+		conf: conf,
 	}
 }
 
@@ -110,7 +111,7 @@ func (interprete *Interprete) ClassNode(node interface{}, context *languageConte
 		Name:    classNode.Name,
 	}
 
-	context.Set(classNode.Name, interpreteStructs.VarType{
+	context.Set(classNode.Name, &interpreteStructs.VarType{
 		Value:      class_,
 		IsConstant: true,
 		Type:       constants.TT_CLASS,
@@ -154,7 +155,7 @@ func (interprete Interprete) VarAssignNode(node interface{}, context *languageCo
 		customErrors.RunTimeError(varAssignNode.IPositionBase, "The "+varAssignNode.Identifier+" is a const variable", constants.STOP_EXECUTION)
 	}
 	result := interprete.call(varAssignNode.Node, context)
-	context.Set(varAssignNode.Identifier, interpreteStructs.VarType{
+	context.Set(varAssignNode.Identifier, &interpreteStructs.VarType{
 		Value:      result,
 		IsConstant: varAssignNode.IsConstant,
 	})
@@ -194,12 +195,12 @@ func (interprete Interprete) VarAccessNode(node interface{}, context *languageCo
 func (interprete *Interprete) FuncNode(node interface{}, context *languageContext.Context) interface{} {
 	funcNode := node.(parserStructs.FuncNode)
 	newContext := context
-	if interprete.scope != "GLOBAL" {
+	if interprete.conf.Scope != "GLOBAL" {
 		newContext = languageContext.NewContext(context)
 	}
 
 	for _, param := range *funcNode.Params {
-		newContext.Set(param.Value.(string), interpreteStructs.VarType{
+		newContext.Set(param.Value.(string), &interpreteStructs.VarType{
 			Value: parserStructs.NullNode{},
 		})
 	}
@@ -210,7 +211,7 @@ func (interprete *Interprete) FuncNode(node interface{}, context *languageContex
 		Params:  funcNode.Params,
 	}
 
-	context.Set(funcNode.Name, interpreteStructs.VarType{
+	context.Set(funcNode.Name, &interpreteStructs.VarType{
 		Value:      func_,
 		IsConstant: true,
 	})
@@ -230,7 +231,7 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 		var params []interpreteStructs.IBaseElement
 
 		for _, param := range *callFuncNode.Params {
-			params = append(params, interprete.call(param, context))
+			params = append(params, interprete.call(param, funcNode.GetContext()))
 		}
 
 		funcNodeBody, hasACustomExecute, err := funcNode.Execute(&params)
@@ -240,7 +241,7 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 		if hasACustomExecute {
 			return funcNodeBody
 		}
-		node := interprete.call(funcNode.GetBody(), funcNode.GetContext())
+		node := interprete.call(funcNode.GetBody(), context)
 
 		isReturn := interprete.stopExecute(node)
 
@@ -252,6 +253,19 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 		return parserStructs.NullNode{}
 	}
 
+	class := varType.Value.(class.Class)
+
+	if interprete.conf.ConstructorName == "CLASS_NAME" {
+		_, ok := class.Context.Get(class.Name)
+		if ok {
+			interprete.CallObjectNode(&parserStructs.CallObjectNode{
+				Params: callFuncNode.Params,
+				Name:   class.Name,
+				HasNew: false,
+			}, class.Context)
+		}
+		class.Context.Delete(class.Name)
+	}
 	return varType.Value
 }
 
@@ -281,7 +295,7 @@ func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext
 
 func (interprete *Interprete) createNewContext(context *languageContext.Context) *languageContext.Context {
 	newContext := context
-	if interprete.scope == "CURLY_BRACE" {
+	if interprete.conf.Scope == "CURLY_BRACE" {
 		newContext = languageContext.NewContext(context)
 	}
 	return newContext

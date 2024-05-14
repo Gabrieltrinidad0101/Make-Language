@@ -62,7 +62,7 @@ func (func_ Function) Execute(params *[]interpreteStructs.IBaseElement) (interfa
 	}
 	for _, token := range *func_.Params {
 		func_.Context.Set(token.Value.(string),
-			interpreteStructs.VarType{
+			&interpreteStructs.VarType{
 				Value: (*params)[i],
 			})
 		i++

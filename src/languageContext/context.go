@@ -2,7 +2,7 @@ package languageContext
 
 import "makeLanguages/src/interprete/interpreteStructs"
 
-type Variables *map[string]interpreteStructs.VarType
+type Variables map[string]*interpreteStructs.VarType
 
 type Context struct {
 	Parent    interface{}
@@ -14,13 +14,13 @@ type Context struct {
 func NewContext(parent *Context) *Context {
 	context := &Context{
 		Parent:    parent,
-		variables: &map[string]interpreteStructs.VarType{},
+		variables: map[string]*interpreteStructs.VarType{},
 	}
 	return context
 }
 
-func (context *Context) Get(name string) (interpreteStructs.VarType, bool) {
-	value, ok := (*context.variables)[name]
+func (context *Context) Get(name string) (*interpreteStructs.VarType, bool) {
+	value, ok := context.variables[name]
 	if !ok {
 		currentContext := context
 		if currentContext.Parent.(*Context) == nil {
@@ -32,8 +32,8 @@ func (context *Context) Get(name string) (interpreteStructs.VarType, bool) {
 	return value, ok
 }
 
-func (context *Context) Update(name string, varType interpreteStructs.VarType) bool {
-	_, ok := (*context.variables)[name]
+func (context *Context) Update(name string, varType *interpreteStructs.VarType) bool {
+	_, ok := context.variables[name]
 	if !ok {
 		currentContext := context
 		if currentContext.Parent.(*Context) == nil {
@@ -46,8 +46,12 @@ func (context *Context) Update(name string, varType interpreteStructs.VarType) b
 	return true
 }
 
-func (context *Context) Set(name string, varType interpreteStructs.VarType) {
-	(*context.variables)[name] = varType
+func (context *Context) Delete(name string) {
+	delete(context.variables, name)
+}
+
+func (context *Context) Set(name string, varType *interpreteStructs.VarType) {
+	(context.variables)[name] = varType
 }
 
 func (context *Context) SetClass(name string, varType interpreteStructs.VarType) {

@@ -57,12 +57,12 @@ func (m MakeLanguage) Run() {
 	}
 
 	var languageContext_ = languageContext.NewContext(nil)
-	languageContext_.Set("TRUE", interpreteStructs.VarType{
+	languageContext_.Set("TRUE", &interpreteStructs.VarType{
 		Value:      booleans.NewBoolean(true),
 		IsConstant: true,
 	})
 
-	languageContext_.Set("FALSE", interpreteStructs.VarType{
+	languageContext_.Set("FALSE", &interpreteStructs.VarType{
 		Value:      booleans.NewBoolean(false),
 		IsConstant: true,
 	})
@@ -70,23 +70,23 @@ func (m MakeLanguage) Run() {
 	functions := function.BuildFunctions(conf.Functions)
 
 	for key, value := range functions {
-		languageContext_.Set(key, value)
+		languageContext_.Set(key, &value)
 	}
 
 	for key, value := range m.Api.Functions {
-		languageContext_.Set(key, interpreteStructs.VarType{
+		languageContext_.Set(key, &interpreteStructs.VarType{
 			Value:      value,
 			IsConstant: true,
 		})
 	}
 
 	for key, value := range m.Api.Class {
-		languageContext_.Set(key, interpreteStructs.VarType{
+		languageContext_.Set(key, &interpreteStructs.VarType{
 			Value:      value,
 			IsConstant: true,
 		})
 	}
 
-	interprete_ := interprete.NewInterprete(ast, conf.Scope, m.Api)
+	interprete_ := interprete.NewInterprete(ast, conf.Scope, m.Api, conf)
 	interprete_.Run(languageContext_)
 }

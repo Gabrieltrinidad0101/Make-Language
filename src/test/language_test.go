@@ -47,7 +47,7 @@ func BaseInterprete(languageContext_ *languageContext.Context, filePath, confPat
 	}
 
 	api_ := api.NewApi()
-	interprete_ := interprete.NewInterprete(ast, conf.Scope, api_)
+	interprete_ := interprete.NewInterprete(ast, conf.Scope, api_, conf)
 	interprete_.Run(languageContext_)
 
 	return languageContext_
@@ -59,11 +59,11 @@ func getLanguageContext(confPath string) *languageContext.Context {
 	}
 
 	languageContext_ := languageContext.NewContext(nil)
-	languageContext_.Set("TRUE", interpreteStructs.VarType{
+	languageContext_.Set("TRUE", &interpreteStructs.VarType{
 		Value:      booleans.NewBoolean(true),
 		IsConstant: true,
 	})
-	languageContext_.Set("FALSE", interpreteStructs.VarType{
+	languageContext_.Set("FALSE", &interpreteStructs.VarType{
 		Value:      booleans.NewBoolean(false),
 		IsConstant: true,
 	})
@@ -71,7 +71,7 @@ func getLanguageContext(confPath string) *languageContext.Context {
 	functions := function.BuildFunctions(conf.Functions)
 
 	for key, value := range functions {
-		languageContext_.Set(key, value)
+		languageContext_.Set(key, &value)
 	}
 	return languageContext_
 }
@@ -114,7 +114,7 @@ func (print Print) Execute(params *[]interface{}) (interface{}, bool, error) {
 func TestVariablesAndIfs(t *testing.T) {
 	assert := assert.New(t)
 	context := getLanguageContext("./conf.json")
-	context.Set("print", interpreteStructs.VarType{
+	context.Set("print", &interpreteStructs.VarType{
 		Value: Print{
 			assert: assert,
 		},

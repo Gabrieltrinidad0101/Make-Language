@@ -62,5 +62,6 @@
     "functions": {
         "print": "print"
     },
-    "scope": "GLOBAL"
+    "scope": "GLOBAL",
+    "constructor_name": "CLASS_NAME"
 }

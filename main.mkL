@@ -1,2 +1,8 @@
-const array = [1,2,3,4,5]
-print(array.length)
+class Test{
+    func Test(a,b){
+        print(a + b)
+    }
+}
+
+const a = new Test(10,10)
+a.b(10,10)

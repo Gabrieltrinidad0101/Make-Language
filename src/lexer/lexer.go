@@ -19,6 +19,7 @@ type LanguageConfiguraction struct {
 	CustomOperators   map[string]string   `json:"custom_operators"`
 	Functions         map[string]string   `json:"functions"`
 	Scope             string              `json:"scope"`
+	ConstructorName   string              `json:"constructor_name"`
 }
 
 type Simbols struct {
