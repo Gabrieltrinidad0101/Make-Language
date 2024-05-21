@@ -67,7 +67,7 @@ func (m MakeLanguage) Run() {
 		IsConstant: true,
 	})
 
-	functions := function.BuildFunctions(conf.Functions)
+	functions := function.BuildFunctions(languageContext_, conf.Functions)
 
 	for key, value := range functions {
 		languageContext_.Set(key, &value)

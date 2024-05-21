@@ -230,8 +230,9 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 
 		var params []interpreteStructs.IBaseElement
 
+		newContext := languageContext.NewContext(context)
 		for _, param := range *callFuncNode.Params {
-			params = append(params, interprete.call(param, funcNode.GetContext()))
+			params = append(params, interprete.call(param, newContext))
 		}
 
 		funcNodeBody, hasACustomExecute, err := funcNode.Execute(&params)
@@ -241,7 +242,7 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 		if hasACustomExecute {
 			return funcNodeBody
 		}
-		node := interprete.call(funcNode.GetBody(), context)
+		node := interprete.call(funcNode.GetBody(), newContext)
 
 		isReturn := interprete.stopExecute(node)
 
@@ -256,15 +257,8 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 	class := varType.Value.(class.Class)
 
 	if interprete.conf.ConstructorName == "CLASS_NAME" {
-		_, ok := class.Context.Get(class.Name)
-		if ok {
-			interprete.CallObjectNode(&parserStructs.CallObjectNode{
-				Params: callFuncNode.Params,
-				Name:   class.Name,
-				HasNew: false,
-			}, class.Context)
-		}
-		class.Context.Delete(class.Name)
+		callFuncNode.HasNew = false
+		interprete.CallObjectNode(callFuncNode, class.Context)
 	}
 	return varType.Value
 }

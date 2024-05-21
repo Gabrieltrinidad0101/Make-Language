@@ -1,8 +1,11 @@
 class Test{
-    func Test(a,b){
-        print(a + b)
+    func Test(b) {
+        print(b)
+    }
+    func b(k){
+        print(k)
     }
 }
 
-const a = new Test(10,10)
-a.b(10,10)
+const a = new Test(10)
+a.b(10)

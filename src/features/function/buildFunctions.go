@@ -1,11 +1,14 @@
 package function
 
-import "makeLanguages/src/interprete/interpreteStructs"
+import (
+	"makeLanguages/src/interprete/interpreteStructs"
+	"makeLanguages/src/languageContext"
+)
 
-func BuildFunctions(functionsName map[string]string) map[string]interpreteStructs.VarType {
+func BuildFunctions(ctx *languageContext.Context, functionsName map[string]string) map[string]interpreteStructs.VarType {
 	funcs := map[string]interpreteStructs.VarType{}
 	funcs[functionsName["print"]] = interpreteStructs.VarType{
-		Value:      Print{},
+		Value:      NewPrint(ctx),
 		IsConstant: true,
 	}
 	return funcs
