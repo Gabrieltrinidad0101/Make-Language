@@ -18,9 +18,12 @@ func NewPrint(context *languageContext.Context) *Print {
 		},
 	}
 }
-
 func (func_ Print) GetContext() *languageContext.Context {
 	return func_.Context
+}
+
+func (func_ Print) CanChangeContextParent() bool {
+	return true
 }
 
 func (func_ Print) Execute(params *[]interpreteStructs.IBaseElement) (interface{}, bool, error) {

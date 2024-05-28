@@ -13,6 +13,7 @@ type IFunction interface {
 	GetParams() *[]lexerStructs.Token
 	GetBody() interpreteStructs.IBaseElement
 	GetContext() *languageContext.Context
+	CanChangeContextParent() bool
 }
 
 type BaseFunction struct {
@@ -37,8 +38,13 @@ func (func_ BaseFunction) GetParams() *[]lexerStructs.Token {
 func (func_ BaseFunction) GetBody() interpreteStructs.IBaseElement {
 	panic("internal error hasACustomExecute need to be true ")
 }
+
 func (func_ BaseFunction) GetContext() *languageContext.Context {
 	panic("internal error hasACustomExecute need to be true ")
+}
+
+func (func_ BaseFunction) CanChangeContextParent() bool {
+	return false
 }
 
 func (func_ BaseFunction) Execute(params *[]interpreteStructs.IBaseElement) (interface{}, bool, error) {
@@ -76,6 +82,11 @@ func (func_ Function) GetParams() *[]lexerStructs.Token {
 func (func_ Function) GetBody() interpreteStructs.IBaseElement {
 	return func_.Body
 }
+
 func (func_ Function) GetContext() *languageContext.Context {
 	return func_.Context
+}
+
+func (func_ Function) CanChangeContextParent() bool {
+	return false
 }

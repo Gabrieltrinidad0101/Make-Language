@@ -78,6 +78,7 @@ type FuncNode struct {
 	Params *[]lexerStructs.Token
 	Body   interpreteStructs.IBaseElement
 	Name   string
+	Class  bool
 	lexerStructs.IPositionBase
 	BaseGetValue
 }
