@@ -30,7 +30,6 @@ func (func_ Print) Execute(params *[]interpreteStructs.IBaseElement) (interface{
 	for _, param := range *params {
 		fmt.Print(param.GetValue())
 	}
-	fmt.Println()
 	hasACustomExecute := true
 	return parserStructs.NullNode{}, hasACustomExecute, nil
 }

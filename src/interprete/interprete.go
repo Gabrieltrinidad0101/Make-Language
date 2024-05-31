@@ -6,7 +6,6 @@ import (
 	"makeLanguages/src/constants"
 	"makeLanguages/src/customErrors"
 	"makeLanguages/src/features/array"
-	"makeLanguages/src/features/booleans"
 	"makeLanguages/src/features/class"
 	"makeLanguages/src/features/function"
 	"makeLanguages/src/features/numbers"
@@ -333,8 +332,8 @@ func (interprete *Interprete) WhileNode(node interface{}, context *languageConte
 	whileNode := node.(parserStructs.WhileNode)
 	context = interprete.createNewContext(context)
 	for {
-		boolean := interprete.call(whileNode.Condition, context).GetValue().(*booleans.Boolean)
-		if !boolean.Value {
+		boolean := interprete.call(whileNode.Condition, context).GetValue().(bool)
+		if !boolean {
 			break
 		}
 		node := interprete.call(whileNode.Body, context)
@@ -359,8 +358,8 @@ func (interprete *Interprete) ForNode(node interface{}, context *languageContext
 	for {
 		interprete.call(forNode.Expr1, context)
 		condition := interprete.call(forNode.Condition, context)
-		coditionNode := condition.GetValue().(*booleans.Boolean)
-		if !coditionNode.Value {
+		coditionNode := condition.GetValue().(bool)
+		if !coditionNode {
 			break
 		}
 		bodyNode := interprete.call(forNode.Body, context)

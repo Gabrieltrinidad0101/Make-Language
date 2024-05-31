@@ -68,7 +68,7 @@ func getLanguageContext(confPath string) *languageContext.Context {
 		IsConstant: true,
 	})
 
-	functions := function.BuildFunctions(conf.Functions)
+	functions := function.BuildFunctions(languageContext_, conf.Functions)
 
 	for key, value := range functions {
 		languageContext_.Set(key, &value)
@@ -83,7 +83,11 @@ type Print struct {
 	assert *assert.Assertions
 }
 
-func (print Print) Execute(params *[]interface{}) (interface{}, bool, error) {
+func a(function.IFunction) {
+
+}
+
+func (print Print) Execute(params *[]interface{}) (interface{}, bool, error){
 	number := (*params)[0].(interpreteStructs.IBaseElement)
 	if call == 0 {
 		print.assert.Equal(float64(2), number.GetValue())
@@ -105,6 +109,8 @@ func (print Print) Execute(params *[]interface{}) (interface{}, bool, error) {
 		print.assert.Equal("hell0 w0rld", number.GetValue())
 	} else if call == 9 {
 		print.assert.Equal("HELLO WORLD", number.GetValue())
+	} else if call == 10 {
+		print.assert.Equal("test1", number.GetValue())
 	}
 
 	call++
