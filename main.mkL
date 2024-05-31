@@ -1,4 +1,1 @@
-var i = 0
-while(i <= 1000000000){
-    ++i
-}
+const a = "asadgds" / 7

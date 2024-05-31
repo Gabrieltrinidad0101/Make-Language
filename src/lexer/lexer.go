@@ -307,8 +307,8 @@ func (lexer *Lexer) makeNumber() bool {
 }
 
 func (lexer *Lexer) makeString() bool {
-
-	if constants.TT_STRING != lexer.languageConfiguraction.LanguageSyntax[*lexer.current_char] {
+	languageSyntax := lexer.languageConfiguraction.LanguageSyntax
+	if constants.TT_STRING != languageSyntax[*lexer.current_char] {
 		return false
 	}
 
@@ -316,7 +316,7 @@ func (lexer *Lexer) makeString() bool {
 	positionStart := lexer.PositionCopy()
 	lexer.advance()
 	positionEnd := lexer.PositionCopy()
-	for constants.TT_STRING != lexer.languageConfiguraction.LanguageSyntax[*lexer.current_char] {
+	for constants.TT_STRING != languageSyntax[*lexer.current_char] {
 		stringValue += *lexer.current_char
 		ok := lexer.advance()
 		positionEnd = lexer.PositionCopy()

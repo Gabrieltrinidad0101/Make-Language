@@ -83,11 +83,15 @@ type Print struct {
 	assert *assert.Assertions
 }
 
-func a(function.IFunction) {
-
+func (p Print) GetContext() *languageContext.Context {
+	return &languageContext.Context{}
 }
 
-func (print Print) Execute(params *[]interface{}) (interface{}, bool, error){
+func (p Print) CanChangeContextParent() bool {
+	return true
+}
+
+func (print Print) Execute(params *[]interpreteStructs.IBaseElement) (interface{}, bool, error) {
 	number := (*params)[0].(interpreteStructs.IBaseElement)
 	if call == 0 {
 		print.assert.Equal(float64(2), number.GetValue())

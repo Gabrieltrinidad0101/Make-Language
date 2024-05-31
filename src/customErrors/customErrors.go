@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"makeLanguages/src/lexer/lexerStructs"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -38,7 +39,7 @@ func Show(token lexerStructs.IPositionBase, details string, type_ int) {
 		lineNumber := i + positionStart.Line - linesCanShow
 		if i == linesCanShow {
 			characterLength := max(1, positionEnd.Col-positionStart.Col)
-			padding := strings.Repeat(" ", positionStart.Col+len(string(rune(lineNumber)))+2)
+			padding := strings.Repeat(" ", positionStart.Col+len(strconv.Itoa(lineNumber))+1)
 			errorSignal := strings.Repeat("^", characterLength)
 			errorText += fmt.Sprintf("%d: %s\n%s\n", lineNumber, line, padding+errorSignal)
 			continue

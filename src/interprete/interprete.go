@@ -71,7 +71,8 @@ func (interprete *Interprete) callMethod(object interface{}, methodName string, 
 		params = append(params, reflect.ValueOf(value))
 	}
 	if !method.IsValid() {
-		customErrors.RunTimeError(object.(lexerStructs.IPositionBase), fmt.Sprintf("Error tring to access the method %s", methodName), constants.STOP_EXECUTION)
+		typeName := interprete.getMethodName(object)
+		customErrors.RunTimeError(object.(lexerStructs.IPositionBase), fmt.Sprintf("Error %s to access the method %s", typeName, methodName), constants.STOP_EXECUTION)
 	}
 
 	returnValue := method.Call(params)
@@ -87,7 +88,8 @@ func (interprete *Interprete) callMethodByOp(object interpreteStructs.IBaseEleme
 	}
 	params := []reflect.Value{reflect.ValueOf(value)}
 	if !method.IsValid() {
-		customErrors.RunTimeError(op, fmt.Sprintf("Error tring to access the method %s", op.Type_), constants.STOP_EXECUTION)
+		typeName := interprete.getMethodName(object)
+		customErrors.RunTimeError(op, fmt.Sprintf("Error %s does not have the method %s", typeName, op.Type_), constants.STOP_EXECUTION)
 	}
 
 	returnValue := method.Call(params)
