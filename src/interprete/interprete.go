@@ -261,7 +261,10 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 
 	if interprete.conf.ConstructorName == "CLASS_NAME" {
 		callFuncNode.HasNew = false
-		interprete.CallObjectNode(callFuncNode, class.Context)
+		_, ok := class.Context.GetBase(callFuncNode.Name)
+		if ok {
+			interprete.CallObjectNode(callFuncNode, class.Context)
+		}
 	}
 	return varType.Value
 }

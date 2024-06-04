@@ -32,6 +32,11 @@ func (context *Context) Get(name string) (*interpreteStructs.VarType, bool) {
 	return value, ok
 }
 
+func (context *Context) GetBase(name string) (*interpreteStructs.VarType, bool) {
+	value, ok := context.variables[name]
+	return value, ok
+}
+
 func (context *Context) Update(name string, varType *interpreteStructs.VarType) bool {
 	_, ok := context.variables[name]
 	if !ok {

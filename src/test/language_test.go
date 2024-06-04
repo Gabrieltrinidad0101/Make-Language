@@ -84,7 +84,7 @@ type Print struct {
 }
 
 func (p Print) GetContext() *languageContext.Context {
-	return &languageContext.Context{}
+	return p.Context
 }
 
 func (p Print) CanChangeContextParent() bool {
@@ -106,14 +106,12 @@ func (print Print) Execute(params *[]interpreteStructs.IBaseElement) (interface{
 	} else if call == 5 {
 		print.assert.Equal(float64(1), number.GetValue())
 	} else if call == 6 {
-		print.assert.Equal(float64(1), number.GetValue())
-	} else if call == 7 {
 		print.assert.Equal("hello world", number.GetValue())
-	} else if call == 8 {
+	} else if call == 7 {
 		print.assert.Equal("hell0 w0rld", number.GetValue())
-	} else if call == 9 {
+	} else if call == 8 {
 		print.assert.Equal("HELLO WORLD", number.GetValue())
-	} else if call == 10 {
+	} else if call == 9 {
 		print.assert.Equal("test1", number.GetValue())
 	}
 
@@ -127,6 +125,9 @@ func TestVariablesAndIfs(t *testing.T) {
 	context.Set("print", &interpreteStructs.VarType{
 		Value: Print{
 			assert: assert,
+			BaseFunction: function.BaseFunction{
+				Context: &languageContext.Context{},
+			},
 		},
 		IsConstant: true,
 	})
