@@ -20,6 +20,7 @@ type LanguageConfiguraction struct {
 	Functions         map[string]string   `json:"functions"`
 	Scope             string              `json:"scope"`
 	ConstructorName   string              `json:"constructor_name"`
+	Paren             bool                `json:"paren"`
 }
 
 type Simbols struct {

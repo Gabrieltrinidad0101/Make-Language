@@ -680,9 +680,11 @@ func (parser *Parser) callFunc() (*parserStructs.CallObjectNode, error) {
 }
 
 func (parser *Parser) conditionAndBodyBase() (*parserStructs.ConditionAndBody, error) {
-	_, err := parser.verifyNextToken(constants.TT_LPAREN)
-	if err != nil {
-		return nil, err
+	if parser.languageConfiguraction.Paren {
+		_, err := parser.verifyNextToken(constants.TT_LPAREN)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	condition, err := parser.AndOr()
@@ -690,9 +692,11 @@ func (parser *Parser) conditionAndBodyBase() (*parserStructs.ConditionAndBody, e
 		return nil, err
 	}
 
-	_, err = parser.verifyNextToken(constants.TT_RPAREN)
-	if err != nil {
-		return nil, err
+	if parser.languageConfiguraction.Paren {
+		_, err = parser.verifyNextToken(constants.TT_RPAREN)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	body, err := parser.BodyBase()

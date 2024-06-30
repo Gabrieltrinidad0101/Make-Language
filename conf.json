@@ -63,5 +63,6 @@
         "print": "print"
     },
     "scope": "FUNCTION",
-    "constructor_name": "CLASS_NAME"
+    "constructor_name": "CLASS_NAME",
+    "paren": true
 }
