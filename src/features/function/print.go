@@ -28,7 +28,7 @@ func (func_ Print) CanChangeContextParent() bool {
 
 func (func_ Print) Execute(params *[]interpreteStructs.IBaseElement) (interface{}, bool, error) {
 	for _, param := range *params {
-		fmt.Print(param.GetValue())
+		fmt.Println(param.GetValue())
 	}
 	hasACustomExecute := true
 	return parserStructs.NullNode{}, hasACustomExecute, nil

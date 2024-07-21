@@ -167,7 +167,7 @@ func (interprete Interprete) UpdateVariableNode(node interface{}, context *langu
 	updateVariableNode := node.(parserStructs.UpdateVariableNode)
 	varType, ok := context.Get(updateVariableNode.Identifier)
 	if !ok && !context.IsClass {
-		panic("The variable no exist" + updateVariableNode.Identifier)
+		customErrors.RunTimeError(updateVariableNode.Node, "The "+updateVariableNode.Identifier+" no exist", constants.STOP_EXECUTION)
 	}
 	if varType.IsConstant {
 		customErrors.RunTimeError(updateVariableNode.IPositionBase, "The "+updateVariableNode.Identifier+" is a const variable", constants.STOP_EXECUTION)

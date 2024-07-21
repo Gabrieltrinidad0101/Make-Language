@@ -1,0 +1,8 @@
+class Test {
+    func a(text){
+        print(text)
+    }
+}
+
+const test = Test()
+test.a("hello world")

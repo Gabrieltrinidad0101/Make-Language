@@ -39,7 +39,7 @@ func makeFile(params *[]interpreteStructs.IBaseElement) interface{} {
 }
 
 func main() {
-	makeLanguage := src.NewMakeLanguage("./conf.json", "./main.mkL")
+	makeLanguage := src.NewMakeLanguage("./conf.json", "./main.mkl")
 	makeLanguage.AddOperetor("<1>", lessOrGreaterOne)
 	makeLanguage.AddFunction("printLn2", printLn2)
 

@@ -40,6 +40,9 @@ func (func_ BaseFunction) GetBody() interpreteStructs.IBaseElement {
 }
 
 func (func_ BaseFunction) GetContext() *languageContext.Context {
+	if func_.Context != nil {
+		return func_.Context
+	}
 	panic("internal error hasACustomExecute need to be true ")
 }
 
