@@ -2,19 +2,31 @@ package interprete
 
 import (
 	"fmt"
-	"makeLanguages/src/api"
-	"makeLanguages/src/constants"
-	"makeLanguages/src/customErrors"
-	"makeLanguages/src/features/array"
-	"makeLanguages/src/features/class"
-	"makeLanguages/src/features/function"
-	"makeLanguages/src/features/numbers"
-	"makeLanguages/src/interprete/interpreteStructs"
-	"makeLanguages/src/languageContext"
-	"makeLanguages/src/lexer"
-	"makeLanguages/src/lexer/lexerStructs"
-	"makeLanguages/src/parser/parserStructs"
 	"reflect"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/parser/parserStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer/lexerStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/languageContext"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/numbers"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/function"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/class"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/array"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/customErrors"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/constants"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/api"
 )
 
 type Interprete struct {

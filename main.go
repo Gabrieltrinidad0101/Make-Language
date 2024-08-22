@@ -2,12 +2,17 @@ package main
 
 import (
 	"fmt"
-	"makeLanguages/src"
-	"makeLanguages/src/features/booleans"
-	"makeLanguages/src/interprete/interpreteStructs"
-	"makeLanguages/src/parser/parserStructs"
-	"makeLanguages/src/utils"
 	"os"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/utils"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/parser/parserStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/booleans"
+
+	src "github.com/Gabrieltrinidad0101/Make-Language/src"
 )
 
 func lessOrGreaterOne(value1 interpreteStructs.IBaseElement, value2 interpreteStructs.IBaseElement) interface{} {

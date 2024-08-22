@@ -1,8 +1,8 @@
 package function
 
 import (
-	"makeLanguages/src/interprete/interpreteStructs"
-	"makeLanguages/src/languageContext"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/languageContext"
 )
 
 func BuildFunctions(ctx *languageContext.Context, functionsName map[string]string) map[string]interpreteStructs.VarType {

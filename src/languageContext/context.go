@@ -1,6 +1,6 @@
 package languageContext
 
-import "makeLanguages/src/interprete/interpreteStructs"
+import "github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
 
 type Variables map[string]*interpreteStructs.VarType
 

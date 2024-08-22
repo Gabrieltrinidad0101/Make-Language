@@ -244,10 +244,10 @@ you are going to modify the language syntax
   package main
 
   import (
-    "makeLanguages/src"
-    "makeLanguages/src/features/booleans"
-    "makeLanguages/src/interprete/interpreteStructs"
-    "makeLanguages/src/utils"
+    "github.com/Gabrieltrinidad0101/Make-Language/src"
+    "github.com/Gabrieltrinidad0101/Make-Language/src/features/booleans"
+    "github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+    "github.com/Gabrieltrinidad0101/Make-Language/src/utils"
   )
 
   func lessOrGreaterOne(value1 interpreteStructs.IBaseElement, value2 interpreteStructs.IBaseElement) interface{} {
@@ -281,9 +281,9 @@ you are going to modify the language syntax
 
   import (
     "fmt"
-    "makeLanguages/src"
-    "makeLanguages/src/interprete/interpreteStructs"
-    "makeLanguages/src/parser/parserStructs"
+    "github.com/Gabrieltrinidad0101/Make-Language/src"
+    "github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+    "github.com/Gabrieltrinidad0101/Make-Language/src/parser/parserStructs"
   )
 
   func printLn2(params *[]interpreteStructs.IBaseElement) interface{} {
@@ -310,10 +310,10 @@ you are going to modify the language syntax
 
   import (
     "fmt"
-    "makeLanguages/src"
-    "makeLanguages/src/interprete/interpreteStructs"
-    "makeLanguages/src/parser/parserStructs"
-    "makeLanguages/src/utils"
+    "github.com/Gabrieltrinidad0101/Make-Language/src"
+    "github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+    "github.com/Gabrieltrinidad0101/Make-Language/src/parser/parserStructs"
+    "github.com/Gabrieltrinidad0101/Make-Language/src/utils"
     "os"
   )
 

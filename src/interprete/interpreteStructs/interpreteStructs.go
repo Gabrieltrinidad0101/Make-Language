@@ -1,6 +1,6 @@
 package interpreteStructs
 
-import "makeLanguages/src/lexer/lexerStructs"
+import "github.com/Gabrieltrinidad0101/Make-Language/src/lexer/lexerStructs"
 
 type VarType struct {
 	Value      IBaseElement

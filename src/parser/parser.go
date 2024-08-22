@@ -2,15 +2,22 @@ package parser
 
 import (
 	"fmt"
-	"makeLanguages/src/constants"
-	"makeLanguages/src/customErrors"
-	"makeLanguages/src/features/numbers"
-	"makeLanguages/src/features/str"
-	"makeLanguages/src/interprete/interpreteStructs"
-	"makeLanguages/src/lexer"
-	lexerStructs "makeLanguages/src/lexer/lexerStructs"
-	"makeLanguages/src/parser/parserStructs"
 	"slices"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/constants"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/customErrors"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer"
+
+	lexerStructs "github.com/Gabrieltrinidad0101/Make-Language/src/lexer/lexerStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/parser/parserStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/numbers"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/str"
 )
 
 type Parser struct {

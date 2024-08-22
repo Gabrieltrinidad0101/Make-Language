@@ -2,10 +2,13 @@ package utils
 
 import (
 	"fmt"
-	"makeLanguages/src/constants"
-	"makeLanguages/src/customErrors"
-	"makeLanguages/src/interprete/interpreteStructs"
 	"reflect"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/constants"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/customErrors"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
 )
 
 func GetType(node interface{}) string {

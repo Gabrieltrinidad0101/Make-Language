@@ -1,10 +1,13 @@
 package api
 
 import (
-	"makeLanguages/src/features/class"
-	"makeLanguages/src/features/function"
-	"makeLanguages/src/interprete/interpreteStructs"
-	"makeLanguages/src/languageContext"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/languageContext"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/function"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/class"
 )
 
 type operatorFunc func(interpreteStructs.IBaseElement, interpreteStructs.IBaseElement) interface{}

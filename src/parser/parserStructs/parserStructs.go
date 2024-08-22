@@ -1,8 +1,9 @@
 package parserStructs
 
 import (
-	"makeLanguages/src/interprete/interpreteStructs"
-	"makeLanguages/src/lexer/lexerStructs"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer/lexerStructs"
 )
 
 type BaseGetValue struct{}

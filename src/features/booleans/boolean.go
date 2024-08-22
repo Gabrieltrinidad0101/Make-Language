@@ -1,7 +1,7 @@
 package booleans
 
 import (
-	"makeLanguages/src/lexer/lexerStructs"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer/lexerStructs"
 )
 
 type Boolean struct {

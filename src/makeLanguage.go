@@ -1,16 +1,25 @@
 package src
 
 import (
-	"makeLanguages/src/api"
-	"makeLanguages/src/constants"
-	"makeLanguages/src/customErrors"
-	"makeLanguages/src/features/booleans"
-	"makeLanguages/src/features/function"
-	"makeLanguages/src/interprete"
-	"makeLanguages/src/interprete/interpreteStructs"
-	"makeLanguages/src/languageContext"
-	"makeLanguages/src/lexer"
-	"makeLanguages/src/parser"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/parser"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/languageContext"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/function"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/booleans"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/customErrors"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/constants"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/api"
 )
 
 type MakeLanguage struct {

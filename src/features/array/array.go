@@ -1,12 +1,17 @@
 package array
 
 import (
-	"makeLanguages/src/features/class"
-	"makeLanguages/src/features/numbers"
-	"makeLanguages/src/interprete/interpreteStructs"
-	"makeLanguages/src/languageContext"
-	"makeLanguages/src/lexer/lexerStructs"
 	"slices"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer/lexerStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/languageContext"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/numbers"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/class"
 )
 
 type Array struct {

@@ -1,19 +1,25 @@
 package test
 
 import (
-	"makeLanguages/src/api"
-	"makeLanguages/src/constants"
-	"makeLanguages/src/customErrors"
-	"makeLanguages/src/features/booleans"
-	"makeLanguages/src/features/function"
-	"makeLanguages/src/features/numbers"
-	"makeLanguages/src/interprete"
-	"makeLanguages/src/interprete/interpreteStructs"
-	"makeLanguages/src/languageContext"
-	"makeLanguages/src/lexer"
-	"makeLanguages/src/parser"
-	"makeLanguages/src/parser/parserStructs"
-	"testing"
+	"github.com/Gabrieltrinidad0101/Make-Language/srccccccc/api"
+	"github.com/Gabrieltrinidad0101/Make-Language/srcc/customErrors"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/function"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/languageContext"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/parser/parserStructs"
+	"github.com/Gabrieltrinidad0101/Make-Language
+github.com/Gabrieltrinidad0101/Make-Language
+	"github.com/Gabrieltrinidad0101/Make-Languagerieltrinidad0101/Make-Languagesrc/parser"
+github.com/Gabrieltrinidad0101/Make-Language
+	"github.com/Gabrieltrinidad0101/Make-Languagerieltrinidad0101/Make-Languagesrc/lexer"
+github.com/Gabrieltrinidad0101/Make-Language
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/numbers"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/booleans"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/constants"
 
 	"github.com/stretchr/testify/assert"
 )

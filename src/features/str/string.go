@@ -2,13 +2,18 @@ package str
 
 import (
 	"fmt"
-	"makeLanguages/src/features"
-	"makeLanguages/src/features/class"
-	"makeLanguages/src/interprete/interpreteStructs"
-	"makeLanguages/src/languageContext"
-	"makeLanguages/src/lexer/lexerStructs"
-	"makeLanguages/src/utils"
 	"strings"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer/lexerStructs"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/utils"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/languageContext"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/class"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features"
 )
 
 type String_ struct {

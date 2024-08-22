@@ -3,12 +3,15 @@ package lexer
 import (
 	"encoding/json"
 	"fmt"
-	"makeLanguages/src/constants"
-	CustomErrors "makeLanguages/src/customErrors"
-	"makeLanguages/src/lexer/lexerStructs"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer/lexerStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/constants"
+
+	CustomErrors "github.com/Gabrieltrinidad0101/Make-Language/src/customErrors"
 )
 
 type LanguageConfiguraction struct {

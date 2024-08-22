@@ -1,4 +1,4 @@
-module makeLanguages
+module github.com/Gabrieltrinidad0101/Make-Language
 
 go 1.22.1
 

@@ -2,10 +2,11 @@ package customErrors
 
 import (
 	"fmt"
-	"makeLanguages/src/lexer/lexerStructs"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer/lexerStructs"
 )
 
 type customError struct {

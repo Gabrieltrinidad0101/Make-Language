@@ -2,10 +2,12 @@ package function
 
 import (
 	"fmt"
-	"makeLanguages/src/interprete/interpreteStructs"
-	"makeLanguages/src/languageContext"
-	lexerStructs "makeLanguages/src/lexer/lexerStructs"
-	"makeLanguages/src/parser/parserStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/languageContext"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer/lexerStructs"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/parser/parserStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
 )
 
 type IFunction interface {

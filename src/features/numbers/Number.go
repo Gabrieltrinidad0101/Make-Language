@@ -1,9 +1,11 @@
 package numbers
 
 import (
-	"makeLanguages/src/features/booleans"
-	"makeLanguages/src/lexer/lexerStructs"
 	"math"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer/lexerStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/booleans"
 )
 
 type Number struct {

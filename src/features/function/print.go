@@ -2,9 +2,11 @@ package function
 
 import (
 	"fmt"
-	"makeLanguages/src/interprete/interpreteStructs"
-	"makeLanguages/src/languageContext"
-	"makeLanguages/src/parser/parserStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/languageContext"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/parser/parserStructs"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
 )
 
 type Print struct {
