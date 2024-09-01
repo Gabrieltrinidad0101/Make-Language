@@ -119,7 +119,7 @@ func NewLexer(text *string, languageConfiguraction LanguageConfiguraction) *Lexe
 	}
 }
 
-func (lexer *Lexer) Tokens() (*[]lexerStructs.Token, bool) {
+func (lexer *Lexer) Tokens() (*[]lexerStructs.Token, error) {
 	lexer.advance()
 	for lexer.current_char != nil {
 		if *lexer.current_char == " " {
@@ -127,7 +127,11 @@ func (lexer *Lexer) Tokens() (*[]lexerStructs.Token, bool) {
 			continue
 		}
 
-		isString := lexer.makeString()
+		isString, err := lexer.makeString()
+
+		if err != nil {
+			return nil, err
+		}
 
 		if isString {
 			continue
@@ -152,25 +156,31 @@ func (lexer *Lexer) Tokens() (*[]lexerStructs.Token, bool) {
 
 		ok := lexer.syntaxToken(lexer.languageConfiguraction.LanguageSyntax)
 
-		if !ok {
-			ok = lexer.getIdentifier()
+		if ok {
+			continue
+		}
+
+		ok, err = lexer.getIdentifier()
+
+		if err != nil {
+			return nil, err
 		}
 
 		if !ok {
-			CustomErrors.IllegalCharacter(lexerStructs.Token{
+			return nil, CustomErrors.IllegalCharacter(lexerStructs.Token{
 				Value: *lexer.current_char,
 				IPositionBase: lexerStructs.PositionBase{
 					PositionStart: lexer.Position,
 					PositionEnd:   lexer.Position,
 				},
-			}, constants.STOP_EXECUTION)
-			return nil, true
+			})
 		}
+
 	}
 	*lexer.tokens = append(*lexer.tokens, lexerStructs.Token{
 		Type_: constants.EOF,
 	})
-	return lexer.tokens, false
+	return lexer.tokens, nil
 }
 
 func (lexer *Lexer) syntaxToken(syntax map[string]string) bool {
@@ -212,7 +222,7 @@ func (lexer *Lexer) syntaxToken(syntax map[string]string) bool {
 	return true
 }
 
-func (lexer *Lexer) getIdentifier() bool {
+func (lexer *Lexer) getIdentifier() (bool, error) {
 	identifier := ""
 	positionStart := lexer.PositionCopy()
 	positionEnd := positionStart
@@ -228,7 +238,7 @@ func (lexer *Lexer) getIdentifier() bool {
 				Line: lexer.Line,
 				Col:  lexer.idx + 1,
 			}
-			CustomErrors.Show(
+			return false, CustomErrors.Show(
 				lexerStructs.Token{
 					IPositionBase: lexerStructs.PositionBase{
 						PositionStart: position,
@@ -236,7 +246,6 @@ func (lexer *Lexer) getIdentifier() bool {
 					},
 				},
 				"Variables Identifier cannot have spot",
-				constants.STOP_EXECUTION,
 			)
 		}
 
@@ -258,7 +267,7 @@ func (lexer *Lexer) getIdentifier() bool {
 	}
 
 	if identifier == "" {
-		return false
+		return false, nil
 	}
 
 	token := lexerStructs.Token{
@@ -271,7 +280,7 @@ func (lexer *Lexer) getIdentifier() bool {
 	}
 
 	*lexer.tokens = append(*lexer.tokens, token)
-	return true
+	return true, nil
 }
 
 func (lexer *Lexer) makeNumber() bool {
@@ -310,10 +319,10 @@ func (lexer *Lexer) makeNumber() bool {
 	return true
 }
 
-func (lexer *Lexer) makeString() bool {
+func (lexer *Lexer) makeString() (bool, error) {
 	languageSyntax := lexer.languageConfiguraction.LanguageSyntax
 	if constants.TT_STRING != languageSyntax[*lexer.current_char] {
-		return false
+		return false, nil
 	}
 
 	stringValue := ""
@@ -332,7 +341,7 @@ func (lexer *Lexer) makeString() bool {
 					PositionEnd:   positionEnd,
 				},
 			}
-			CustomErrors.InvalidSyntax(token, "Is necesary to use \" to end a string ", constants.STOP_EXECUTION)
+			return false, CustomErrors.InvalidSyntax(token, "Is necesary to use \" to end a string ")
 		}
 	}
 
@@ -349,5 +358,5 @@ func (lexer *Lexer) makeString() bool {
 
 	*lexer.tokens = append(*lexer.tokens, stringToken)
 
-	return true
+	return true, nil
 }

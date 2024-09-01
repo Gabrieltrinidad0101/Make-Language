@@ -44,9 +44,9 @@ func NewInterprete(ast interpreteStructs.IBaseElement, scope string, api *api.Ap
 	}
 }
 
-func (interprete *Interprete) Run(context *languageContext.Context) interface{} {
-	value := interprete.call(interprete.ast, context)
-	return value
+func (interprete *Interprete) Run(context *languageContext.Context) (interface{}, error) {
+	value, err := interprete.call(interprete.ast, context)
+	return value, err
 }
 
 func (interprete *Interprete) getMethodName(node interface{}) string {
@@ -71,12 +71,12 @@ func (interprete *Interprete) stopExecute(node interface{}) string {
 	return ""
 }
 
-func (interprete *Interprete) call(node interpreteStructs.IBaseElement, context *languageContext.Context) interpreteStructs.IBaseElement {
+func (interprete *Interprete) call(node interpreteStructs.IBaseElement, context *languageContext.Context) (interpreteStructs.IBaseElement, error) {
 	methodName := interprete.getMethodName(node)
 	return interprete.callMethod(interprete, methodName, node, context)
 }
 
-func (interprete *Interprete) callMethod(object interface{}, methodName string, values ...interface{}) interpreteStructs.IBaseElement {
+func (interprete *Interprete) callMethod(object interface{}, methodName string, values ...interface{}) (interpreteStructs.IBaseElement, error) {
 	method := reflect.ValueOf(object).MethodByName(methodName)
 	var params []reflect.Value
 	for _, value := range values {
@@ -84,31 +84,31 @@ func (interprete *Interprete) callMethod(object interface{}, methodName string, 
 	}
 	if !method.IsValid() {
 		typeName := interprete.getMethodName(object)
-		customErrors.RunTimeError(object.(lexerStructs.IPositionBase), fmt.Sprintf("Error %s to access the method %s", typeName, methodName), constants.STOP_EXECUTION)
+		return nil, customErrors.RunTimeError(object.(lexerStructs.IPositionBase), fmt.Sprintf("Error %s to access the method %s", typeName, methodName))
 	}
 
 	returnValue := method.Call(params)
 	interface_ := returnValue[0].Interface()
-	return interface_.(interpreteStructs.IBaseElement)
+	return interface_.(interpreteStructs.IBaseElement), nil
 }
 
-func (interprete *Interprete) callMethodByOp(object interpreteStructs.IBaseElement, op lexerStructs.Token, value interpreteStructs.IBaseElement) interface{} {
+func (interprete *Interprete) callMethodByOp(object interpreteStructs.IBaseElement, op lexerStructs.Token, value interpreteStructs.IBaseElement) (interface{}, error) {
 	method := reflect.ValueOf(object).MethodByName(op.Type_)
 	result, ok := interprete.api.Call(op.Type_, object, value)
 	if ok {
-		return result
+		return result, nil
 	}
 	params := []reflect.Value{reflect.ValueOf(value)}
 	if !method.IsValid() {
 		typeName := interprete.getMethodName(object)
-		customErrors.RunTimeError(op, fmt.Sprintf("Error %s does not have the method %s", typeName, op.Type_), constants.STOP_EXECUTION)
+		return nil, customErrors.RunTimeError(op, fmt.Sprintf("Error %s does not have the method %s", typeName, op.Type_))
 	}
 
 	returnValue := method.Call(params)
-	return returnValue[0].Interface()
+	return returnValue[0].Interface(), nil
 }
 
-func (interprete *Interprete) ClassNode(node interface{}, context *languageContext.Context) interface{} {
+func (interprete *Interprete) ClassNode(node interface{}, context *languageContext.Context) (interface{}, error) {
 	classNode := node.(*parserStructs.ClassNode)
 	newContext := languageContext.NewContext(context)
 	newContext.IsClass = true
@@ -130,27 +130,37 @@ func (interprete *Interprete) ClassNode(node interface{}, context *languageConte
 		Type:       constants.TT_CLASS,
 	})
 
-	return parserStructs.NullNode{}
+	return parserStructs.NullNode{}, nil
 }
 
-func (interprete *Interprete) BinOP(node interface{}, context *languageContext.Context) interface{} {
+func (interprete *Interprete) BinOP(node interface{}, context *languageContext.Context) (interface{}, error) {
 	binOP := node.(parserStructs.BinOP)
 	if binOP.Operation.Type_ == constants.TT_SPOT {
 		return interprete.methodAccess(binOP, context)
 	}
-	nodeLeft := interprete.call(binOP.LeftNode, context)
-	nodeRigth := interprete.call(binOP.RigthNode, context)
-	newNode := interprete.callMethodByOp(nodeLeft, binOP.Operation, nodeRigth)
-	return newNode
+	nodeLeft, err := interprete.call(binOP.LeftNode, context)
+	if err != nil {
+		return nil, err
+	}
+	nodeRigth, err := interprete.call(binOP.RigthNode, context)
+	if err != nil {
+		return nil, err
+	}
+	newNode, err := interprete.callMethodByOp(nodeLeft, binOP.Operation, nodeRigth)
+	return newNode, err
 }
 
 func (interprete Interprete) NullNode(node interface{}, context *languageContext.Context) interface{} {
 	return node.(parserStructs.NullNode)
 }
 
-func (interprete *Interprete) methodAccess(node parserStructs.BinOP, context *languageContext.Context) interface{} {
+func (interprete *Interprete) methodAccess(node parserStructs.BinOP, context *languageContext.Context) (interface{}, error) {
 	for node.Operation.Type_ == constants.TT_SPOT {
-		classNode := interprete.call(node.LeftNode, context).(class.ClassBase)
+		class_, err := interprete.call(node.LeftNode, context)
+		if err != nil {
+			return nil, err
+		}
+		classNode := class_.(class.ClassBase)
 		if interprete.getMethodName(node.RigthNode) == "BinOP" {
 			subNode := node.RigthNode.(parserStructs.BinOP)
 			interprete.call(subNode.LeftNode, classNode.GetClassContext())
@@ -159,53 +169,58 @@ func (interprete *Interprete) methodAccess(node parserStructs.BinOP, context *la
 		}
 		return interprete.call(node.RigthNode, classNode.GetClassContext())
 	}
-	return parserStructs.NullNode{}
+	return parserStructs.NullNode{}, nil
 }
 
-func (interprete Interprete) VarAssignNode(node interface{}, context *languageContext.Context) interface{} {
+func (interprete Interprete) VarAssignNode(node interface{}, context *languageContext.Context) (interface{}, error) {
 	varAssignNode := node.(parserStructs.VarAssignNode)
 	if _, ok := context.Get(varAssignNode.Identifier); ok && varAssignNode.IsConstant {
-		customErrors.RunTimeError(varAssignNode.IPositionBase, "The "+varAssignNode.Identifier+" is a const variable", constants.STOP_EXECUTION)
+		return nil, customErrors.RunTimeError(varAssignNode.IPositionBase, "The "+varAssignNode.Identifier+" is a const variable")
 	}
-	result := interprete.call(varAssignNode.Node, context)
+	result, err := interprete.call(varAssignNode.Node, context)
+	if err != nil {
+		return nil, err
+	}
 	context.Set(varAssignNode.Identifier, &interpreteStructs.VarType{
 		Value:      result,
 		IsConstant: varAssignNode.IsConstant,
 	})
-	return parserStructs.NullNode{}
+	return parserStructs.NullNode{}, nil
 }
 
-func (interprete Interprete) UpdateVariableNode(node interface{}, context *languageContext.Context) interface{} {
+func (interprete Interprete) UpdateVariableNode(node interface{}, context *languageContext.Context) (interface{}, error) {
 	updateVariableNode := node.(parserStructs.UpdateVariableNode)
 	varType, ok := context.Get(updateVariableNode.Identifier)
 	if !ok && !context.IsClass {
-		customErrors.RunTimeError(updateVariableNode.Node, "The "+updateVariableNode.Identifier+" no exist", constants.STOP_EXECUTION)
+		customErrors.RunTimeError(updateVariableNode.Node, "The "+updateVariableNode.Identifier+" no exist")
 	}
 	if varType.IsConstant {
-		customErrors.RunTimeError(updateVariableNode.IPositionBase, "The "+updateVariableNode.Identifier+" is a const variable", constants.STOP_EXECUTION)
+		customErrors.RunTimeError(updateVariableNode.IPositionBase, "The "+updateVariableNode.Identifier+" is a const variable")
 	}
 
-	result := interprete.call(updateVariableNode.Node, context)
-
+	result, err := interprete.call(updateVariableNode.Node, context)
+	if err != nil {
+		return nil, err
+	}
 	varType.Value = result
 
 	ok = context.Update(updateVariableNode.Identifier, varType)
 	if !ok {
 		panic("The variable no exist" + updateVariableNode.Identifier)
 	}
-	return parserStructs.NullNode{}
+	return parserStructs.NullNode{}, nil
 }
 
-func (interprete Interprete) VarAccessNode(node interface{}, context *languageContext.Context) interface{} {
+func (interprete Interprete) VarAccessNode(node interface{}, context *languageContext.Context) (interface{}, error) {
 	varAccessNode := node.(*parserStructs.VarAccessNode)
 	varType, ok := context.Get(varAccessNode.Identifier)
 	if !ok {
-		customErrors.RunTimeError(varAccessNode.IPositionBase, "Variable is undefined "+varAccessNode.Identifier, constants.STOP_EXECUTION)
+		return nil, customErrors.RunTimeError(varAccessNode.IPositionBase, "Variable is undefined "+varAccessNode.Identifier)
 	}
 	return interprete.call(varType.Value, context)
 }
 
-func (interprete *Interprete) FuncNode(node interface{}, context *languageContext.Context) interface{} {
+func (interprete *Interprete) FuncNode(node interface{}, context *languageContext.Context) (interface{}, error) {
 	funcNode := node.(parserStructs.FuncNode)
 	newContext := context
 	if interprete.conf.Scope != "GLOBAL" {
@@ -228,14 +243,14 @@ func (interprete *Interprete) FuncNode(node interface{}, context *languageContex
 		Value:      func_,
 		IsConstant: true,
 	})
-	return parserStructs.NullNode{}
+	return parserStructs.NullNode{}, nil
 }
 
-func (interprete *Interprete) CallObjectNode(node interface{}, context *languageContext.Context) interface{} {
+func (interprete *Interprete) CallObjectNode(node interface{}, context *languageContext.Context) (interface{}, error) {
 	callFuncNode := node.(*parserStructs.CallObjectNode)
 	varType, ok := context.Get(callFuncNode.Name)
 	if !ok || (callFuncNode.HasNew && interprete.getMethodName(varType.Value) != "Class") {
-		customErrors.RunTimeError(callFuncNode.IPositionBase, fmt.Sprintf("The %s is undefined", callFuncNode.Name), constants.STOP_EXECUTION)
+		return nil, customErrors.RunTimeError(callFuncNode.IPositionBase, fmt.Sprintf("The %s is undefined", callFuncNode.Name))
 	}
 
 	if interprete.getMethodName(varType.Value) != "Class" {
@@ -247,18 +262,24 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 		}
 
 		for _, param := range *callFuncNode.Params {
-			params = append(params, interprete.call(param, funcNode.GetContext()))
+			node, err := interprete.call(param, funcNode.GetContext())
+			if err != nil {
+				return nil, err
+			}
+			params = append(params, node)
 		}
 
 		funcNodeBody, hasACustomExecute, err := funcNode.Execute(&params)
 		if err != nil {
-			customErrors.RunTimeError(callFuncNode.IPositionBase, err.Error(), constants.STOP_EXECUTION)
+			return nil, customErrors.RunTimeError(callFuncNode.IPositionBase, err.Error())
 		}
 		if hasACustomExecute {
-			return funcNodeBody
+			return funcNodeBody, nil
 		}
-		node := interprete.call(funcNode.GetBody(), funcNode.GetContext())
-
+		node, err := interprete.call(funcNode.GetBody(), funcNode.GetContext())
+		if err != nil {
+			return nil, err
+		}
 		isReturn := interprete.stopExecute(node)
 
 		if isReturn == "ReturnNode" {
@@ -266,7 +287,7 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 			return interprete.call(return_.Value, funcNode.GetContext())
 		}
 
-		return parserStructs.NullNode{}
+		return parserStructs.NullNode{}, nil
 	}
 
 	class := varType.Value.(class.Class)
@@ -278,7 +299,7 @@ func (interprete *Interprete) CallObjectNode(node interface{}, context *language
 			interprete.CallObjectNode(callFuncNode, class.Context)
 		}
 	}
-	return varType.Value
+	return varType.Value, nil
 }
 
 func (interprete *Interprete) String_(node interface{}, context *languageContext.Context) interface{} {
@@ -289,9 +310,14 @@ func (interprete *Interprete) Boolean(node interface{}, context *languageContext
 	return node
 }
 
-func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext.Context) *numbers.Number {
+func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext.Context) (*numbers.Number, error) {
 	unaryOP := node.(*parserStructs.UnaryOP)
-	number := interprete.call(unaryOP.RigthNode, context).(*numbers.Number)
+	number_, err := interprete.call(unaryOP.RigthNode, context)
+	if err != nil {
+		return nil, err
+	}
+
+	number := number_.(*numbers.Number)
 
 	if unaryOP.Operation == "MINUS" {
 		number.Value *= -1
@@ -302,7 +328,7 @@ func (interprete *Interprete) UnaryOP(node interface{}, context *languageContext
 	if unaryOP.Operation == "MINUS1" {
 		number.Value -= 1
 	}
-	return number
+	return number, nil
 }
 
 func (interprete *Interprete) createNewContext(context *languageContext.Context) *languageContext.Context {
@@ -313,47 +339,61 @@ func (interprete *Interprete) createNewContext(context *languageContext.Context)
 	return newContext
 }
 
-func (interprete *Interprete) IfNode(node interface{}, context *languageContext.Context) interface{} {
+func (interprete *Interprete) IfNode(node interface{}, context *languageContext.Context) (interface{}, error) {
 	ifNode := node.(parserStructs.IfNode)
 
 	context = interprete.createNewContext(context)
 
 	for _, if_ := range ifNode.Ifs {
-		conditionInterface := interprete.call(if_.Condition, context)
-
+		conditionInterface, err := interprete.call(if_.Condition, context)
+		if err != nil {
+			return nil, err
+		}
 		if interprete.getMethodName(conditionInterface) != "Boolean" {
-			customErrors.RunTimeError(
-				conditionInterface.(lexerStructs.IPositionBase),
-				fmt.Sprintf("The return value is %s", interprete.getMethodName(conditionInterface)),
-				constants.SHOW_ERROR)
-			customErrors.RunTimeError(if_.Condition.(lexerStructs.IPositionBase), "Error if expression need to a condition", constants.STOP_EXECUTION)
+			err1 := customErrors.RunTimeError(conditionInterface.(lexerStructs.IPositionBase), fmt.Sprintf("The return value is %s", interprete.getMethodName(conditionInterface)))
+			err2 := customErrors.RunTimeError(if_.Condition.(lexerStructs.IPositionBase), "Error if expression need to a condition")
+			return nil, fmt.Errorf("%v \n\n %v", err1.Error(), err2.Error())
+
 		}
 
 		condition := conditionInterface.GetValue().(bool)
 
 		if condition {
-			node := interprete.call(if_.Body, context)
-			return node
+			node, err := interprete.call(if_.Body, context)
+			if err != nil {
+				return nil, err
+			}
+			return node, nil
 		}
 	}
 
 	if ifNode.Else_ != nil {
-		node := interprete.call(ifNode.Else_, context)
-		return node
+		node, err := interprete.call(ifNode.Else_, context)
+		if err != nil {
+			return nil, err
+		}
+		return node, nil
 	}
 
-	return parserStructs.NullNode{}
+	return parserStructs.NullNode{}, nil
 }
 
-func (interprete *Interprete) WhileNode(node interface{}, context *languageContext.Context) interface{} {
+func (interprete *Interprete) WhileNode(node interface{}, context *languageContext.Context) (interface{}, error) {
 	whileNode := node.(parserStructs.WhileNode)
 	context = interprete.createNewContext(context)
 	for {
-		boolean := interprete.call(whileNode.Condition, context).GetValue().(bool)
+		boolean_, err := interprete.call(whileNode.Condition, context)
+		boolean := boolean_.GetValue().(bool)
+		if err != nil {
+			return nil, err
+		}
 		if !boolean {
 			break
 		}
-		node := interprete.call(whileNode.Body, context)
+		node, err := interprete.call(whileNode.Body, context)
+		if err != nil {
+			return nil, err
+		}
 		stop := interprete.stopExecute(node)
 
 		if stop == "CONTINUE" {
@@ -365,21 +405,27 @@ func (interprete *Interprete) WhileNode(node interface{}, context *languageConte
 		}
 	}
 
-	return parserStructs.NullNode{}
+	return parserStructs.NullNode{}, nil
 }
 
-func (interprete *Interprete) ForNode(node interface{}, context *languageContext.Context) interface{} {
+func (interprete *Interprete) ForNode(node interface{}, context *languageContext.Context) (interface{}, error) {
 	forNode := node.(parserStructs.ForNode)
 	context = interprete.createNewContext(context)
 
 	for {
 		interprete.call(forNode.Expr1, context)
-		condition := interprete.call(forNode.Condition, context)
+		condition, err := interprete.call(forNode.Condition, context)
+		if err != nil {
+			return nil, err
+		}
 		coditionNode := condition.GetValue().(bool)
 		if !coditionNode {
 			break
 		}
-		bodyNode := interprete.call(forNode.Body, context)
+		bodyNode, err := interprete.call(forNode.Body, context)
+		if err != nil {
+			return nil, err
+		}
 		stop := interprete.stopExecute(bodyNode)
 		if stop == "CONTINUE" {
 			continue
@@ -390,51 +436,62 @@ func (interprete *Interprete) ForNode(node interface{}, context *languageContext
 		interprete.call(forNode.Expr2, context)
 	}
 
-	return parserStructs.NullNode{}
+	return parserStructs.NullNode{}, nil
 }
 
-func (interprete *Interprete) ThisNode(node interface{}, context *languageContext.Context) interface{} {
+func (interprete *Interprete) ThisNode(node interface{}, context *languageContext.Context) (interface{}, error) {
 	thisNode := node.(parserStructs.ThisNode)
 	classContext, ok := context.GetClassContext()
 	if !ok {
-		customErrors.RunTimeError(thisNode, "This need to be inside of class", constants.STOP_EXECUTION)
+		err := customErrors.RunTimeError(thisNode, "This need to be inside of class")
+		return nil, err
 	}
 
 	return class.Class{
 		Context: classContext,
-	}
+	}, nil
 }
 
 func (interprete *Interprete) Array(node interface{}, context *languageContext.Context) interface{} {
 	return node
 }
 
-func (interprete *Interprete) ArrayAccess(node interface{}, context *languageContext.Context) interface{} {
+func (interprete *Interprete) ArrayAccess(node interface{}, context *languageContext.Context) (interface{}, error) {
 	arrayAccess := node.(parserStructs.ArrayAccess)
 	varType, ok := context.Get(arrayAccess.Identifier)
 	if !ok {
-		customErrors.RunTimeError(arrayAccess.IPositionBase, "Variable is undefined "+arrayAccess.Identifier, constants.STOP_EXECUTION)
+		err := customErrors.RunTimeError(arrayAccess.IPositionBase, "Variable is undefined "+arrayAccess.Identifier)
+		return nil, err
 	}
-	index := interprete.call(arrayAccess.Node, context)
+	index, err := interprete.call(arrayAccess.Node, context)
+	if err != nil {
+		return nil, err
+	}
 	if interprete.getMethodName(index) != "Number" {
-		customErrors.RunTimeError(arrayAccess.Node.(lexerStructs.IPositionBase), "The index is not a number ", constants.STOP_EXECUTION)
+		err := customErrors.RunTimeError(arrayAccess.Node.(lexerStructs.IPositionBase), "The index is not a number ")
+		if err != nil {
+			return nil, err
+		}
 	}
 	array_ := varType.Value.GetValue().(*array.Array)
 	element := (*array_.Value)[int(index.(*numbers.Number).Value)]
-	return element
+	return element, nil
 }
 
-func (interprete *Interprete) ListNode(node interface{}, context *languageContext.Context) interface{} {
+func (interprete *Interprete) ListNode(node interface{}, context *languageContext.Context) (interface{}, error) {
 	listNode := node.(parserStructs.ListNode)
 	values := []interface{}{}
 	for _, node := range listNode.Nodes {
-		result := interprete.call(node, context)
+		result, err := interprete.call(node, context)
+		if err != nil {
+			return nil, err
+		}
 		if interprete.stopExecute(result) != "" {
-			return result
+			return result, nil
 		}
 		values = append(values, result)
 	}
-	return array.NewArray(&values)
+	return array.NewArray(&values), nil
 }
 
 func (interprete *Interprete) ContinueNode(node interface{}, context *languageContext.Context) interface{} {

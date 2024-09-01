@@ -2,7 +2,6 @@ package customErrors
 
 import (
 	"fmt"
-	"os"
 	"strconv"
 	"strings"
 
@@ -25,7 +24,7 @@ func New(text string) *customError {
 	return CustomError
 }
 
-func Show(token lexerStructs.IPositionBase, details string, type_ int) {
+func Show(token lexerStructs.IPositionBase, details string) error {
 	lines := strings.Split(CustomError.text, "\n")
 	positionStart := token.GetPositionStart()
 	positionEnd := token.GetPositionEnd()
@@ -33,8 +32,8 @@ func Show(token lexerStructs.IPositionBase, details string, type_ int) {
 	startText := positionStart.Line - linesCanShow - 1
 	endText := positionStart.Line + min(3, len(lines)-(positionStart.Line-1)) - 1
 	linesCut := lines[startText:endText]
-	fmt.Printf("Line: %d\n", positionStart.Line)
-	fmt.Printf("Col: %d\n", positionStart.Col)
+	err := fmt.Sprintf("Line: %d\n", positionStart.Line)
+	err += fmt.Sprintf("Col: %d\n", positionStart.Col)
 	errorText := ""
 	for i, line := range linesCut {
 		lineNumber := i + positionStart.Line - linesCanShow
@@ -48,23 +47,21 @@ func Show(token lexerStructs.IPositionBase, details string, type_ int) {
 		errorText += fmt.Sprintf("%d: %s\n", lineNumber, line)
 	}
 
-	fmt.Printf("%s\n\n", details)
-	fmt.Printf("%s\n\n", errorText)
-	if type_ == 0 {
-		os.Exit(0)
-	}
+	fmt.Sprintf("%s\n\n", details)
+	fmt.Sprintf("%s\n\n", errorText)
+	return fmt.Errorf(err)
 }
 
-func IllegalCharacter(token lexerStructs.Token, type_ int) {
-	Show(token.IPositionBase, fmt.Sprintf("Illegal Character: %s", token.Value), type_)
+func IllegalCharacter(token lexerStructs.Token) error {
+	return Show(token.IPositionBase, fmt.Sprintf("Illegal Character: %s", token.Value))
 }
 
-func InvalidSyntax(token lexerStructs.Token, details string, type_ int) {
+func InvalidSyntax(token lexerStructs.Token, details string) error {
 	fmt.Printf("Invalid Syntax: %s\n", token.Value)
-	Show(token.IPositionBase, details, type_)
+	return Show(token.IPositionBase, details)
 }
 
-func RunTimeError(token lexerStructs.IPositionBase, details string, type_ int) {
+func RunTimeError(token lexerStructs.IPositionBase, details string) error {
 	fmt.Println("Run Time Error")
-	Show(token, details, type_)
+	return Show(token, details)
 }

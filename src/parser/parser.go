@@ -528,8 +528,8 @@ func (parser *Parser) this() (interpreteStructs.IBaseElement, error) {
 	}
 
 	if !parser.scoopClass {
-		customErrors.InvalidSyntax(*token, "This can only be inside of class", constants.STOP_EXECUTION)
-		return nil, nil
+		err := customErrors.InvalidSyntax(*token, "This can only be inside of class")
+		return nil, err
 	}
 
 	return parserStructs.ThisNode{
