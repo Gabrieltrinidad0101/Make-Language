@@ -12,6 +12,13 @@ import (
 
 type operatorFunc func(interpreteStructs.IBaseElement, interpreteStructs.IBaseElement) interface{}
 
+type Methods map[string]func(params *[]interpreteStructs.IBaseElement) interface{}
+
+type CustomClassValues struct {
+	Methods    Methods
+	Properties map[string]interpreteStructs.IBaseElement
+}
+
 type Api struct {
 	unOperetor     map[string]interface{}
 	operetor       map[string]operatorFunc
@@ -49,10 +56,13 @@ func (api *Api) AddFunction(name string, function_ func(params *[]interpreteStru
 	api.Functions[name] = baseFunction
 }
 
-func (api *Api) AddClass(name string, methods map[string]func(params *[]interpreteStructs.IBaseElement) interface{}) {
+func (api *Api) AddClass(name string, customClassValues CustomClassValues) {
 	customClass := class.NewBuildClass(languageContext.NewContext(nil))
-	for key, value := range methods {
+	for key, value := range customClassValues.Methods {
 		customClass.AddMethod(key, value)
+	}
+	for key, value := range customClassValues.Properties {
+		customClass.AddProperty(key, value)
 	}
 	api.Class[name] = class.Class{
 		Context: customClass.Context,

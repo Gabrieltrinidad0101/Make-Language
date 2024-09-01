@@ -1,67 +1,59 @@
 package test
 
 import (
-	"github.com/Gabrieltrinidad0101/Make-Language/srccccccc/api"
-	"github.com/Gabrieltrinidad0101/Make-Language/srcc/customErrors"
+	"testing"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/api"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/customErrors"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/booleans"
 	"github.com/Gabrieltrinidad0101/Make-Language/src/features/function"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/features/numbers"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete"
 	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
 	"github.com/Gabrieltrinidad0101/Make-Language/src/languageContext"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/parser"
 	"github.com/Gabrieltrinidad0101/Make-Language/src/parser/parserStructs"
-	"github.com/Gabrieltrinidad0101/Make-Language
-github.com/Gabrieltrinidad0101/Make-Language
-	"github.com/Gabrieltrinidad0101/Make-Languagerieltrinidad0101/Make-Languagesrc/parser"
-github.com/Gabrieltrinidad0101/Make-Language
-	"github.com/Gabrieltrinidad0101/Make-Languagerieltrinidad0101/Make-Languagesrc/lexer"
-github.com/Gabrieltrinidad0101/Make-Language
-	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete"
-
-	"github.com/Gabrieltrinidad0101/Make-Language/src/features/numbers"
-
-	"github.com/Gabrieltrinidad0101/Make-Language/src/features/booleans"
-
-	"github.com/Gabrieltrinidad0101/Make-Language/src/constants"
-
 	"github.com/stretchr/testify/assert"
 )
 
-func BaseInterprete(languageContext_ *languageContext.Context, filePath, confPath string) *languageContext.Context {
-	input, ok := lexer.ReadFile(filePath)
-	if !ok {
-		return nil
+func BaseInterprete(languageContext_ *languageContext.Context, filePath, confPath string) (*languageContext.Context, error) {
+	input, err := lexer.ReadFile(filePath)
+	if err != nil {
+		return nil, err
 	}
 
-	conf, ok := lexer.ReadLanguageConfiguraction(confPath)
-	if !ok {
-		return nil
+	conf, err := lexer.ReadLanguageConfiguraction(confPath)
+	if err != nil {
+		return nil, err
 	}
 
 	customErrors.New(*input)
 
 	lexer_ := lexer.NewLexer(input, conf)
-	tokens, ok := lexer_.Tokens()
+	tokens, err := lexer_.Tokens()
 
-	if ok {
-		return nil
+	if err != nil {
+		return nil, err
 	}
 
 	parser_ := parser.NewParser(tokens, conf)
 	ast, err := parser_.Parse()
 
 	if err != nil {
-		customErrors.InvalidSyntax(*parser_.CurrentToken, err.Error(), constants.STOP_EXECUTION)
-		return nil
+		return nil, customErrors.InvalidSyntax(*parser_.CurrentToken, err.Error())
 	}
 
 	api_ := api.NewApi()
 	interprete_ := interprete.NewInterprete(ast, conf.Scope, api_, conf)
 	interprete_.Run(languageContext_)
 
-	return languageContext_
+	return languageContext_, nil
 }
-func getLanguageContext(confPath string) *languageContext.Context {
-	conf, ok := lexer.ReadLanguageConfiguraction(confPath)
-	if !ok {
-		return nil
+func getLanguageContext(confPath string) (*languageContext.Context, error) {
+	conf, err := lexer.ReadLanguageConfiguraction(confPath)
+	if err != nil {
+		return nil, err
 	}
 
 	languageContext_ := languageContext.NewContext(nil)
@@ -79,7 +71,7 @@ func getLanguageContext(confPath string) *languageContext.Context {
 	for key, value := range functions {
 		languageContext_.Set(key, &value)
 	}
-	return languageContext_
+	return languageContext_, nil
 }
 
 var call = 0
@@ -127,7 +119,8 @@ func (print Print) Execute(params *[]interpreteStructs.IBaseElement) (interface{
 
 func TestVariablesAndIfs(t *testing.T) {
 	assert := assert.New(t)
-	context := getLanguageContext("./conf.json")
+	context, err := getLanguageContext("./conf.json")
+	assert.Nil(err)
 	context.Set("print", &interpreteStructs.VarType{
 		Value: Print{
 			assert: assert,
@@ -137,7 +130,8 @@ func TestVariablesAndIfs(t *testing.T) {
 		},
 		IsConstant: true,
 	})
-	context = BaseInterprete(context, "./main.makeLanguage", "./conf.json")
+	context, err = BaseInterprete(context, "./main.makeLanguage", "./conf.json")
+	assert.Nil(err)
 
 	a, ok := context.Get("a")
 	assert.True(ok)

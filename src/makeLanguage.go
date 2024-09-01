@@ -17,8 +17,6 @@ import (
 
 	"github.com/Gabrieltrinidad0101/Make-Language/src/customErrors"
 
-	"github.com/Gabrieltrinidad0101/Make-Language/src/constants"
-
 	"github.com/Gabrieltrinidad0101/Make-Language/src/api"
 )
 
@@ -36,33 +34,32 @@ func NewMakeLanguage(syntax, filePath string) *MakeLanguage {
 	}
 }
 
-func (m MakeLanguage) Run() {
-	conf, ok := lexer.ReadLanguageConfiguraction(m.syntax)
+func (m MakeLanguage) Run() error {
+	conf, err := lexer.ReadLanguageConfiguraction(m.syntax)
 	conf.CustomOperators = m.CustomOperetor
-	if !ok {
-		return
+	if err != nil {
+		return err
 	}
 
-	input, ok := lexer.ReadFile(m.filePath)
-	if !ok {
-		return
+	input, err := lexer.ReadFile(m.filePath)
+	if err != nil {
+		return err
 	}
 
 	customErrors.New(*input)
 
 	lexer_ := lexer.NewLexer(input, conf)
-	tokens, ok := lexer_.Tokens()
+	tokens, err := lexer_.Tokens()
 
-	if ok {
-		return
+	if err != nil {
+		return err
 	}
 
 	parser_ := parser.NewParser(tokens, conf)
 	ast, err := parser_.Parse()
 
 	if err != nil {
-		customErrors.InvalidSyntax(*parser_.CurrentToken, err.Error(), constants.STOP_EXECUTION)
-		return
+		return customErrors.InvalidSyntax(*parser_.CurrentToken, err.Error())
 	}
 
 	var languageContext_ = languageContext.NewContext(nil)
@@ -98,4 +95,5 @@ func (m MakeLanguage) Run() {
 
 	interprete_ := interprete.NewInterprete(ast, conf.Scope, m.Api, conf)
 	interprete_.Run(languageContext_)
+	return nil
 }

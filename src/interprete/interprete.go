@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/Gabrieltrinidad0101/Make-Language/src/api"
 	"github.com/Gabrieltrinidad0101/Make-Language/src/parser/parserStructs"
 
 	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer/lexerStructs"
@@ -25,8 +26,6 @@ import (
 	"github.com/Gabrieltrinidad0101/Make-Language/src/customErrors"
 
 	"github.com/Gabrieltrinidad0101/Make-Language/src/constants"
-
-	"github.com/Gabrieltrinidad0101/Make-Language/src/api"
 )
 
 type Interprete struct {

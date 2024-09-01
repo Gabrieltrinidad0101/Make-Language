@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/Gabrieltrinidad0101/Make-Language/src/constants"
-
 	"github.com/Gabrieltrinidad0101/Make-Language/src/customErrors"
 
 	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
@@ -23,11 +21,12 @@ func GetType(node interface{}) string {
 	}
 }
 
-func ValidateTypes(params *[]interpreteStructs.IBaseElement, types ...string) {
+func ValidateTypes(params *[]interpreteStructs.IBaseElement, types ...string) error {
 	for i, type_ := range types {
 		paramType := GetType((*params)[i])
 		if paramType != type_ {
-			customErrors.RunTimeError((*params)[i], fmt.Sprintf("Invalid params got %s expect %s", paramType, type_), constants.STOP_EXECUTION)
+			return customErrors.RunTimeError((*params)[i], fmt.Sprintf("Invalid params got %s expect %s", paramType, type_))
 		}
 	}
+	return nil
 }

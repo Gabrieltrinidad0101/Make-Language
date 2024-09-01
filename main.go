@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/Gabrieltrinidad0101/Make-Language/src/api"
 	"github.com/Gabrieltrinidad0101/Make-Language/src/utils"
 
 	"github.com/Gabrieltrinidad0101/Make-Language/src/parser/parserStructs"
@@ -48,8 +49,10 @@ func main() {
 	makeLanguage.AddOperetor("<1>", lessOrGreaterOne)
 	makeLanguage.AddFunction("printLn2", printLn2)
 
-	methods := map[string]func(params *[]interpreteStructs.IBaseElement) interface{}{}
+	methods := api.Methods{}
 	methods["create"] = makeFile
-	makeLanguage.AddClass("File", methods)
+	makeLanguage.AddClass("File", api.CustomClassValues{
+		Methods: methods,
+	})
 	makeLanguage.Run()
 }

@@ -44,11 +44,10 @@ type Lexer struct {
 	characterMaxLength     int
 }
 
-func ReadLanguageConfiguraction(path string) (LanguageConfiguraction, bool) {
+func ReadLanguageConfiguraction(path string) (LanguageConfiguraction, error) {
 	file, err := os.ReadFile(path)
 	if err != nil {
-		fmt.Println("Error opening file:", err)
-		return LanguageConfiguraction{}, false
+		return LanguageConfiguraction{}, err
 	}
 
 	// Define a variable to hold the data
@@ -58,20 +57,19 @@ func ReadLanguageConfiguraction(path string) (LanguageConfiguraction, bool) {
 	err = json.Unmarshal(file, &languageConfiguraction)
 	if err != nil {
 		fmt.Println("Error unmarshalling JSON:", err)
-		return LanguageConfiguraction{}, false
+		return LanguageConfiguraction{}, err
 	}
 
-	return languageConfiguraction, true
+	return languageConfiguraction, err
 }
 
-func ReadFile(path string) (*string, bool) {
+func ReadFile(path string) (*string, error) {
 	file, err := os.ReadFile(path)
 	if err != nil {
-		fmt.Println("Error opening file:", err)
-		return nil, false
+		return nil, err
 	}
 	text := string(file)
-	return &text, true
+	return &text, nil
 }
 
 func getMaxLengthCharacter(characters map[string]string) int {
