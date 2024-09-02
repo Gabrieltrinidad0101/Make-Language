@@ -52,7 +52,7 @@ func (api *Api) Call(tokenName string, value1 interpreteStructs.IBaseElement, va
 }
 
 func (api *Api) AddFunction(name string, function_ func(params *[]interpreteStructs.IBaseElement) interface{}) {
-	baseFunction := function.NewBaseFunction(nil, name, function_)
+	baseFunction := function.NewBaseFunction(languageContext.NewContext(nil), name, function_, true)
 	api.Functions[name] = baseFunction
 }
 

@@ -1,8 +1,15 @@
+class Test1 {
+    func b(){
+        this.z = 10
+    }
+}
 class Test {
-    func a(text){
-        print(text)
+    func a(){
+        const test1 = new Test1()
+        this.x = test1
     }
 }
 
 const test = Test()
-test.a("hello world")
+test.a()
+print(test)

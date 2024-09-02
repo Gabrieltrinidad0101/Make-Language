@@ -54,5 +54,9 @@ func main() {
 	makeLanguage.AddClass("File", api.CustomClassValues{
 		Methods: methods,
 	})
-	makeLanguage.Run()
+	err := makeLanguage.Run()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }

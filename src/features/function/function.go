@@ -24,13 +24,15 @@ type BaseFunction struct {
 	Name     string
 	lexerStructs.IPositionBase
 	parserStructs.BaseGetValue
+	canChangeContextParent bool
 }
 
-func NewBaseFunction(Context *languageContext.Context, Name string, callBack func(params *[]interpreteStructs.IBaseElement) interface{}) *BaseFunction {
+func NewBaseFunction(Context *languageContext.Context, Name string, callBack func(params *[]interpreteStructs.IBaseElement) interface{}, canChangeContextParent bool) *BaseFunction {
 	return &BaseFunction{
-		Context:  Context,
-		callBack: callBack,
-		Name:     Name,
+		Context:                Context,
+		callBack:               callBack,
+		Name:                   Name,
+		canChangeContextParent: canChangeContextParent,
 	}
 }
 
@@ -49,7 +51,7 @@ func (func_ BaseFunction) GetContext() *languageContext.Context {
 }
 
 func (func_ BaseFunction) CanChangeContextParent() bool {
-	return false
+	return func_.canChangeContextParent
 }
 
 func (func_ BaseFunction) Execute(params *[]interpreteStructs.IBaseElement) (interface{}, bool, error) {

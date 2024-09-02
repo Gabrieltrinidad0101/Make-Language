@@ -25,7 +25,7 @@ func NewBuildClass(Context *languageContext.Context) *BuildClass {
 }
 
 func (buildClass *BuildClass) AddMethod(name string, callBack func(params *[]interpreteStructs.IBaseElement) interface{}) {
-	newMethod := function.NewBaseFunction(buildClass.Context, name, callBack)
+	newMethod := function.NewBaseFunction(buildClass.Context, name, callBack, false)
 	buildClass.Context.Set(name, &interpreteStructs.VarType{
 		Value:      newMethod,
 		IsConstant: true,
