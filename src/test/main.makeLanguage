@@ -48,7 +48,6 @@ class Test1{
 const test1 = new Test1()
 test1.a()
 
-
 class Test2{
     func Test2(a){
         print(a)

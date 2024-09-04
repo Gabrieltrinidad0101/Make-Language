@@ -1,6 +1,10 @@
 package languageContext
 
-import "github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+import (
+	"fmt"
+
+	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+)
 
 type Variables map[string]*interpreteStructs.VarType
 
@@ -30,6 +34,16 @@ func (context *Context) Get(name string) (*interpreteStructs.VarType, bool) {
 		return currentContext.Get(name)
 	}
 	return value, ok
+}
+
+func (context *Context) GetString(marginLeft string) string {
+	var result string
+	for value, key := range context.variables {
+		result += fmt.Sprintf("%s %s -> %s \n", marginLeft, value, key.Value.GetValue().(string))
+	}
+
+	return result
+
 }
 
 func (context *Context) GetBase(name string) (*interpreteStructs.VarType, bool) {

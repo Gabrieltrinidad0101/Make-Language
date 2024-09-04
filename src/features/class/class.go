@@ -1,6 +1,8 @@
 package class
 
 import (
+	"strings"
+
 	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
 	"github.com/Gabrieltrinidad0101/Make-Language/src/languageContext"
 	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer/lexerStructs"
@@ -48,4 +50,10 @@ type Class struct {
 
 func (class Class) GetClassContext() *languageContext.Context {
 	return class.Context
+}
+
+func (class Class) GetValue() interface{} {
+	result := class.Name + "\n"
+	result += class.Context.GetString(strings.Repeat(" ", len(class.Name)-1))
+	return result
 }

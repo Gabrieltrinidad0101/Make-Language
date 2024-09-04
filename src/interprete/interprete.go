@@ -111,11 +111,14 @@ func (interprete *Interprete) ClassNode(node interface{}, context *languageConte
 	classNode := node.(*parserStructs.ClassNode)
 	newContext := languageContext.NewContext(context)
 	newContext.IsClass = true
-	listNode := classNode.Methods.(parserStructs.ListNode)
 
-	for _, func_ := range listNode.Nodes {
-		funcNode := func_.(parserStructs.FuncNode)
-		interprete.FuncNode(funcNode, newContext)
+	method := interprete.getMethodName(classNode.Methods) != "NullNode"
+	if method {
+		listNode := classNode.Methods.(parserStructs.ListNode)
+		for _, func_ := range listNode.Nodes {
+			funcNode := func_.(parserStructs.FuncNode)
+			interprete.FuncNode(funcNode, newContext)
+		}
 	}
 
 	class_ := class.Class{
