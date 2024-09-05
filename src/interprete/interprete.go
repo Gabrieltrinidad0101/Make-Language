@@ -88,6 +88,10 @@ func (interprete *Interprete) callMethod(object interface{}, methodName string, 
 
 	returnValue := method.Call(params)
 	interface_ := returnValue[0].Interface()
+	if interface_ == nil {
+		err := returnValue[1].Interface().(error)
+		return nil, err
+	}
 	return interface_.(interpreteStructs.IBaseElement), nil
 }
 
@@ -104,7 +108,7 @@ func (interprete *Interprete) callMethodByOp(object interpreteStructs.IBaseEleme
 	}
 
 	returnValue := method.Call(params)
-	return returnValue[0].Interface(), nil
+	return returnValue[0].Interface(), returnValue[1].Interface().(error)
 }
 
 func (interprete *Interprete) ClassNode(node interface{}, context *languageContext.Context) (interface{}, error) {
@@ -162,12 +166,22 @@ func (interprete *Interprete) methodAccess(node parserStructs.BinOP, context *la
 		if err != nil {
 			return nil, err
 		}
+
+		if interprete.getMethodName(class_) == "NullNode" {
+			return nil, customErrors.RunTimeError(node.RigthNode, "Invalid method access")
+		}
+
 		classNode := class_.(class.ClassBase)
 		if interprete.getMethodName(node.RigthNode) == "BinOP" {
 			subNode := node.RigthNode.(parserStructs.BinOP)
 			interprete.call(subNode.LeftNode, classNode.GetClassContext())
 			node = subNode
 			continue
+		}
+		if interprete.getMethodName(node.RigthNode) == "UpdateVariableNode" {
+			updateVariableNode := node.RigthNode.(parserStructs.UpdateVariableNode)
+			updateVariableNode.SetValueContext = context
+			return interprete.call(updateVariableNode, classNode.GetClassContext())
 		}
 		return interprete.call(node.RigthNode, classNode.GetClassContext())
 	}
@@ -195,23 +209,25 @@ func (interprete Interprete) UpdateVariableNode(node interface{}, context *langu
 	varType, ok := context.Get(updateVariableNode.Identifier)
 	if !ok && !context.IsClass {
 		err := customErrors.RunTimeError(updateVariableNode.Node, "The "+updateVariableNode.Identifier+" no exist")
-		if err != nil {
-			return nil, err
-		}
+		return nil, err
 	}
-	if varType.IsConstant {
+	if varType.IsConstant && !context.IsClass {
 		err := customErrors.RunTimeError(updateVariableNode.IPositionBase, "The "+updateVariableNode.Identifier+" is a const variable")
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	result, err := interprete.call(updateVariableNode.Node, context)
+	setValueContext := updateVariableNode.SetValueContext
+	if setValueContext == nil {
+		setValueContext = context
+	}
+
+	result, err := interprete.call(updateVariableNode.Node, setValueContext)
 	if err != nil {
 		return nil, err
 	}
 	varType.Value = result
-
 	ok = context.Update(updateVariableNode.Identifier, varType)
 	if !ok {
 		panic("The variable no exist" + updateVariableNode.Identifier)

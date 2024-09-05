@@ -28,7 +28,7 @@ func (context *Context) Get(name string) (*interpreteStructs.VarType, bool) {
 	if !ok {
 		currentContext := context
 		if currentContext.Parent.(*Context) == nil {
-			return value, ok
+			return &interpreteStructs.VarType{}, ok
 		}
 		currentContext = currentContext.Parent.(*Context)
 		return currentContext.Get(name)

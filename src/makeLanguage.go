@@ -94,6 +94,6 @@ func (m MakeLanguage) Run() error {
 	}
 
 	interprete_ := interprete.NewInterprete(ast, conf.Scope, m.Api, conf)
-	interprete_.Run(languageContext_)
-	return nil
+	_, err = interprete_.Run(languageContext_)
+	return err
 }

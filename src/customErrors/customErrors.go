@@ -47,8 +47,8 @@ func Show(token lexerStructs.IPositionBase, details string) error {
 		errorText += fmt.Sprintf("%d: %s\n", lineNumber, line)
 	}
 
-	fmt.Sprintf("%s\n\n", details)
-	fmt.Sprintf("%s\n\n", errorText)
+	err += fmt.Sprintf("%s\n\n", details)
+	err += fmt.Sprintf("%s\n\n", errorText)
 	return fmt.Errorf(err)
 }
 

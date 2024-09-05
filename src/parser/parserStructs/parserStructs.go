@@ -2,6 +2,7 @@ package parserStructs
 
 import (
 	"github.com/Gabrieltrinidad0101/Make-Language/src/interprete/interpreteStructs"
+	"github.com/Gabrieltrinidad0101/Make-Language/src/languageContext"
 
 	"github.com/Gabrieltrinidad0101/Make-Language/src/lexer/lexerStructs"
 )
@@ -50,8 +51,9 @@ type VarAssignNode struct {
 }
 
 type UpdateVariableNode struct {
-	Identifier string
-	Node       interpreteStructs.IBaseElement
+	Identifier      string
+	Node            interpreteStructs.IBaseElement
+	SetValueContext *languageContext.Context
 	lexerStructs.IPositionBase
 	BaseGetValue
 }
