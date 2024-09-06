@@ -3,15 +3,15 @@ class Test1 {
         this.z = 10
     }
 }
-
 class Test {
     func a(){
-        const test134 = new Test1()
-        test134.b()
-        this.x = test134
+        const test1 = new Test1()
+        test1.b()
+        this.x = test1
         return this
     }
 }
 
 const test = Test()
+test.a().x.z = 20
 print(test.a().x.z)

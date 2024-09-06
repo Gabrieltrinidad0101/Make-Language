@@ -62,7 +62,9 @@ func (api *Api) AddClass(name string, customClassValues CustomClassValues) {
 		customClass.AddMethod(key, value)
 	}
 	for key, value := range customClassValues.Properties {
-		customClass.AddProperty(key, value)
+		customClass.AddProperty(key, &interpreteStructs.VarType{
+			Value: value,
+		})
 	}
 	api.Class[name] = class.Class{
 		Context: customClass.Context,

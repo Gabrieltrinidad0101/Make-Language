@@ -438,11 +438,17 @@ func (parser *Parser) plus() (interpreteStructs.IBaseElement, error) {
 }
 
 func (parser *Parser) factor() (interpreteStructs.IBaseElement, error) {
-	return parser.binOP(parser.pow, constants.TT_MUL, constants.TT_DIV)
+	node, err := parser.binOP(parser.pow, constants.TT_MUL, constants.TT_DIV)
+	return node, err
 }
 
 func (parser *Parser) pow() (interpreteStructs.IBaseElement, error) {
 	return parser.binOP(parser.spot, constants.TT_POW, constants.TT_SQUARE_ROOT)
+}
+
+func (parser *Parser) variable() (interpreteStructs.IBaseElement, error) {
+	return parser.binOP(parser.spot, constants.TT_EQ)
+
 }
 
 func (parser *Parser) spot() (interpreteStructs.IBaseElement, error) {
@@ -450,8 +456,16 @@ func (parser *Parser) spot() (interpreteStructs.IBaseElement, error) {
 }
 
 func (parser *Parser) customOperator() (interpreteStructs.IBaseElement, error) {
+	if parser.CurrentToken.Type_ == constants.TT_IDENTIFIER {
+		node, _ := parser.updateVariable()
+		if node != nil {
+			return node, nil
+		}
+	}
 	return parser.binOP(parser.term, parser.customOperators...)
 }
+
+// object.a.b.c = "10"
 
 func (parser *Parser) term() (interpreteStructs.IBaseElement, error) {
 	currentNode := *parser.CurrentToken

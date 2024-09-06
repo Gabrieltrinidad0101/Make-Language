@@ -34,11 +34,8 @@ func (buildClass *BuildClass) AddMethod(name string, callBack func(params *[]int
 	})
 }
 
-func (buildClass *BuildClass) AddProperty(name string, property interpreteStructs.IBaseElement) {
-	buildClass.Context.Set(name, &interpreteStructs.VarType{
-		Value:      property,
-		IsConstant: true,
-	})
+func (buildClass *BuildClass) AddProperty(name string, varType *interpreteStructs.VarType) {
+	buildClass.Context.Set(name, varType)
 }
 
 type Class struct {

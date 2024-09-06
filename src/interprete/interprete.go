@@ -108,6 +108,9 @@ func (interprete *Interprete) callMethodByOp(object interpreteStructs.IBaseEleme
 	}
 
 	returnValue := method.Call(params)
+	if returnValue[1].Interface() == nil {
+		return returnValue[0].Interface(), nil
+	}
 	return returnValue[0].Interface(), returnValue[1].Interface().(error)
 }
 
@@ -144,6 +147,7 @@ func (interprete *Interprete) BinOP(node interface{}, context *languageContext.C
 	if binOP.Operation.Type_ == constants.TT_SPOT {
 		return interprete.methodAccess(binOP, context)
 	}
+
 	nodeLeft, err := interprete.call(binOP.LeftNode, context)
 	if err != nil {
 		return nil, err
@@ -152,6 +156,7 @@ func (interprete *Interprete) BinOP(node interface{}, context *languageContext.C
 	if err != nil {
 		return nil, err
 	}
+
 	newNode, err := interprete.callMethodByOp(nodeLeft, binOP.Operation, nodeRigth)
 	return newNode, err
 }
@@ -224,6 +229,11 @@ func (interprete Interprete) UpdateVariableNode(node interface{}, context *langu
 	}
 
 	result, err := interprete.call(updateVariableNode.Node, setValueContext)
+
+	if varType.OnUpdateVariable != nil {
+		varType.OnUpdateVariable(result.GetValue())
+	}
+
 	if err != nil {
 		return nil, err
 	}

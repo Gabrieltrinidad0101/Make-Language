@@ -23,7 +23,10 @@ type Array struct {
 func NewArray(value *[]interface{}) *Array {
 	context := languageContext.NewContext(nil)
 	newClass := class.NewBuildClass(context)
-	newClass.AddProperty("length", numbers.NewNumbers(float64(len(*value)), nil))
+	newClass.AddProperty("length", &interpreteStructs.VarType{
+		Value:      numbers.NewNumbers(float64(len(*value)), nil),
+		IsConstant: true,
+	})
 	return &Array{
 		class: newClass,
 		Value: value,
@@ -40,7 +43,10 @@ func (array *Array) GetValue() interface{} {
 
 func (array *Array) PLUS(element interface{}) *Array {
 	*array.Value = append(*array.Value, element)
-	array.class.AddProperty("length", numbers.NewNumbers(float64(len(*array.Value)), nil))
+	array.class.AddProperty("length", &interpreteStructs.VarType{
+		Value:      numbers.NewNumbers(float64(len(*array.Value)), nil),
+		IsConstant: true,
+	})
 	return array
 }
 
